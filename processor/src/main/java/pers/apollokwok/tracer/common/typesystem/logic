@@ -1,0 +1,15 @@
+context:
+Type: Generic, Alias, Specific, Compound, Arg
+Arg: Simple, In, Out, Star
+All these implement Convertible which has 'convertAlias', 'convertStar', 'convertGeneric', 'convertAll'
+
+Note that `*` in an alias type would be shifted directly.
+wait until the authority makes generic bounds in typealias obligatory.
+
+1, for each ksType, cache its toProtoWithoutAliasAndStar
+
+2, if it has any inner typeParameter, convert each to its converted bounds with generic name.
+    (the association of typeParameter and converted bounds are cached)
+
+3, associate its args and background typeParameters, and map to its klass's super types
+    (cached and the inner aliases and stars are converted)

@@ -1,0 +1,29 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'com.google.devtools.ksp'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+// Makes generated code visible to IDE
+kotlin.sourceSets.main {
+    kotlin.srcDirs(file("$buildDir/generated/ksp/main/kotlin"))
+}
+
+dependencies {
+    implementation(project(':annotations'))
+    ksp project(':compiler:test')
+    implementation(lib_kotlin_reflect)
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
+    kotlinOptions {
+        freeCompilerArgs = [
+                "-Xcontext-receivers",
+                "-opt-in=kotlin.contracts.ExperimentalContracts",
+        ]
+    }
+}

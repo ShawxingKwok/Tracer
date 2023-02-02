@@ -1,0 +1,92 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'maven-publish'
+    id 'signing'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    withJavadocJar()
+    withSourcesJar()
+}
+
+group = my_group
+version = version_common_compiler
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'tracer-common-compiler'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Tracer common compiler'
+                description = 'Generates needed field getters, and replaces traditional ' +
+                        'dependency injection tools like dagger and koin.'
+                url = "https://$my_url"
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'ApolloKwok'
+                        name = 'Apollo Kwok'
+                        email = 'ApolloKwok@126.com'
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://@${my_url}.git"
+                    developerConnection = "scm:git:ssh://@${my_url}.git"
+                    url = "https://$my_url"
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            credentials {
+                username = USERNAME
+                password = PASSWORD
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+dependencies {
+    implementation lib_ksp
+    implementation lib_ksp_util
+    implementation lib_tracer_common_processor
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
+    kotlinOptions {
+        freeCompilerArgs = [
+                "-Xexplicit-api=warning",
+                "-Xcontext-receivers",
+                "-opt-in=com.google.devtools.ksp.KspExperimental",
+                "-opt-in=kotlin.contracts.ExperimentalContracts",
+        ]
+    }
+}

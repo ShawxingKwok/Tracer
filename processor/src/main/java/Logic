@@ -1,0 +1,28 @@
+first round
+    1, check general usages
+    2, build interfaces
+    3, return symbols with Root/Nodes/Declare
+
+before building props
+    check usage of valid symbols with @Declare every round before building props.
+
+    if it is second round
+        fix interfaces for conflict of cognominal properties from different super interfaces.
+        warn if some classes with @Root/Nodes don't implement their tracer interfaces.
+
+    update invalid needed symbols, and build props if none
+
+build props
+    PropsBuilder:
+        1, collect prop info when tracing
+           meantime record and verify(require never validly trace inside reused elements)
+
+        2, after the collection，build imports and srcTags for propInfo
+
+        3，process collected prop info, make some declared with its owner name or prop name further.
+
+        4, create files containing builtTimesComment
+
+    In each PropInfo:
+        1, lazily init typeContent, grossKey, propInfoNameCore, propInfoNames, references, declContents
+        2, some inner type klasses are declared with their package names or srcTags.
