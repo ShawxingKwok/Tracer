@@ -1,9 +1,6 @@
 package com.example.syntax
 
+import kotlin.properties.Delegates
+
 fun main() {
-
-}
-
-class A : B(){
-    override val x: Int get() = 1
 }

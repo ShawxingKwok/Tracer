@@ -5,12 +5,12 @@ buildscript {
 //        version_kt = '1.8.0'
 //        version_ksp = "$version_kt-1.0.9"
         version_gradle = '7.4.0'
-        version_common_annotations = "$version_kt-1.0.0"
-        version_common_processor = "$version_kt-1.0.4"
-        version_common_compiler = "$version_kt-1.0.4"
+        version_common_annotations = "$version_kt-1.0.5"
+        version_common_processor = "$version_kt-1.0.5"
+        version_common_compiler = "$version_kt-1.0.5"
 
         my_group = 'io.github.apollokwok'
-        my_url = 'github.com/ApolloKwok/Tracer'
+        my_url = 'github.com/ApolloKwok/TracerCommon'
 
         lib_coroutine = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
         lib_kt_util = "$my_group:kt-util:1.0.1"

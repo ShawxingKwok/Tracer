@@ -13,18 +13,18 @@ kotlin.sourceSets.main {
     kotlin.srcDirs(file("$buildDir/generated/ksp/main/kotlin"))
 }
 
-dependencies {
-    implementation project(":annotations")
-    ksp project(":compiler:test")
-
-//    implementation 'io.github.apollokwok:tracer-common-annotations:1.7.20-1.0.0'
-//    ksp 'io.github.apollokwok:tracer-common-compiler:1.7.20-1.0.3'
-}
-
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
     kotlinOptions {
         freeCompilerArgs = [
                 "-Xcontext-receivers",
         ]
     }
+}
+
+dependencies {
+    ksp project(":compiler:test")
+    implementation project(":annotations")
+
+//    ksp 'io.github.apollokwok:tracer-common-compiler:1.7.20-1.0.5'
+//    implementation 'io.github.apollokwok:tracer-common-annotations:1.7.20-1.0.5'
 }

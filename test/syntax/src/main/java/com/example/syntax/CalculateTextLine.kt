@@ -4,10 +4,8 @@ import java.io.File
 
 fun main() {
     arrayOf(
-        "common/annotations/src/main/java",
-        "common/processor/src/main/java",
-        "shared/src/main/java",
-        "android/compiler/src/main/java",
+        "annotations/src/main/java",
+        "processor/src/main/java",
     )
     .sumOf { path ->
         File(path).codeLinesSize().also { println("$path: $it") }
@@ -19,6 +17,7 @@ private fun File.codeLinesSize(): Int{
     val (files, dirs) = listFiles()!!.partition { it.isFile }
 
     val sizeInFiles = files
+        .filter { it.name.endsWith("kt") }
         .flatMap(File::readLines)
         .map(String::trim)
         .count {
