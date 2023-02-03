@@ -6,17 +6,17 @@ buildscript {
 //        version_ksp = "$version_kt-1.0.9"
         version_gradle = '7.4.0'
         version_common_annotations = "$version_kt-1.0.5"
-        version_common_processor = "$version_kt-1.0.5"
-        version_common_compiler = "$version_kt-1.0.5"
+        version_common_processor = "$version_kt-1.0.6"
+        version_common_compiler = "$version_kt-1.0.6"
 
         my_group = 'io.github.apollokwok'
         my_url = 'github.com/ApolloKwok/TracerCommon'
 
         lib_coroutine = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
-        lib_kt_util = "$my_group:kt-util:1.0.1"
         lib_kotlin_reflect = "org.jetbrains.kotlin:kotlin-reflect:$version_kt"
         lib_ksp = "com.google.devtools.ksp:symbol-processing-api:$version_ksp"
-        lib_ksp_util = "$my_group:ksp-util:$version_kt-1.0.0"
+        lib_kt_util = "$my_group:kt-util:1.0.3"
+        lib_ksp_util = "$my_group:ksp-util:$version_kt-1.0.1"
         lib_tracer_common_annotations = "$my_group:tracer-common-annotations:$version_common_annotations"
         lib_tracer_common_processor = "$my_group:tracer-common-processor:$version_common_processor"
         lib_tracer_common_compiler = "$my_group:tracer-common-compiler:$version_common_compiler"

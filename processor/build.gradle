@@ -4,15 +4,39 @@ plugins {
     id 'signing'
 }
 
+kotlin{
+    jvmToolchain(8)
+}
+
+dependencies {
+    implementation lib_kt_util
+    implementation lib_kotlin_reflect
+
+    implementation lib_ksp
+    implementation lib_ksp_util
+
+    implementation lib_tracer_common_annotations
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
+    kotlinOptions {
+        freeCompilerArgs = [
+                "-Xexplicit-api=warning",
+                "-Xcontext-receivers",
+                "-opt-in=com.google.devtools.ksp.KspExperimental",
+                "-opt-in=kotlin.contracts.ExperimentalContracts",
+        ]
+    }
+}
+
+//region publish
+group = my_group
+version = version_common_processor
+
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
     withJavadocJar()
     withSourcesJar()
 }
-
-group = my_group
-version = version_common_processor
 
 publishing {
     publications {
@@ -72,34 +96,4 @@ javadoc {
         options.addBooleanOption('html5', true)
     }
 }
-
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
-    kotlinOptions {
-        freeCompilerArgs = [
-                "-Xexplicit-api=warning",
-                "-Xcontext-receivers",
-                "-opt-in=com.google.devtools.ksp.KspExperimental",
-                "-opt-in=kotlin.contracts.ExperimentalContracts",
-        ]
-    }
-}
-dependencies {
-    implementation lib_kt_util
-    implementation lib_kotlin_reflect
-
-    implementation lib_ksp
-    implementation lib_ksp_util
-
-    implementation lib_tracer_common_annotations
-}
-
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
-    kotlinOptions {
-        freeCompilerArgs = [
-                "-Xexplicit-api=warning",
-                "-Xcontext-receivers",
-                "-opt-in=com.google.devtools.ksp.KspExperimental",
-                "-opt-in=kotlin.contracts.ExperimentalContracts",
-        ]
-    }
-}
+//endregion

@@ -4,10 +4,6 @@ import pers.apollokwok.tracer.common.annotations.Tracer
 
 typealias FG<T> = List<T>
 
-@Tracer.Root
-class G<T>{
-}
-
 internal interface KLK
 
 class FK : KLK{

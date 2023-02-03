@@ -1,5 +1,3 @@
-package test
-
 private interface T_In<in T: CharSequence>{
     fun set(t: T){}
 }

@@ -1,12 +1,10 @@
-package test
-
 interface DA<E, F, G> : MutableMap<E, Map<F, G>>
 
 internal typealias X<A> = Y<A, Int>
 public typealias Y<A, B> = Z<A?, String, B>
 private typealias Z<A, B, C> = DA<A, B, C>?
 
-class TypeTest<T: CharSequence, A, B>: DA<T, A, B>{
+class TypeTest<T: CharSequence, A, B>: DA<T, A, B> {
     lateinit var c: DA<T, A, B>
 
     override val size: Int

@@ -1,5 +1,3 @@
-package test
-
 interface SuperTypesPassingTest<A, B: MutableMap<Human, out A>> : AAF<B, A>, BBG<B, A>
 
 interface AAF<C: Map<Human, D>, D> : List<C>,

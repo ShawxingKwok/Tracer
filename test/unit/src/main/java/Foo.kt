@@ -1,5 +1,3 @@
-package test
-
 annotation class FFoo<T>
 
 @FFoo<List<String>>

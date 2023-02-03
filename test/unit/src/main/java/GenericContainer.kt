@@ -1,5 +1,3 @@
-package test
-
 import java.io.File
 
 interface GSF<T> : MutableList<T>

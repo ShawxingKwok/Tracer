@@ -31,7 +31,7 @@ class Atm : AtmTracer {
     private var commandProcessor: CommandProcessor? = null
 
     fun on(){
-        val scanner = Scanner(System.`in`);
+        val scanner = Scanner(System.`in`)
         while (scanner.hasNextLine()){
             if (commandProcessor == null)
                 commandProcessor = CommandProcessor(this)

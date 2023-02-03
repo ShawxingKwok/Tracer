@@ -4,15 +4,23 @@ plugins {
     id 'signing'
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-    withJavadocJar()
-    withSourcesJar()
+kotlin{
+    jvmToolchain(8)
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
+    kotlinOptions {
+        freeCompilerArgs += "-Xexplicit-api=warning"
+    }
 }
 
 group = my_group
 version = version_common_annotations
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
 
 publishing {
     publications {
@@ -70,16 +78,5 @@ signing {
 javadoc {
     if(JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption('html5', true)
-    }
-}
-
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
-    kotlinOptions {
-        freeCompilerArgs = [
-                "-Xexplicit-api=warning",
-                "-Xcontext-receivers",
-                "-opt-in=com.google.devtools.ksp.KspExperimental",
-                "-opt-in=kotlin.contracts.ExperimentalContracts",
-        ]
     }
 }

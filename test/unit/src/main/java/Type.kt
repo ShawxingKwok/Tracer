@@ -1,5 +1,3 @@
-package test
-
 private interface J<A, B, C>: MutableList<A>, Map<B, C>
 abstract class AA<X, Y, Z> : J<List<X>, Map<X, Y>, Z>
 
@@ -127,7 +125,7 @@ interface KFImpl<T> : List<T>, MyCollection<T>, Collection<T>
 
 interface MyCollection<T> : Collection<T>
 
-typealias FNSOG<A, B> = Pair<KFA<A,B>, KFB<A,B>>
+typealias FNSOG<A, B> = Pair<KFA<A, B>, KFB<A, B>>
 
 //lateinit var fnsog: FNSOG<CharSequence, KFImpl>
 

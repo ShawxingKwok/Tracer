@@ -1,5 +1,3 @@
-package test
-
 interface Biology
 interface Animal : Biology
 interface Human : Animal

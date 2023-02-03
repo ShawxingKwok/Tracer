@@ -1,5 +1,3 @@
-package test
-
 annotation class RR
 annotation class TT
 
