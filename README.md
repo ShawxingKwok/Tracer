@@ -56,8 +56,8 @@ details!
 Code in this project is probably the globally best at present for its functionality, creativity,
 difficulty, structure, efficiency, concision, and beauty. Wish you could learn from it！
 
-My new all-powerful language would come out before Kotlin-JS and Kotlin-Native get popular, so I
-don't plan to provide multi-platform support.
+Since context receiver is not supported in `Kotlin Native` and `Kotlin JS`, this tool is not 
+multi-platform.
 
 This tool would help manage memory well assuming Kotlin is without GC, because most nodes only need
 to manage its own element memories. In the near future, programming languages would be unified and
