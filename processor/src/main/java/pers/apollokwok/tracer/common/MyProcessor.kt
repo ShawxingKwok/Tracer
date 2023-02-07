@@ -3,6 +3,7 @@ package pers.apollokwok.tracer.common
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.*
+import com.sun.tools.doclint.Env
 import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Unreachable
 import pers.apollokwok.tracer.common.annotations.Tracer
@@ -17,10 +18,9 @@ import pers.apollokwok.tracer.common.usagecheck.checkUsages
 import pers.apollokwok.tracer.common.util.getPreNeededProperties
 import pers.apollokwok.tracer.common.util.insideModuleVisibleKlasses
 import pers.apollokwok.tracer.common.util.myValidate
+import java.util.Collections.emptyList
 
 internal object MyProcessor : KspProcessor {
-    private val unsupportedSyntaxes = listOf("T & Any").joinToString { "`$it`" }
-
     private var propsBuilt = false
 
     private lateinit var invalidSymbolsInfo: List<Pair<KSClassDeclaration, List<Int>>>
@@ -95,7 +95,7 @@ internal object MyProcessor : KspProcessor {
                 }
                 .filter { (_, indices)-> indices.any() }
 
-                // wait if some invalid symbols remain
+                // process next round if some invalid symbols remain
                 if (invalidSymbolsInfo.any())
                     invalidDeclareAnnotOwners + getRootNodesKlasses()
                 // otherwise build new props
@@ -126,12 +126,27 @@ internal object MyProcessor : KspProcessor {
                 symbols = failedReferringSymbols
             )
 
-        if (unsupportedSymbols.any())
+        if (unsupportedSymbols.any()) {
             Log.errorLater(
-                msg = "Symbols below contain unsupported syntaxes like $unsupportedSyntaxes. " +
-                    "Use another declared style or annotate them with @${Names.Declare}(false) " +
-                    "if it's not your fault.",
-                symbols = unsupportedSymbols
+                symbols = unsupportedSymbols,
+                msg = buildString{
+                    append("Symbols below contain unsupported syntaxes")
+
+                    val unsupportedSyntaxes = mutableListOf<String>()
+                    if (!Environment.compilerVersion.isAtLeast(1, 8))
+                        unsupportedSyntaxes += "T & Any"
+
+                    if (unsupportedSyntaxes.any())
+                        append(" like $unsupportedSyntaxes")
+
+                    append(". ")
+
+                    append(
+                        "Use another declared style or annotate them with @${Names.Declare}(false) " +
+                        "if it's not your fault."
+                    )
+                },
             )
+        }
     }
 }

@@ -24,9 +24,5 @@ dependencies {
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
-    kotlinOptions {
-        freeCompilerArgs = [
-                "-Xcontext-receivers",
-        ]
-    }
+    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }

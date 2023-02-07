@@ -18,6 +18,7 @@
             <option value="$PROJECT_DIR$/test" />
             <option value="$PROJECT_DIR$/test/lib" />
             <option value="$PROJECT_DIR$/test/overall" />
+            <option value="$PROJECT_DIR$/test/remote" />
             <option value="$PROJECT_DIR$/test/superLib" />
             <option value="$PROJECT_DIR$/test/syntax" />
             <option value="$PROJECT_DIR$/test/unit" />

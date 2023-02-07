@@ -10,7 +10,7 @@ java {
 
 dependencies {
     api project(":annotations")
-    implementation project(":processor")
+    api project(":processor")
     implementation lib_ksp_util
     implementation lib_ksp
 }

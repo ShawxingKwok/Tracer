@@ -13,12 +13,9 @@ kotlin.sourceSets.main {
     kotlin.srcDirs(file("$buildDir/generated/ksp/main/kotlin"))
 }
 
-ksp {
-    arg("ksputil.unitTest", "")
-}
-
 dependencies {
     implementation(project(':annotations'))
+    implementation project(":compiler:test")
     ksp project(':compiler:test')
     implementation(lib_kotlin_reflect)
 }

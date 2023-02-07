@@ -4,6 +4,10 @@ plugins {
     id 'signing'
 }
 
+test {
+    useJUnitPlatform()
+}
+
 kotlin{
     jvmToolchain(8)
 }
@@ -78,7 +82,11 @@ publishing {
     }
     repositories {
         maven {
-            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            if (publishMode == "release")
+                url 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            else
+                url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+
             credentials {
                 username = USERNAME
                 password = PASSWORD

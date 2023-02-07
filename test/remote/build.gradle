@@ -1,0 +1,14 @@
+plugins {
+    id 'java-library'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'com.google.devtools.ksp'
+}
+
+kotlin {
+    jvmToolchain(8)
+}
+
+dependencies {
+    implementation lib_tracer_common_annotations
+    ksp lib_tracer_common_compiler
+}

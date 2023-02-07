@@ -15,7 +15,7 @@ dependencies {
 }
 
 group = my_group
-version = version_common_compiler
+version = version_common_processor
 
 java {
     withJavadocJar()
@@ -61,9 +61,14 @@ publishing {
             }
         }
     }
+
     repositories {
         maven {
-            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            if (publishMode == "release")
+                url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            else
+                url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+
             credentials {
                 username = USERNAME
                 password = PASSWORD

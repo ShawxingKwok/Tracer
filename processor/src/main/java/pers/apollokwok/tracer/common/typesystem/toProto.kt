@@ -1,11 +1,9 @@
 package pers.apollokwok.tracer.common.typesystem
 
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSTypeAlias
-import com.google.devtools.ksp.symbol.KSTypeParameter
-import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
+import pers.apollokwok.tracer.common.util.isDefNotNull
 
 // This can't be cached with KSType, because differently displayed ksTypes may equal.
 internal fun KSTypeReference.toProto(): Type<*> {
@@ -14,7 +12,9 @@ internal fun KSTypeReference.toProto(): Type<*> {
 
     // no typeParameters when decl is KSTypeParameter
     val newArgs = decl.typeParameters
-        .zip(ksType.arguments)
+//        .zip(ksType.arguments)
+        // For class<T>, the element behind [T]'s bound [Any?] in version 1.8.0-1.0.9 is null.
+        .zip(this.element?.typeArguments ?: emptyList())
         .map { (param, arg) ->
             val argProtoType by lazyFast { arg.type!!.toProto() }
 
@@ -47,6 +47,7 @@ internal fun KSTypeReference.toProto(): Type<*> {
                 name = "$decl",
                 isNullable = isNullable,
                 bound = decl.getBoundProto(),
+                isDefNotNull = this.isDefNotNull()
             )
 
         is KSClassDeclaration ->

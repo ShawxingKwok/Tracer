@@ -2,10 +2,7 @@ package pers.apollokwok.tracer.common.typesystem
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeAlias
-import pers.apollokwok.ksputil.noPackageName
-import pers.apollokwok.ksputil.qualifiedName
-import pers.apollokwok.ksputil.resolver
-import pers.apollokwok.ksputil.simpleName
+import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
 import pers.apollokwok.tracer.common.shared.contractedName
@@ -13,7 +10,7 @@ import pers.apollokwok.tracer.common.shared.contractedName
 internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Type<*>>(){
     companion object{
         // use 'get()=' since anyType.declaration varies every round.
-        @Suppress("DANGEROUS_CHARACTERS")
+        @Suppress("DANGEROUS_CHARACTERS", "ObjectPropertyName", "NonAsciiCharacters")
         val `Any？` get() = Specific(
             decl = resolver.builtIns.anyType.declaration as KSClassDeclaration,
             args = emptyList(),
@@ -55,13 +52,17 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
                 }
             }
 
-            if (isNullable) append("?")
+            when{
+                isNullable -> append("?")
+                this@Type is Generic && isDefNotNull -> append(" & Any")
+            }
         }
 
     class Generic(
         val name: String,
         val bound: Type<*>,
         isNullable: Boolean,
+        val isDefNotNull: Boolean,
     ) :
         Type<Generic>(isNullable)
     {
@@ -89,9 +90,11 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
                 is Arg.General<*> -> arg.type
             }
 
-            val isNullable = this.isNullable || type.isNullable
+            val isNullable = this.isNullable || (!isDefNotNull && type.isNullable)
 
-            return type.updateNullability(isNullable) to requireOut
+            val newType = type.updateNullability(isNullable)
+
+            return newType to requireOut
         }
         //endregion
 
@@ -100,14 +103,16 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
             name: String = this.name,
             bound: Type<*> = this.bound,
             isNullable: Boolean = this.isNullable,
+            isDefNotNull: Boolean = this.isDefNotNull,
         ) =
             if (name == this.name
                 && bound == this.bound
                 && isNullable == this.isNullable
+                && isDefNotNull == this.isDefNotNull
             )
                 this
             else
-                Generic(name, bound, isNullable)
+                Generic(name, bound, isNullable, isDefNotNull)
         //endregion
 
         override fun equals(other: Any?): Boolean {
@@ -322,7 +327,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
         // gross and the other
         override fun getName(isGross: Boolean, getSrcTag: (KSClassDeclaration) -> String?): String =
             buildString {
-                @Suppress("LocalVariableName")
+                @Suppress("LocalVariableName", "NonAsciiCharacters")
                 val `need？` = isNullable && !isGross
 
                 genericName?.let { append("${genericName}_") }
