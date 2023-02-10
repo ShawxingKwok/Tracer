@@ -20,7 +20,7 @@ plugins{
 }
 ```
 
-Skip to [tracer](#tracer) if your ksp plugin version is '1.8.0-1.0.9' or higher.  
+Skip to [tracer](#my-tracer) if your ksp plugin version is '1.8.0-1.0.9' or higher.  
 Below part may be different in other environments.  
 See [tracer-android-traditional](https://github.com/ApolloKwok/TracerAndroidTraditional) on 
 android.  
@@ -34,7 +34,7 @@ kotlin.sourceSets {
 }
 ```
 
-### tracer 
+### my tracer 
 Add this part directly, rather than insert messily. 
 ```groovy
 //region tracer
@@ -56,6 +56,8 @@ dependencies {
 }
 //endregion 
 ```
+
+### x
 
 ## Deficiency and its expected resolution by IDE
 
