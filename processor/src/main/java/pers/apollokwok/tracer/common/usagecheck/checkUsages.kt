@@ -66,7 +66,7 @@ private fun forbidSameFileNames(){
 
 private fun forbidPersonalUsageOfTracerPackage(){
     requireNone(resolver.getAllFiles().filter { it.packageName() == Names.GENERATED_PACKAGE }.toList()){
-        "${Names.GENERATED_PACKAGE} can't be used personally."
+        "Package `${Names.GENERATED_PACKAGE}` can't be used personally."
     }
 }
 

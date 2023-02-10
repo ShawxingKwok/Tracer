@@ -2,8 +2,12 @@
 Generates extensional properties orienting to inner traceable elements, and replaces traditional 
 dependency injection tools like dagger, kodein and koin.
 
-## `Kotlin Native` and `Kotlin JS` are not supported.
-Because they lack `context receiver` which is essential in this tool.
+## Preliminary Notes
+`Kotlin Native` and `Kotlin JS` are not supported. Because they lack `context receiver` which is 
+essential in this tool.
+
+There is an android extension at [tracer-android-traditional](https://github.com/ApolloKwok/TracerAndroidTraditional)
+for you to refer after you learned this.
 
 ## Usage
 
@@ -11,7 +15,7 @@ Because they lack `context receiver` which is essential in this tool.
 ## Setup
 Configure your `build.gradle` as below.
 
-### ksp
+### add the ksp plugin
 ```groovy
 plugins{
     // Assuming your kotlin version is `1.7.21`, here uses the latest ksp plugin version beginning 
@@ -20,12 +24,11 @@ plugins{
 }
 ```
 
-Skip to [tracer](#my-tracer) if your ksp plugin version is '1.8.0-1.0.9' or higher.  
-Below part may be different in other environments.  
-See [tracer-android-traditional](https://github.com/ApolloKwok/TracerAndroidTraditional) on 
-android.  
-See [kotlin ksp](https://kotlinlang.org/docs/ksp-quickstart.html#make-ide-aware-of-generated-code)
-if you are using IntelliJ IDEA and KSP in a Gradle plugin.  
+### add source sets
+Skip to [configure tracer](#configure-tracer) if your ksp plugin version is '1.8.0-1.0.9' or 
+higher.  
+This part is different if you are using IntelliJ IDEA and KSP in a Gradle plugin. See [kotlin 
+ksp quickstart](https://kotlinlang.org/docs/ksp-quickstart.html#make-ide-aware-of-generated-code)
 ```groovy
 // Omissible if your ksp plugin version is '1.8.0-1.0.9' or higher. 
 kotlin.sourceSets {
@@ -34,7 +37,7 @@ kotlin.sourceSets {
 }
 ```
 
-### my tracer 
+### configure tracer 
 Add this part directly, rather than insert messily. 
 ```groovy
 //region tracer
@@ -57,7 +60,7 @@ dependencies {
 //endregion 
 ```
 
-### x
+### 
 
 ## Deficiency and its expected resolution by IDE
 
