@@ -6,7 +6,7 @@ import pers.apollokwok.ksputil.qualifiedName
 
 public fun KSClassDeclaration.starTypeContent(imports: List<String>): String =
     buildString {
-        if (topParentDecl.qualifiedName() in imports)
+        if (imports.any() && outermostDecl.qualifiedName() in imports)
             append(noPackageName())
         else
             append(qualifiedName())

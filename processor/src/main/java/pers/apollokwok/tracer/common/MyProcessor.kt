@@ -3,7 +3,6 @@ package pers.apollokwok.tracer.common
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.*
-import com.sun.tools.doclint.Env
 import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Unreachable
 import pers.apollokwok.tracer.common.annotations.Tracer
@@ -12,6 +11,7 @@ import pers.apollokwok.tracer.common.interfacehandler.buildInterface
 import pers.apollokwok.tracer.common.interfacehandler.fixInterfaces
 import pers.apollokwok.tracer.common.prophandler.PropsBuilder
 import pers.apollokwok.tracer.common.shared.Names
+import pers.apollokwok.tracer.common.shared.Tags
 import pers.apollokwok.tracer.common.shared.getRootNodesKlasses
 import pers.apollokwok.tracer.common.usagecheck.checkAnnotDeclareUsage
 import pers.apollokwok.tracer.common.usagecheck.checkUsages
@@ -21,8 +21,6 @@ import pers.apollokwok.tracer.common.util.myValidate
 import java.util.Collections.emptyList
 
 internal object MyProcessor : KspProcessor {
-    private var propsBuilt = false
-
     private lateinit var invalidSymbolsInfo: List<Pair<KSClassDeclaration, List<Int>>>
 
     private fun KSClassDeclaration.getBeingCheckedSymbols() =
@@ -41,10 +39,11 @@ internal object MyProcessor : KspProcessor {
                     // already logger.errorLater in 'checkUsages`
                     return emptyList()
                 getRootNodesKlasses().forEach(::buildInterface)
+                Tags.interfacesBuilt = true
                 getRootNodesKlasses() + resolver.getAnnotatedSymbols<Tracer.Declare, _>()
             }
 
-            !propsBuilt -> {
+            !Tags.propsBuilt -> {
                 val invalidDeclareAnnotOwners = checkAnnotDeclareUsage()
 
                 // fix interfaces for conflict of cognominal properties from different super interfaces.
@@ -101,7 +100,7 @@ internal object MyProcessor : KspProcessor {
                 // otherwise build new props
                 else {
                     getRootNodesKlasses().forEach(::PropsBuilder)
-                    propsBuilt = true
+                    Tags.propsBuilt = true
                     emptyList()
                 }
             }
@@ -112,7 +111,7 @@ internal object MyProcessor : KspProcessor {
 
     // report if there remain some invalid symbols.
     override fun onFinish() {
-        if (!MyProcessor::invalidSymbolsInfo.isInitialized || propsBuilt) return
+        if (!MyProcessor::invalidSymbolsInfo.isInitialized || Tags.propsBuilt) return
 
         val (failedReferringSymbols, unsupportedSymbols) =
             invalidSymbolsInfo.flatMap { (klass, indices)->
@@ -149,4 +148,6 @@ internal object MyProcessor : KspProcessor {
             )
         }
     }
+
+    class Provider : KspProvider({ MyProcessor })
 }

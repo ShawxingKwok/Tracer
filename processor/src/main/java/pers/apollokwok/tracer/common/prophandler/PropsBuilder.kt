@@ -1,10 +1,7 @@
 package pers.apollokwok.tracer.common.prophandler
 
 import com.google.devtools.ksp.processing.Dependencies
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.Visibility
+import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
 import pers.apollokwok.tracer.common.prophandler.PropInfo.Companion.process
 import pers.apollokwok.tracer.common.shared.*
@@ -72,9 +69,22 @@ internal class PropsBuilder(val sourceKlass: KSClassDeclaration) {
             // cache
             .onEach { (prop, types)->
                 // the basic type must be visible, so the requirement in just 'onEachIndexed' must be valid.
-                types.forEach { type ->
-                    val v = getV(prop, type) ?: return@forEach
-                    newPropsInfo += PropInfo.FromElement(prop, parentProp, type, v, this)
+                types.forEachIndexed { i, type ->
+                    val v = getV(prop, type) ?: return@forEachIndexed
+
+                    val isMutable = prop.isMutable
+                        && i == 0
+                        && !(klass == sourceKlass
+                            && sourceKlass.typeParameters.any()
+                            && kotlin.run {
+                                fun KSTypeReference.containT(): Boolean =
+                                    resolve().declaration is KSTypeParameter
+                                    || element?.typeArguments?.any { it.type?.containT() == true } == true
+
+                                prop.type.containT()
+                            })
+
+                    newPropsInfo += PropInfo.FromElement(prop, parentProp, isMutable, type, v, this)
                 }
             }
             // filter and trace inside, other filtering conditions are in 'getPreNeededProperties'
@@ -108,7 +118,7 @@ internal class PropsBuilder(val sourceKlass: KSClassDeclaration) {
     init {
         sourceKlass.getTraceableSuperTypes().forEach { type ->
             val v = getV(sourceKlass, type) ?: return@forEach
-            newPropsInfo += PropInfo.FromSrcKlassSuper(sourceKlass, type, v, this)
+            newPropsInfo += PropInfo.FromSrcKlassSuper(sourceKlass, type, false, v, this)
         }
     }
 
@@ -119,9 +129,10 @@ internal class PropsBuilder(val sourceKlass: KSClassDeclaration) {
 
     private val allInnerKlasses = newPropsInfo.flatMap { it.type.allInnerKlasses }.toSet()
 
-    val importedTopKlasses = allInnerKlasses
+    val importedOutermostKlasses = allInnerKlasses
         //region
-        .groupBy { it.topParentDecl.simpleName() }
+        .map { it.outermostDecl }
+        .groupBy { it.simpleName() }
         .mapNotNull { (_, similarKlasses)->
             similarKlasses.singleOrNull() ?: similarKlasses.firstOrNull { it.isNative() }
         }
@@ -159,9 +170,9 @@ internal class PropsBuilder(val sourceKlass: KSClassDeclaration) {
         newPropsInfo.process()
     }
 
-    private val imports = importedTopKlasses
+    private val imports = importedOutermostKlasses
         .filterNot { it.packageName() in AutoImportedPackageNames }
-        .map { it.topParentDecl.qualifiedName()!! }
+        .map { it.outermostDecl.qualifiedName()!! }
         .sorted()
         .joinToString("\n") { "import $it" }
 

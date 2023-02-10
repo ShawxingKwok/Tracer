@@ -8,7 +8,7 @@ import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.shared.Tags
 import pers.apollokwok.tracer.common.shared.contractedName
 import pers.apollokwok.tracer.common.shared.getInterfaceNames
-import pers.apollokwok.tracer.common.shared.topParentDecl
+import pers.apollokwok.tracer.common.shared.outermostDecl
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
 import pers.apollokwok.tracer.common.util.filterOutRepeated
@@ -17,6 +17,7 @@ import pers.apollokwok.tracer.common.util.isFinal
 
 internal sealed class PropInfo(
     val type: Type<*>,
+    private val isMutable: Boolean,
     v: Visibility,
     propsBuilder: PropsBuilder,
 ){
@@ -38,7 +39,7 @@ internal sealed class PropInfo(
     protected var ownerNameContained = Tags.PropertiesFullName || type.isCommon()
 
     private val typeContent: String? by lazyFast {
-        type.getContent(getPathImported = { it.topParentDecl in propsBuilder.importedTopKlasses })
+        type.getContent(getPathImported = { it.outermostDecl in propsBuilder.importedOutermostKlasses })
     }
 
     val grossKey: String by lazyFast {
@@ -129,7 +130,13 @@ internal sealed class PropInfo(
         (0..1).map { i ->
             val interfaceName = getInterfaceNames(sourceKlass).toList()[i]
             val typePart = typeContent?.let { "as $it" } ?: ""
-            "${v.name.lowercase()} val $interfaceName.${propInfoNames[i]} inline get() = ${references[i]} $typePart"
+            if (!isMutable)
+                "${v.name.lowercase()} val $interfaceName.${propInfoNames[i]} inline get() = ${references[i]} $typePart"
+            else
+                """
+                ${v.name.lowercase()} var $interfaceName.${propInfoNames[i]} inline get() = ${references[i]} $typePart    
+                    inline set(value){ ${references[i]} = value }
+                """.trimIndent()
         }
     }
     val declContent by lazyFast { declContents[0] }
@@ -138,11 +145,12 @@ internal sealed class PropInfo(
     class FromElement(
         val prop: KSPropertyDeclaration,
         val parentProp:  KSPropertyDeclaration?,
+        isMutable: Boolean,
         type: Type<*>,
         v: Visibility,
         propsBuilder: PropsBuilder,
     ) :
-        PropInfo(type, v, propsBuilder)
+        PropInfo(type, isMutable, v, propsBuilder)
     {
         var propNameContained = ownerNameContained
     }
@@ -150,8 +158,9 @@ internal sealed class PropInfo(
     class FromSrcKlassSuper(
         val klass: KSClassDeclaration,
         type: Type<*>,
+        isMutable: Boolean,
         v: Visibility,
         propsBuilder: PropsBuilder
     ) :
-        PropInfo(type, v, propsBuilder)
+        PropInfo(type, isMutable, v, propsBuilder)
 }

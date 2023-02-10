@@ -21,7 +21,7 @@ class FixedTypePart<T> : List<T>, FixedTypePartTracer
     var func: ((test.String, Long)->Unit)? = TODO()
     val suspendFunc: suspend (test.String, Long)->Unit = TODO()
 
-    val str = String()
+    var str = String()
 
     val ts: List<T> = TODO()
 

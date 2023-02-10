@@ -77,7 +77,7 @@ internal fun buildInterface(klass: KSClassDeclaration) {
 
     // each class may miss its import
     val imports = listOfNotNull(klass, superRootOrNodeKlass, grandpaContext)
-        .map { it.topParentDecl.qualifiedName()!! }
+        .map { it.outermostDecl.qualifiedName()!! }
         .associateBy { it.substringAfterLast(".") }
         .toMutableMap()
         // TracerInterface must has its import.

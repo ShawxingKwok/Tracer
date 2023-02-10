@@ -8,6 +8,8 @@ import kotlin.system.measureTimeMillis
 
 // This example also teaches you how to design a good app. Valid code line number is 116 in this
 // module, whereas it's 252 in the original atm sample of kotlin version.
+
+// commands: login [name], deposit [money], withdraw [money], logout
 @Tracer.Root
 class Atm : AtmTracer {
     companion object{
@@ -31,6 +33,7 @@ class Atm : AtmTracer {
     private var commandProcessor: CommandProcessor? = null
 
     fun on(){
+        println("Please login first: ")
         val scanner = Scanner(System.`in`)
         while (scanner.hasNextLine()){
             if (commandProcessor == null)

@@ -1,24 +1,31 @@
 package components.command
 
-import components.CommandProcessor
 import pers.apollokwok.tracer.common.generated.`__Database_˚Atm`
+import pers.apollokwok.tracer.common.generated.CommandProcessorTracer
+import pers.apollokwok.tracer.common.generated.`_DatabaseAccount？`
 
-context (pers.apollokwok.tracer.common.generated.CommandProcessorTracer)
+context (CommandProcessorTracer)
 class LoginCommand : Command {
     // in this class, tracer property begins with '__' means outside CommandRouter,
     // and the other '_' means inside CommandRouter.
     private val database get()  = `__Database_˚Atm`
-    private val router: CommandProcessor get()  = _CommandProcessor
+
+    private var account
+        get() = `_DatabaseAccount？`
+        set(value) { `_DatabaseAccount？` = value }
+
+    // This syntax problem would be fixed in the future by kotlin.
+//    private var account by ::`_DatabaseAccount？`
 
     override fun handleInput(input: String): Command.Result =
         when {
             input.none() -> Command.Result("Empty username in input.")
 
-            router.account != null -> Command.Result("Please logout before login.")
+            account != null -> Command.Result("Please logout before login.")
 
             else -> {
-                router.account = database.getOrCreateAccount(input)
-                Command.Result("$input is logged with balance ${router.account!!.balance}.")
+                account = database.getOrCreateAccount(input)
+                Command.Result("$input is logged with balance ${account!!.balance}.")
             }
         }
 }
