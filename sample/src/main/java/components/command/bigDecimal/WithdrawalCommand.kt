@@ -9,7 +9,7 @@ class WithdrawalCommand : BigDecimalCommand(){
     private val account: Database.Account get() = `_DatabaseAccount？`!!
 
     override fun handleAmount(amount: BigDecimal): String{
-        val max = account.balance.subtract(account.minimumBalance)
+        val max = account.balance - account.minimumBalance
         if (amount > max)
             return "You may withdrawal no more than $max."
         else{

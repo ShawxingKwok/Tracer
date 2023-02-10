@@ -11,7 +11,7 @@ Because they lack `context receiver` which is essential in this tool.
 ## Setup
 Configure your `build.gradle` as below.
 
-### Add the ksp plugin.
+### ksp
 ```groovy
 plugins{
     // Assuming your kotlin version is `1.7.21`, here uses the latest ksp plugin version beginning 
@@ -20,17 +20,22 @@ plugins{
 }
 ```
 
-### Add source sets.
-This part is different in android, which is seen at [tracer-android-traditional](https://github.com/ApolloKwok/TracerAndroidTraditional)
+Skip to [tracer](#tracer) if your ksp plugin version is '1.8.0-1.0.9' or higher.  
+Below part may be different in other environments.  
+See [tracer-android-traditional](https://github.com/ApolloKwok/TracerAndroidTraditional) on 
+android.  
+See [kotlin ksp](https://kotlinlang.org/docs/ksp-quickstart.html#make-ide-aware-of-generated-code)
+if you are using IntelliJ IDEA and KSP in a Gradle plugin.  
 ```groovy
-// Makes generated code visible to IDE.
 // Omissible if your ksp plugin version is '1.8.0-1.0.9' or higher. 
-kotlin.sourceSets.main {
-    kotlin.srcDirs(file("$buildDir/generated/ksp/main/kotlin"))
+kotlin.sourceSets {
+    main.kotlin.srcDirs += "$buildDir/generated/ksp/main/kotlin"
+    test.kotlin.srcDirs += "$buildDir/generated/ksp/test/kotlin"
 }
 ```
 
-### Add this part directly, rather than insert messily. 
+### tracer 
+Add this part directly, rather than insert messily. 
 ```groovy
 //region tracer
 // options
