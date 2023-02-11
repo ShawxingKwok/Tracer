@@ -1,10 +1,11 @@
-package pers.apollokwok.tracer.common.shared
+package pers.apollokwok.tracer.common.util
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import pers.apollokwok.ksputil.noPackageName
 import pers.apollokwok.ksputil.qualifiedName
+import pers.apollokwok.tracer.common.shared.outermostDecl
 
-public fun KSClassDeclaration.starTypeContent(imports: List<String>): String =
+internal fun KSClassDeclaration.starTypeContent(imports: List<String>): String =
     buildString {
         if (imports.any() && outermostDecl.qualifiedName() in imports)
             append(noPackageName())
