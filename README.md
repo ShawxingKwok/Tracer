@@ -55,16 +55,17 @@ dependencies {
 ### 
 
 ## Usage
-in video
-找生成的代码时不用 ` 开头
-val xx get() = 某个 tracerPro 前的修饰符只能为 private
-如果一个类如果可能在 mallTracer 或者 out mallTracer 下，那么直接 @Nodes(Mall::class)
-解释 common type 的标准
-alias type 中带 * 可能会因为 multi-bounds 导致结果不准确
-因为每次输入_时出来的提示较多，所以建议在外部用 private val xx get()＝声明
-用 get()= 不用 =，这样则不用关心其是否为 mutable
-某些 property 会被忽略
-对于带泛型 / open / abstract class, 因为复用率高，不会从 property type trace, 对于会被多次构造的 class，应让 programmer 尽量少去探索次内部的东西
+in video  
+找生成的代码时不用 ` 开头  
+val xx get() = 某个 tracerPro 前的修饰符只能为 private  
+如果一个类如果可能在 mallTracer 或者 out mallTracer 下，那么直接 @Nodes(Mall::class)  
+解释 common type 的标准  
+alias type 中带 * 可能会因为 multi-bounds 导致结果不准确  
+因为每次输入_时出来的提示较多，所以建议在外部用 private val xx get()＝声明  
+用 get()= 不用 =，这样则不用关心其是否为 mutable  
+某些 property 会被忽略  
+对于带泛型 / open / abstract class, 因为复用率高，不会从 property type trace, 对于会被多次构造的 class，应让 programmer 
+尽量少去探索次内部的东西  
 
 ## Notes
 1, `Kotlin Native` and `Kotlin JS` are not supported. Because they lack `context receiver` which is
@@ -81,7 +82,8 @@ annotate those traceable properties or super types with `@Tracer.Declare(false)`
 stable and many bugs are fixed every version. 
 
 5, Java files are forbidden to use `Tracer`, because I don't want to spend time analyzing those 
-outdated things. 
+outdated things. But it's absolutely safe to call `java classes and functions` in `kotlin` files 
+with `tracer`.   
 
 6, Few generated types fail code inspection, mostly because of the imperfect authoritative type 
 inference system. Find their corresponding source properties or super types, then use another type
