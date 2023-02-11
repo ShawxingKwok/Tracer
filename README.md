@@ -1,16 +1,15 @@
-# Tracer
+# Tracer(Not released yet)
 Generates extensional properties orienting to inner traceable elements, and replaces traditional 
 dependency injection tools like dagger, kodein and koin.
+
+## Effect
 
 ## Preliminary Notes
 `Kotlin Native` and `Kotlin JS` are not supported. Because they lack `context receiver` which is 
 essential in this tool.
 
-There is an android extension at [tracer-android-traditional](https://github.com/ApolloKwok/TracerAndroidTraditional)
-for you to refer after you learned this.
-
-## Usage
-
+If you are developing android, see [tracer extension on traditional android](https://github.com/ApolloKwok/TracerAndroidTraditional)
+after you learned this.
 
 ## Setup
 Configure your `build.gradle` as below.
@@ -61,6 +60,8 @@ dependencies {
 ```
 
 ### 
+
+## Usage
 
 ## Deficiency and its expected resolution by IDE
 
