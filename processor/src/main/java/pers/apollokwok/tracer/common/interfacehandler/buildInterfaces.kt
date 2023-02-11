@@ -5,10 +5,7 @@ import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
-import pers.apollokwok.ksputil.Environment
-import pers.apollokwok.ksputil.createFile
-import pers.apollokwok.ksputil.qualifiedName
-import pers.apollokwok.ksputil.resolver
+import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.tracer.common.annotations.TracerInterface
 import pers.apollokwok.tracer.common.shared.*
@@ -44,6 +41,20 @@ private tailrec fun getSuperRootOrNodeKlass(klass: KSClassDeclaration): KSClassD
         else -> getSuperRootOrNodeKlass(superKlass)
     }
 }
+
+private fun KSClassDeclaration.starTypeContent(imports: List<String>): String =
+    buildString {
+        if (imports.any() && outermostDecl.qualifiedName() in imports)
+            append(noPackageName())
+        else
+            append(qualifiedName())
+
+        if (typeParameters.any()){
+            append("<")
+            append(typeParameters.joinToString(", "){ "*" })
+            append(">")
+        }
+    }
 
 internal fun buildInterface(klass: KSClassDeclaration) {
     // for passing the super context to child classes.
