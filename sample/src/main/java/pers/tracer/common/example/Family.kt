@@ -2,8 +2,6 @@ package pers.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
 import pers.apollokwok.tracer.common.generated.FamilyTracer
-import pers.apollokwok.tracer.common.generated.RoomTracer
-import java.awt.Window
 
 @Tracer.Root
 class Family : FamilyTracer{
@@ -19,35 +17,20 @@ context (FamilyTracer)
 class Father
 
 context (FamilyTracer)
-class Mother
+class Mother{
+}
 
 context (FamilyTracer)
 class Child
 
 context (FamilyTracer)
 class House{
-    val westBedroom = Room(_Family)
-    val eastBedroom = Room(_Family)
-    val bathroom = Room(_Family)
+    val westBedroom = Room()
+    val eastBedroom = Room()
+    val bathroom = Room()
 }
 
-@Tracer.Nodes(Family::class)
-class Room(override val __Family: Family) : RoomTracer{
-    val floor = Floor()
-    val window = Window()
-
-    fun open(){
-        println("open")
-    }
-
-    override val _Room: Room get() = this
-}
-
-context (RoomTracer)
-class Window
-
-context (RoomTracer)
-class Floor
+class Room
 
 fun main() {
     Family()

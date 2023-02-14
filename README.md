@@ -2,7 +2,7 @@
 Generates extensional properties orienting to inner traceable elements, and replaces traditional 
 dependency injection tools like dagger, kodein and koin.
 
-## Effect
+## Preview
 in gif
 
 ## Setup
@@ -55,17 +55,23 @@ dependencies {
 ### 
 
 ## Usage
-in video  
-找生成的代码时不用 ` 开头  
-val xx get() = 某个 tracerPro 前的修饰符只能为 private  
-如果一个类如果可能在 mallTracer 或者 out mallTracer 下，那么直接 @Nodes(Mall::class)  
-解释 common type 的标准  
-alias type 中带 * 可能会因为 multi-bounds 导致结果不准确  
-因为每次输入_时出来的提示较多，所以建议在外部用 private val xx get()＝声明  
-用 get()= 不用 =，这样则不用关心其是否为 mutable  
-某些 property 会被忽略  
-对于带泛型 / open / abstract class, 因为复用率高，不会从 property type trace, 对于会被多次构造的 class，应让 programmer 
+in video on github pages  
+1, 找生成的代码时不用 ` 开头  
+2, val xx get() = 某个 tracerPro 前的修饰符只能为 private  
+3, 如果一个类如果可能在 mallTracer 或者 out mallTracer 下，那么直接 @Nodes(Mall::class)  
+4, 解释 common type 的标准  
+5, alias type 中带 * 可能会因为 multi-bounds 导致结果不准确  
+6, 因为每次输入_时出来的提示较多，所以建议在外部用 private val xx get()＝声明  
+7, 用 get()= 不用 =，这样则不用关心其是否为 mutable  
+8, 某些 property 会被忽略
+9, 对于带泛型 / open / abstract class, 因为复用率高，不会从 property type trace, 对于会被多次构造的 class，应让 programmer 
 尽量少去探索次内部的东西  
+
+### 展示其他细节地方
+    1，Declare 的用法
+    2，支持 var
+    3, 各种符号代表的意思
+    4，
 
 ## Notes
 1, `Kotlin Native` and `Kotlin JS` are not supported. Because they lack `context receiver` which is
@@ -87,7 +93,7 @@ with `tracer`.
 
 6, Few generated types fail code inspection, mostly because of the imperfect authoritative type 
 inference system. Find their corresponding source properties or super types, then use another type
-or annotate them with`@Tracer. Declare(false)`.
+or annotate them with`@Tracer.Declare(false)`.
 e.g.: todo 
 
 7, 如果 super abstract class 和 self 均有 Root /Nodes 标记，那么 super abstract class 中最好不要 override self
@@ -95,10 +101,28 @@ e.g.: todo
 ## Deficiency and its expected resolution by IDE or new Kotlin plugin.
 In gif.
 
-Too many hints when you input `_X.` in a big project. 
+1, Too many hints when you input `_X.` in a big project. 
 (after the visibility, of functions with context receivers, is fixed -> new generated tracer 
 property would replace the receiver with context receiver. Then there wouldn't be redundant 
 hints.)  
+
+2, names may change with the structure.  
+    -> 新的变更名字模式，实际值为 contractedName_packageName(_levelTag)_containerName_propertyName。
+        根据当前的实际需要来显示。且后台给每个 context 分配出一套提示
+
+3, 针对 property 重写问题，如
+```kotlin
+@Tracer.Root
+class X : XTracer{
+    abstract val j: J  
+} 
+
+@Tracer.Root
+class XImpl : X(), XImplTracer{
+    override val j: J = J()
+}
+```
+结合2，如果有重写，则父类相应的 `val XTracer.j inline get() = ...` 不对 XImplTracer 可见     
 
 ## Expect integration with new Kotlin syntax
 Implement tracer interfaces automatically.

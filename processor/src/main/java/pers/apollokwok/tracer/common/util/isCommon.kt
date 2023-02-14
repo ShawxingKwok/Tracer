@@ -45,17 +45,22 @@ private val commonQualifiedNames: Set<String> =
     .mapTo(mutableSetOf()){ it.qualifiedName!! }
 
 // Note that List::class.qualifiedName == MutableList::class.qualifiedName, and other pairs are the same.
-private val commonForableQualifiedNames: Set<String> = run {
-    val withMutableChildrenClasses =
-        arrayOf(
-            Iterable::class,
-            Collection::class,
-            List::class,
-            Set::class,
-            Map::class,
-        )
-
+private val commonContainerQualifiedNames: Set<String> =
     arrayOf(
+        Iterable::class,
+        Collection::class,
+        List::class,
+        Set::class,
+        Map::class,
+
+        MutableIterable::class,
+        MutableCollection::class,
+        MutableList::class,
+        MutableSet::class,
+        MutableMap::class,
+
+        Pair::class,
+        Triple::class,
         Array::class,
         Sequence::class,
         java.util.ArrayList::class,
@@ -65,16 +70,14 @@ private val commonForableQualifiedNames: Set<String> = run {
         java.util.LinkedHashMap::class,
         java.util.HashMap::class,
     )
-    .mapTo(mutableSetOf()) { it.qualifiedName!! }
-    .plus(withMutableChildrenClasses.map { it.qualifiedName!! })
-    .plus(withMutableChildrenClasses.map { "kotlin.collections.Mutable${it.simpleName}" })
-}
+    .map { it.qualifiedName!! }
+    .toSet()
 
 internal fun Type<*>.isCommon(): Boolean =
     this is Type.Specific
     &&(decl.qualifiedName() in commonQualifiedNames
-        || decl.qualifiedName() in commonForableQualifiedNames
-        && args.all { arg ->
+       || decl.qualifiedName() in commonContainerQualifiedNames
+       && args.all { arg ->
             arg is Arg.General<*>
             && arg.type is Type.Specific
             && arg.type.decl.qualifiedName() in commonQualifiedNames
