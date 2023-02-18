@@ -12,9 +12,8 @@ internal fun KSTypeReference.toProto(): Type<*> {
 
     // no typeParameters when decl is KSTypeParameter
     val newArgs = decl.typeParameters
-//        .zip(ksType.arguments)
-        // For class<T>, the element behind [T]'s bound [Any?] in version 1.8.0-1.0.9 is null.
-        .zip(this.element?.typeArguments ?: emptyList())
+        // element `T & Any` is erased in resolved types before version 1.8.10-1.0.9(inclusive).
+        .zip(this.element?.typeArguments ?: ksType.arguments)
         .map { (param, arg) ->
             val argProtoType by lazyFast { arg.type!!.toProto() }
 

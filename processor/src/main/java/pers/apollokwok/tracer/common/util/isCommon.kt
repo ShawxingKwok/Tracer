@@ -63,12 +63,6 @@ private val commonContainerQualifiedNames: Set<String> =
         Triple::class,
         Array::class,
         Sequence::class,
-        java.util.ArrayList::class,
-        java.util.ArrayDeque::class,
-        java.util.LinkedList::class,
-        java.util.LinkedHashSet::class,
-        java.util.LinkedHashMap::class,
-        java.util.HashMap::class,
     )
     .map { it.qualifiedName!! }
     .toSet()

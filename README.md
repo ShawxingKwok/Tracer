@@ -98,6 +98,12 @@ e.g.: todo
 
 7, 如果 super abstract class 和 self 均有 Root /Nodes 标记，那么 super abstract class 中最好不要 override self
 
+8, For the property `ts` with an implicit type containing `T & Any`, its `T & Any` can't be resolved 
+even in version 1.8.10-1.0.9(inclusive). 
+```kotlin
+val t: T & Any = TODO()
+val _t = t
+```
 ## Deficiency and its expected resolution by IDE or new Kotlin plugin.
 In gif.
 
