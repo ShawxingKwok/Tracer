@@ -32,7 +32,6 @@ public class TestProcessor : KspProcessor{
         resolver.getPropertyDeclarationByName("ArgsTest.t", true)!!.type.toProto().let { Log.w(it) }
         resolver.getPropertyDeclarationByName("ArgsTest._t", true)!!.type.toProto().let { Log.w(it) }
         resolver.getPropertyDeclarationByName("ArgsTest.pair", true)!!.type.toProto().let { Log.w(it) }
-
         return emptyList()
     }
 

@@ -3,10 +3,10 @@ buildscript {
 //        publishMode = 'snapshot'
         publishMode = 'release'
 
-//        version_kt = '1.7.20'
-//        version_ksp = "$version_kt-1.0.8"
-        version_kt = '1.8.0'
-        version_ksp = "$version_kt-1.0.9"
+        version_kt = '1.7.20'
+        version_ksp = "$version_kt-1.0.8"
+//        version_kt = '1.8.0'
+//        version_ksp = "$version_kt-1.0.9"
         version_gradle = '7.4.0'
         version_common_annotations = "1.7.20-1.1.0"
         version_common_processor = "1.7.20-1.1.0"

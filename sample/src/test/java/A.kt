@@ -1,3 +1,4 @@
+import org.jetbrains.annotations.TestOnly
 import pers.apollokwok.tracer.common.annotations.Tracer
 import pers.apollokwok.tracer.common.generated.ATracer
 
