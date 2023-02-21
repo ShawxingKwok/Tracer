@@ -125,7 +125,7 @@ private fun checkNodesContexts() {
         }
 
     requireNone(withWrongContext){
-        "Each context class of below classes annotated with ${Names.Nodes}, " +
+        "Each context class of classes below annotated with ${Names.Nodes}, " +
             "should be annotated with ${Names.Root} or ${Names.Nodes}."
     }
 }

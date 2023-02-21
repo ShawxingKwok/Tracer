@@ -45,7 +45,7 @@ internal fun checkAnnotDeclareUsage(): List<KSAnnotated> {
 
     Log.require(wronglyAnnotatedPropInfo.none(), emptyList()){
         wronglyAnnotatedPropInfo.joinToString(
-            prefix = "Below properties are always omitted in tracer building, " +
+            prefix = "Properties below are always omitted in tracer building, " +
                 "which means annotating ${Names.Declare} on them makes no sense.\n",
             separator = "\n",
         ){ (prop, reasons) ->
