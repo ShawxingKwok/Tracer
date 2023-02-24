@@ -23,15 +23,14 @@ public annotation class Tracer{
     public annotation class Nodes(val context: KClass<*>)
 
     /**
-     * Tells elements inside the annotated class wouldn't be traced.
+     * Inner elements wouldn't be explored in the trace. Data classes are considered as [Tips] by default.
      */
     @Target(AnnotationTarget.CLASS)
     @Retention(AnnotationRetention.SOURCE)
     public annotation class Tips
 
     /**
-     * Properties without fields, not delegated, and not abstract would be omitted by default, but can be
-     * declared if they are annotated with [Declare].
+     * [Declare] is used on visible properties with `get() =` which is omitted by default.
      * ```
      * class Sample{
      *     private val _list = mutableListOf<Int>()
@@ -40,11 +39,15 @@ public annotation class Tracer{
      *     val list get() = _list
      * }
      * ```
-     * [Declare]`(`false`)` is used on super types or traceable properties which would be omitted when being traced.
+     *
+     * [Declare]`(`false`)` is used on super types or traceable properties which you want to omit in the trace.
+     * Generally, these properties own some new syntaxes unsupported by `ksp` like `context receiver` at present.
      * ```
-     * class Sample : @Tracer.Declare(false) Serializable{
+     * @Tracer.Root
+     * class Sample<T> : @Tracer.Declare(false) List<T & Any>{
      *     @Tracer.Declare(false)
-     *     val x = 1
+     *     context(String)
+     *     val x: T get() = ...
      * }
      */
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)

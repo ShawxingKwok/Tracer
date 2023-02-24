@@ -24,7 +24,6 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
 dependencies {
     ksp project(":compiler:test")
     implementation project(":annotations")
-
-//    ksp 'io.github.apollokwok:tracer-common-compiler:1.7.20-1.0.5'
-//    implementation 'io.github.apollokwok:tracer-common-annotations:1.7.20-1.0.5'
+//    ksp 'io.github.apollokwok:tracer-common-compiler:1.7.20-1.1.0'
+//    implementation 'io.github.apollokwok:tracer-common-annotations:1.7.20-1.1.0'
 }

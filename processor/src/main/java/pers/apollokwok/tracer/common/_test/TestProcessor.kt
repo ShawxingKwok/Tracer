@@ -29,9 +29,7 @@ private class J<T: V, V: CharSequence?> {
 
 public class TestProcessor : KspProcessor{
     override fun process(times: Int): List<KSAnnotated> {
-        resolver.getPropertyDeclarationByName("ArgsTest.t", true)!!.type.toProto().let { Log.w(it) }
-        resolver.getPropertyDeclarationByName("ArgsTest._t", true)!!.type.toProto().let { Log.w(it) }
-        resolver.getPropertyDeclarationByName("ArgsTest.pair", true)!!.type.toProto().let { Log.w(it) }
+        resolver.getClassDeclarationByName("JK")!!.getDeclaredProperties().last().hasBackingField.let { Log.w(it) }
         return emptyList()
     }
 
