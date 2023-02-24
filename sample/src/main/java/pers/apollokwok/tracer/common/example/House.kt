@@ -6,9 +6,9 @@ import pers.apollokwok.tracer.common.generated._WifiRouter
 
 @Tracer.Root
 class House : HouseTracer{
+    val bedroom = Bedroom()
     val door = Door()
     val livingRoom = LivingRoom()
-    val bedroom = Bedroom()
 
     override val _House: House = this
 }

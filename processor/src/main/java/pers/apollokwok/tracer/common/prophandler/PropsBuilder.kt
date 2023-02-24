@@ -45,8 +45,7 @@ internal class PropsBuilder(val sourceKlass: KSClassDeclaration) {
                 if (isAny)
                     Log.w(
                         msg = "This property would be omitted because its type is Any. " +
-                            "You can annotate this property with ${Names.Declare}(false) " +
-                            "to make it look clear.",
+                            "You can annotate this property with ${Names.Omitted} to make it look clear.",
                         prop
                     )
 

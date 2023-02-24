@@ -2,9 +2,6 @@ package pers.apollokwok.tracer.common.annotations
 
 import kotlin.reflect.KClass
 
-/**
- * A single [Tracer] is forbidden to use.
- */
 @Target
 public annotation class Tracer{
     /**
@@ -23,34 +20,26 @@ public annotation class Tracer{
     public annotation class Nodes(val context: KClass<*>)
 
     /**
-     * Inner elements wouldn't be explored in the trace. Data classes are considered as [Tips] by default.
+     * Inner elements wouldn't be explored in the trace.
+     * Data classes, foreign classes, and those with rebuilt symbols are considered as [Tips] by default.
      */
     @Target(AnnotationTarget.CLASS)
     @Retention(AnnotationRetention.SOURCE)
     public annotation class Tips
 
     /**
-     * [Declare] is used on visible properties with `get() =` which is omitted by default.
-     * ```
-     * class Sample{
-     *     private val _list = mutableListOf<Int>()
-     *
-     *     @Tracer.Declare
-     *     val list get() = _list
-     * }
-     * ```
-     *
-     * [Declare]`(`false`)` is used on super types or traceable properties which you want to omit in the trace.
+     * Is used on super types or traceable properties which you want to omit in the trace.
      * Generally, these properties own some new syntaxes unsupported by `ksp` like `context receiver` at present.
      * ```
      * @Tracer.Root
-     * class Sample<T> : @Tracer.Declare(false) List<T & Any>{
-     *     @Tracer.Declare(false)
+     * class Sample<T> : @Tracer.Omitted List<T & Any>{
+     *     @Tracer.Omitted
      *     context(String)
      *     val x: T get() = ...
      * }
+     * @since 1.1.10 with Kotlin 1.7.20
      */
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
     @Retention(AnnotationRetention.SOURCE)
-    public annotation class Declare(val enabled: Boolean = true)
+    public annotation class Omitted
 }

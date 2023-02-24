@@ -13,8 +13,7 @@ import pers.apollokwok.tracer.common.prophandler.PropsBuilder
 import pers.apollokwok.tracer.common.shared.Names
 import pers.apollokwok.tracer.common.shared.Tags
 import pers.apollokwok.tracer.common.shared.getRootNodesKlasses
-import pers.apollokwok.tracer.common.usagecheck.checkAnnotDeclareUsage
-import pers.apollokwok.tracer.common.usagecheck.checkUsages
+import pers.apollokwok.tracer.common.util.checkUsages
 import pers.apollokwok.tracer.common.util.getPreNeededProperties
 import pers.apollokwok.tracer.common.util.insideModuleVisibleKlasses
 import pers.apollokwok.tracer.common.util.myValidate
@@ -40,12 +39,10 @@ internal object MyProcessor : KspProcessor {
                     return emptyList()
                 getRootNodesKlasses().forEach(::buildInterface)
                 Tags.interfacesBuilt = true
-                getRootNodesKlasses() + resolver.getAnnotatedSymbols<Tracer.Declare, _>()
+                getRootNodesKlasses()
             }
 
             !Tags.propsBuilt -> {
-                val invalidDeclareAnnotOwners = checkAnnotDeclareUsage()
-
                 // fix interfaces for conflict of cognominal properties from different super interfaces.
                 // and warn if some classes with @Root/Nodes don't implement their tracer interfaces.
                 if (times == 2) {
@@ -73,8 +70,7 @@ internal object MyProcessor : KspProcessor {
                                 val needed = when(symbol){
                                     is KSTypeParameter -> true
 
-                                    is KSTypeReference ->
-                                        (symbol as KSAnnotated).getAnnotationByType<Tracer.Declare>()?.enabled != false
+                                    is KSTypeReference -> !symbol.isAnnotationPresent(Tracer.Omitted::class)
 
                                     is KSPropertyDeclaration -> symbol in klass.getPreNeededProperties()
 
@@ -96,7 +92,7 @@ internal object MyProcessor : KspProcessor {
 
                 // process next round if some invalid symbols remain
                 if (invalidSymbolsInfo.any())
-                    invalidDeclareAnnotOwners + getRootNodesKlasses()
+                    getRootNodesKlasses()
                 // otherwise build new props
                 else {
                     getRootNodesKlasses().forEach(::PropsBuilder)
@@ -141,7 +137,7 @@ internal object MyProcessor : KspProcessor {
                     append(". ")
 
                     append(
-                        "Use another declared style or annotate them with @${Names.Declare}(false) " +
+                        "Use another declared style or annotate them with @${Names.Omitted} " +
                         "if it's not your fault."
                     )
                 },

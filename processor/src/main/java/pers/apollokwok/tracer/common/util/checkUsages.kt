@@ -1,4 +1,4 @@
-package pers.apollokwok.tracer.common.usagecheck
+package pers.apollokwok.tracer.common.util
 
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.isAnnotationPresent
@@ -6,17 +6,14 @@ import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
+import pers.apollokwok.ktutil.allDo
 import pers.apollokwok.tracer.common.annotations.Tracer
 import pers.apollokwok.tracer.common.annotations.TracerInterface
 import pers.apollokwok.tracer.common.shared.contractedName
 import pers.apollokwok.tracer.common.shared.getRootNodesKlasses
-import pers.apollokwok.tracer.common.util.*
-import pers.apollokwok.tracer.common.util.filterOutRepeated
-import pers.apollokwok.tracer.common.util.insideModuleVisibleKlasses
-import pers.apollokwok.tracer.common.util.isAnnotatedRootOrNodes
-import pers.apollokwok.tracer.common.util.isNative
 import pers.apollokwok.tracer.common.shared.*
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.reflect.full.declaredFunctions
 
 private var valid = true
 
@@ -130,9 +127,33 @@ private fun checkNodesContexts() {
     }
 }
 
+private fun checkOmittedSymbols() {
+    resolver.getAnnotatedSymbols<Tracer.Omitted, KSPropertyDeclaration>()
+        .forEach { prop ->
+            val reasons = mapOf(
+                (prop.parentDeclaration == null) to "top-level",
+
+                ((prop.parentDeclaration as? KSClassDeclaration)?.classKind == ClassKind.INTERFACE) to
+                        "in interfaces",
+
+                (prop.moduleVisibility() == null) to "module-invisible",
+
+                (prop.extensionReceiver != null) to "with extensional receiver",
+            )
+            .filterKeys { it }
+            .values
+
+            if (reasons.any())
+                Log.w("Property $prop is $reasons and always omitted in tracer building, " +
+                   "which means annotating ${Names.Omitted} on it makes no sense.")
+        }
+}
+
 private var called = AtomicBoolean(false)
+
 internal fun checkUsages(): Boolean {
     require(!called.getAndSet(true))
+
     requireWholeRebuildingEveryTime()
     forbidRepeatedNativeContractedNames()
     forbidSameFileNames()
@@ -142,5 +163,7 @@ internal fun checkUsages(): Boolean {
     requireAllRootNodesTipsVisible()
     requireRootNodesTipsSinglyUsed()
     checkNodesContexts()
+    checkOmittedSymbols()
+
     return valid
 }

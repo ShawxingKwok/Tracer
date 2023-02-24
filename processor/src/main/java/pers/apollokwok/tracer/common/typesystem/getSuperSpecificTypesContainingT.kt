@@ -20,7 +20,7 @@ internal fun KSClassDeclaration.getSuperSpecificTypesContainingT(): List<Type.Sp
         val currentSuperKlasses = mutableSetOf<KSClassDeclaration>()
 
         superTypes
-            .filterNot { it.getAnnotationByType<Tracer.Declare>()?.enabled == false }
+            .filterNot { it.isAnnotationPresent(Tracer.Omitted::class) }
             .map { typeRef ->
                 // remove '?' since they may be converted from some alias types with '?'
                 typeRef.toProtoWithoutAliasAndStar().updateNullability(false) as Type.Specific

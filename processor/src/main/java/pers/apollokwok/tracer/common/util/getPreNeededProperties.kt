@@ -12,7 +12,6 @@ import pers.apollokwok.tracer.common.annotations.Tracer
 
 private val cache = mutableMapOf<KSClassDeclaration, List<KSPropertyDeclaration>>().alsoRegister()
 
-// todo: add one condition: propDecl.contextReceiver == null
 internal fun KSClassDeclaration.getPreNeededProperties(): List<KSPropertyDeclaration> =
     cache.getOrPut(this) {
         when {
@@ -27,13 +26,11 @@ internal fun KSClassDeclaration.getPreNeededProperties(): List<KSPropertyDeclara
                 && isFinal()
             ) ->
                 getDeclaredProperties().filter { prop ->
-                    prop.getAnnotationByType<Tracer.Declare>()
-                        ?.enabled
-                        ?: (prop.moduleVisibility() != null
-                            && prop.extensionReceiver == null
-                            && (prop.isMyAbstract() || prop.hasBackingField || prop.isDelegated())
-                            && !prop.isOverridingTracerInterface()
-                        )
+                    // todo: add one condition: prop.contextReceiver == null
+                    !prop.isAnnotationPresent(Tracer.Omitted::class)
+                    && prop.moduleVisibility() != null
+                    && prop.extensionReceiver == null
+                    && !prop.isOverridingTracerInterface()
                 }
                 .toList()
 
