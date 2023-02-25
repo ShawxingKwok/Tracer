@@ -21,7 +21,7 @@ open class MyNature : Nature(), MyNatureTracer {
     val fa = "D"
     val sfa get() = "D"
 
-    @Tracer.Omitted
+    @Tracer.Omit
     val declare get() = "D"
 
     val declareNo = "fgfgj"

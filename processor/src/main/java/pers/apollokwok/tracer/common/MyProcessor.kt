@@ -70,7 +70,7 @@ internal object MyProcessor : KspProcessor {
                                 val needed = when(symbol){
                                     is KSTypeParameter -> true
 
-                                    is KSTypeReference -> !symbol.isAnnotationPresent(Tracer.Omitted::class)
+                                    is KSTypeReference -> !symbol.isAnnotationPresent(Tracer.Omit::class)
 
                                     is KSPropertyDeclaration -> symbol in klass.getPreNeededProperties()
 
@@ -137,7 +137,7 @@ internal object MyProcessor : KspProcessor {
                     append(". ")
 
                     append(
-                        "Use another declared style or annotate them with @${Names.Omitted} " +
+                        "Use another declared style or annotate them with @${Names.Omit} " +
                         "if it's not your fault."
                     )
                 },

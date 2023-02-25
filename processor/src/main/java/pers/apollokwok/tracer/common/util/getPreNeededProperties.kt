@@ -7,7 +7,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import pers.apollokwok.ksputil.alsoRegister
-import pers.apollokwok.ksputil.getAnnotationByType
 import pers.apollokwok.tracer.common.annotations.Tracer
 
 private val cache = mutableMapOf<KSClassDeclaration, List<KSPropertyDeclaration>>().alsoRegister()
@@ -27,7 +26,7 @@ internal fun KSClassDeclaration.getPreNeededProperties(): List<KSPropertyDeclara
             ) ->
                 getDeclaredProperties().filter { prop ->
                     // todo: add one condition: prop.contextReceiver == null
-                    !prop.isAnnotationPresent(Tracer.Omitted::class)
+                    !prop.isAnnotationPresent(Tracer.Omit::class)
                     && prop.moduleVisibility() != null
                     && prop.extensionReceiver == null
                     && !prop.isOverridingTracerInterface()

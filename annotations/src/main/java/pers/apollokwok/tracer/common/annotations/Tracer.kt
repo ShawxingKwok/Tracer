@@ -32,8 +32,8 @@ public annotation class Tracer{
      * Generally, these properties own some new syntaxes unsupported by `ksp` like `context receiver` at present.
      * ```
      * @Tracer.Root
-     * class Sample<T> : @Tracer.Omitted List<T & Any>{
-     *     @Tracer.Omitted
+     * class Sample<T> : @Tracer.Omit List<T & Any>{
+     *     @Tracer.Omit
      *     context(String)
      *     val x: T get() = ...
      * }
@@ -41,5 +41,5 @@ public annotation class Tracer{
      */
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
     @Retention(AnnotationRetention.SOURCE)
-    public annotation class Omitted
+    public annotation class Omit
 }

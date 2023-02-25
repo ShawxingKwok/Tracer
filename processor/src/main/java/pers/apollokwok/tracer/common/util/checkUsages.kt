@@ -6,14 +6,12 @@ import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
-import pers.apollokwok.ktutil.allDo
 import pers.apollokwok.tracer.common.annotations.Tracer
 import pers.apollokwok.tracer.common.annotations.TracerInterface
 import pers.apollokwok.tracer.common.shared.contractedName
 import pers.apollokwok.tracer.common.shared.getRootNodesKlasses
 import pers.apollokwok.tracer.common.shared.*
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.reflect.full.declaredFunctions
 
 private var valid = true
 
@@ -128,7 +126,7 @@ private fun checkNodesContexts() {
 }
 
 private fun checkOmittedSymbols() {
-    resolver.getAnnotatedSymbols<Tracer.Omitted, KSPropertyDeclaration>()
+    resolver.getAnnotatedSymbols<Tracer.Omit, KSPropertyDeclaration>()
         .forEach { prop ->
             val reasons = mapOf(
                 (prop.parentDeclaration == null) to "top-level",
@@ -145,7 +143,7 @@ private fun checkOmittedSymbols() {
 
             if (reasons.any())
                 Log.w("Property $prop is $reasons and always omitted in tracer building, " +
-                   "which means annotating ${Names.Omitted} on it makes no sense.")
+                   "which means annotating ${Names.Omit} on it makes no sense.")
         }
 }
 

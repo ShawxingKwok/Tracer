@@ -9,5 +9,5 @@ public object Names {
     public const val Root: String = "$Tracer.Root"
     public const val Nodes: String = "$Tracer.Nodes"
     public const val Tips: String = "$Tracer.Tips"
-    public const val Omitted: String = "$Tracer.Omitted"
+    public const val Omit: String = "$Tracer.Omit"
 }

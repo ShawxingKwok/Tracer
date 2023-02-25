@@ -3,7 +3,6 @@ package pers.apollokwok.tracer.common.typesystem
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import pers.apollokwok.ksputil.alsoRegister
-import pers.apollokwok.ksputil.getAnnotationByType
 import pers.apollokwok.ksputil.simpleName
 import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.annotations.Tracer
@@ -20,7 +19,7 @@ internal fun KSClassDeclaration.getSuperSpecificTypesContainingT(): List<Type.Sp
         val currentSuperKlasses = mutableSetOf<KSClassDeclaration>()
 
         superTypes
-            .filterNot { it.isAnnotationPresent(Tracer.Omitted::class) }
+            .filterNot { it.isAnnotationPresent(Tracer.Omit::class) }
             .map { typeRef ->
                 // remove '?' since they may be converted from some alias types with '?'
                 typeRef.toProtoWithoutAliasAndStar().updateNullability(false) as Type.Specific

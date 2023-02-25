@@ -13,7 +13,7 @@ kotlin.sourceSets {
 }
 
 ksp{
-//    arg("tracer.allInternal", "")
+//    arg("tracer.allInternallyGenerated", "")
 //    arg("tracer.propertiesFullName", "")
 }
 
