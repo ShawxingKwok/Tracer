@@ -3,6 +3,7 @@ package pers.apollokwok.tracer.common.prophandler
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Visibility
+import pers.apollokwok.ksputil.resolver
 import pers.apollokwok.ktutil.lazyFast
 import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.shared.Tags
@@ -11,6 +12,7 @@ import pers.apollokwok.tracer.common.shared.getInterfaceNames
 import pers.apollokwok.tracer.common.shared.outermostDecl
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
+import pers.apollokwok.tracer.common.typesystem.toProto
 import pers.apollokwok.tracer.common.util.filterOutRepeated
 import pers.apollokwok.tracer.common.util.isCommon
 import pers.apollokwok.tracer.common.util.isFinal
@@ -19,14 +21,25 @@ internal sealed class PropInfo(
     val type: Type<*>,
     private val isMutable: Boolean,
     v: Visibility,
-    propsBuilder: PropsBuilder,
+    private val propsBuilder: PropsBuilder,
 ){
     companion object{
         // process props, make some declaredWithOwnerName or declaredWithPropName further.
         internal fun Collection<PropInfo>.process(){
             if (Tags.PropertiesFullName) return
 
-            filterOutRepeated{ it.grossKey }
+            val srcKlass = firstOrNull()?.srcKlass ?: return
+
+            val srcPropInfo = FromSrcKlassSuper(
+                klass = srcKlass,
+                type = resolver.createKSTypeReferenceFromKSType(srcKlass.asStarProjectedType()).toProto(),
+                isMutable = false,
+                v = Visibility.PUBLIC,
+                propsBuilder = firstOrNull()?.propsBuilder ?: return
+            )
+
+            plus(srcPropInfo)
+            .filterOutRepeated{ it.grossKey }
             .forEach { it.ownerNameContained = true }
 
             // concise though a little time-consuming
@@ -60,8 +73,8 @@ internal sealed class PropInfo(
             )
     }
 
-    private val sourceKlass = propsBuilder.sourceKlass
-    private val levelTag = "˚${sourceKlass.contractedName}"
+    private val srcKlass = propsBuilder.srcKlass
+    private val levelTag = "˚${srcKlass.contractedName}"
 
     // Here needn't consider about packageNameTag because it's owned only by other-module
     // declarations.
@@ -73,7 +86,7 @@ internal sealed class PropInfo(
                 if (isOuter) append("_")
                 append(propInfoNameCore)
 
-                if (!sourceKlass.isFinal() || isOuter)
+                if (!srcKlass.isFinal() || isOuter)
                     append("_$levelTag")
 
                 when(this@PropInfo){
@@ -107,13 +120,13 @@ internal sealed class PropInfo(
                     is FromElement ->
                         // properties in sourceKlass
                         if (parentProp == null)
-                            append("${sourceKlass.contractedName}`.`$prop`")
+                            append("${srcKlass.contractedName}`.`$prop`")
 
                         // below are properties in general classes
                         else {
                             append(prop.parentDeclaration!!.contractedName)
 
-                            if (!sourceKlass.isFinal() || isOuter)
+                            if (!srcKlass.isFinal() || isOuter)
                                 append("_$levelTag")
 
                             if (Tags.PropertiesFullName)
@@ -128,7 +141,7 @@ internal sealed class PropInfo(
 
     private val declContents: List<String> by lazyFast{
         (0..1).map { i ->
-            val interfaceName = getInterfaceNames(sourceKlass).toList()[i]
+            val interfaceName = getInterfaceNames(srcKlass).toList()[i]
             val typePart = typeContent?.let { "as $it" } ?: ""
             if (!isMutable)
                 "${v.name.lowercase()} val $interfaceName.${propInfoNames[i]} inline get() = ${references[i]} $typePart"

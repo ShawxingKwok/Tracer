@@ -8,19 +8,20 @@ import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.shared.Names.GENERATED_PACKAGE
 import pers.apollokwok.tracer.common.shared.Tags.AllInternal
 import pers.apollokwok.tracer.common.typesystem.Type
-import pers.apollokwok.tracer.common.typesystem.getTraceableSuperTypes
+import pers.apollokwok.tracer.common.typesystem.getSuperSpecificRawTypes
+import pers.apollokwok.tracer.common.typesystem.getTraceableSuperRawTypes
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
 import pers.apollokwok.tracer.common.util.*
 
-internal class PropsBuilder(val sourceKlass: KSClassDeclaration) {
+internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
     private val record = object {
         val validlyTracedInsideKlasses: Set<KSClassDeclaration> = mutableSetOf()
         val tracedKlassesStoppedTracingInsideForNullability: Set<KSClassDeclaration> = mutableSetOf()
 
         fun getErrorMsg(klass: KSClassDeclaration) =
             "Annotate $klass with ${Names.Nodes} or ${Names.Tips} since it appeared in " +
-                "$sourceKlass for multiple times and it is in the current module with some " +
-                "not omitted visible properties to trace."
+            "$srcKlass for multiple times and it is in the current module with some " +
+            "not omitted visible properties to trace."
     }
 
     private val newPropsInfo = mutableListOf<PropInfo>()
@@ -73,9 +74,9 @@ internal class PropsBuilder(val sourceKlass: KSClassDeclaration) {
 
                     val isMutable = prop.isMutable
                         && i == 0
-                        && !(klass == sourceKlass
-                            && sourceKlass.typeParameters.any()
-                            && kotlin.run {
+                        && !(klass == srcKlass
+                             && srcKlass.typeParameters.any()
+                             && kotlin.run {
                                 fun KSTypeReference.containT(): Boolean =
                                     resolve().declaration is KSTypeParameter
                                     || element?.typeArguments?.any { it.type?.containT() == true } == true
@@ -115,15 +116,15 @@ internal class PropsBuilder(val sourceKlass: KSClassDeclaration) {
 
     // collect sourceKlass superTypes in new props
     init {
-        sourceKlass.getTraceableSuperTypes().forEach { type ->
-            val v = getV(sourceKlass, type) ?: return@forEach
-            newPropsInfo += PropInfo.FromSrcKlassSuper(sourceKlass, type, false, v, this)
+        srcKlass.getTraceableSuperRawTypes(true).forEach { type ->
+            val v = getV(srcKlass, type) ?: return@forEach
+            newPropsInfo += PropInfo.FromSrcKlassSuper(srcKlass, type, false, v, this)
         }
     }
 
     // start tracing inner property types in recurse in new props
     init {
-        trace(sourceKlass, null)
+        trace(srcKlass, null)
     }
 
     private val allInnerKlasses = newPropsInfo.flatMap { it.type.allInnerKlasses }.toSet()
@@ -200,7 +201,7 @@ internal class PropsBuilder(val sourceKlass: KSClassDeclaration) {
         .toSortedMap()
         .values
         .joinToString(
-            prefix = "//region Below are simplified types with its built times inside ${sourceKlass.noPackageName()!!}.\n/*\n",
+            prefix = "//region Below are simplified types with its built times inside ${srcKlass.noPackageName()!!}.\n/*\n",
             separator = "\n\n",
             postfix = "\n*/\n//endregion",
         )
@@ -210,8 +211,8 @@ internal class PropsBuilder(val sourceKlass: KSClassDeclaration) {
     init{
         Environment.codeGenerator.createFile(
             packageName = GENERATED_PACKAGE,
-            fileName = "${sourceKlass.contractedName}InnerElements",
-            dependencies = Dependencies(false, sourceKlass.containingFile!!),
+            fileName = "${srcKlass.contractedName}InnerElements",
+            dependencies = Dependencies(false, srcKlass.containingFile!!),
             content = """
                 |$SUPPRESSING
                 |

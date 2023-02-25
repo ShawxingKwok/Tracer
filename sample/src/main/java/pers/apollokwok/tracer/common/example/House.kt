@@ -6,8 +6,8 @@ import pers.apollokwok.tracer.common.generated._WifiRouter
 
 @Tracer.Root
 class House : HouseTracer{
-    val masterBedroom = Bedroom()
-    val secondaryBedroom = Bedroom()
+    val masterBedroom = Bedroom(this)
+    val secondaryBedroom = Bedroom(this)
     val door = Door()
     val livingRoom = LivingRoom()
 

@@ -11,11 +11,11 @@ import pers.apollokwok.tracer.common.util.isAnnotatedRootOrNodes
 import pers.apollokwok.tracer.common.util.isNative
 import pers.apollokwok.tracer.common.util.moduleVisibility
 
-private val cache = mutableMapOf<KSClassDeclaration, List<Type.Specific>>().alsoRegister()
+private val cache = mutableMapOf<Pair<KSClassDeclaration, Boolean>, List<Type.Specific>>().alsoRegister()
 
-internal fun KSClassDeclaration.getSuperSpecificTypesContainingT(): List<Type.Specific> =
+internal fun KSClassDeclaration.getSuperSpecificRawTypes(isSrc: Boolean): List<Type.Specific> =
     if (!isNative()) emptyList()
-    else cache.getOrPut(this) {
+    else cache.getOrPut(this to isSrc) {
         val currentSuperKlasses = mutableSetOf<KSClassDeclaration>()
 
         superTypes
@@ -26,7 +26,7 @@ internal fun KSClassDeclaration.getSuperSpecificTypesContainingT(): List<Type.Sp
             }
             .filterNot {
                 it.decl.moduleVisibility() == null
-                || it.decl.isAnnotatedRootOrNodes()
+                || isSrc && it.decl.isAnnotatedRootOrNodes()
                 || it.decl.isAnnotationPresent(TracerInterface::class)
                 || it.decl == Type.`Any？`.decl
                 || it.decl in currentSuperKlasses
@@ -36,7 +36,7 @@ internal fun KSClassDeclaration.getSuperSpecificTypesContainingT(): List<Type.Sp
                 val map = basicSpecificSuperType.args.associateBy { it.param.simpleName() }
 
                 val upperUpdatedSuperTypes = basicSpecificSuperType.decl
-                    .getSuperSpecificTypesContainingT()
+                    .getSuperSpecificRawTypes(isSrc)
                     .filterNot { it.decl in currentSuperKlasses }
                     .onEach { currentSuperKlasses += it.decl }
                     .map { type -> type.updateIf({ map.any() }){ it.convertGeneric(map).first } }
