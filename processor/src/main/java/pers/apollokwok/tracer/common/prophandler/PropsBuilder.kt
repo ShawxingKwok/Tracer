@@ -8,8 +8,7 @@ import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.shared.Names.GENERATED_PACKAGE
 import pers.apollokwok.tracer.common.shared.Tags.AllInternal
 import pers.apollokwok.tracer.common.typesystem.Type
-import pers.apollokwok.tracer.common.typesystem.getSuperSpecificRawTypes
-import pers.apollokwok.tracer.common.typesystem.getTraceableSuperRawTypes
+import pers.apollokwok.tracer.common.typesystem.getSrcKlassTraceableSuperTypes
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
 import pers.apollokwok.tracer.common.util.*
 
@@ -116,7 +115,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
 
     // collect sourceKlass superTypes in new props
     init {
-        srcKlass.getTraceableSuperRawTypes(true).forEach { type ->
+        getSrcKlassTraceableSuperTypes(srcKlass).forEach { type ->
             val v = getV(srcKlass, type) ?: return@forEach
             newPropsInfo += PropInfo.FromSrcKlassSuper(srcKlass, type, false, v, this)
         }

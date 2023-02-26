@@ -15,8 +15,6 @@ internal fun KSTypeParameter.getBoundProto(): Type<*> =
             if (boundInnerParam?.simpleName() == this.simpleName())
                 Type.Specific(
                     decl = boundType.declaration as KSClassDeclaration,
-                    // I forget what this line means
-                    // todo: consider about changing another arg, but Arg structure may change if so.
                     args = listOf(Arg.Star(this)),
                     genericName = null,
                     isNullable = boundType.isMarkedNullable,

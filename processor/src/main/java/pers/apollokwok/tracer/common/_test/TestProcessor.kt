@@ -6,10 +6,8 @@ import com.google.devtools.ksp.getFunctionDeclarationsByName
 import com.google.devtools.ksp.getPropertyDeclarationByName
 import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
-import pers.apollokwok.tracer.common.typesystem.getBoundProto
-import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
-import pers.apollokwok.tracer.common.typesystem.toProto
-import pers.apollokwok.tracer.common.typesystem.toProtoWithoutAliasAndStar
+import pers.apollokwok.tracer.common.typesystem.*
+import pers.apollokwok.tracer.common.typesystem.getSrcKlassTraceableSuperTypes
 import javax.swing.text.html.HTML.Tag.I
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -29,7 +27,15 @@ private class J<T: V, V: CharSequence?> {
 
 public class TestProcessor : KspProcessor{
     override fun process(times: Int): List<KSAnnotated> {
-        resolver.getClassDeclarationByName("JK")!!.getDeclaredProperties().last().hasBackingField.let { Log.w(it) }
+        val klass = resolver.getClassDeclarationByName("SuperTypes")!!
+
+        getSrcKlassTraceableSuperTypes(klass).let { Log.w(it) }
+
+        klass.getSuperSpecificRawTypes(true).let { Log.w(it) }
+        klass.getSuperSpecificRawTypes(false).let { Log.w(it) }
+
+        val prop = resolver.getPropertyDeclarationByName("SuperTypes.superTypes")!!
+        prop.getTraceableTypes().let { Log.w(it) }
         return emptyList()
     }
 
