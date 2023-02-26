@@ -33,6 +33,12 @@ private fun requireWholeRebuildingEveryTime(){
     )
 }
 
+private fun requireRootNodesUsedOnClasses(){
+    requireNone(getRootNodesKlasses().filterNot { it.classKind == ClassKind.CLASS }){
+        "Symbols below annotated with ${Names.Root} or ${Names.Nodes} are not classes."
+    }
+}
+
 // todo: use 'getTrulyAllFiles' when it is supported.
 private fun forbidRepeatedNativeContractedNames(){
     requireNone(
@@ -56,19 +62,6 @@ private fun forbidRepeatedNativeContractedNames(){
 private fun forbidSameFileNames(){
     requireNone(symbols = getRootNodesKlasses().distinct().filterOutRepeated { it.contractedName.lowercase() }){
         "Rename some classes below which conflict on names in tracer building."
-    }
-}
-
-private fun forbidPersonalUsageOfTracerPackage(){
-    requireNone(resolver.getAllFiles().filter { it.packageName() == Names.GENERATED_PACKAGE }.toList()){
-        "Package `${Names.GENERATED_PACKAGE}` can't be used personally."
-    }
-}
-
-private fun forbidPersonalUsageOfTracerInterface(){
-    val forbiddenAnnotNames = listOf(TracerInterface::class).map { it.qualifiedName!! }
-    requireNone(symbols = forbiddenAnnotNames.flatMap { resolver.getSymbolsWithAnnotation(it) }){
-        "$forbiddenAnnotNames can be used only in generated tracer files, so don't use it yourself."
     }
 }
 
@@ -153,10 +146,9 @@ internal fun checkUsages(): Boolean {
     require(!called.getAndSet(true))
 
     requireWholeRebuildingEveryTime()
+    requireRootNodesUsedOnClasses()
     forbidRepeatedNativeContractedNames()
     forbidSameFileNames()
-    forbidPersonalUsageOfTracerPackage()
-    forbidPersonalUsageOfTracerInterface()
     forbidJavaFileUsingTracerAnnot()
     requireAllRootNodesTipsVisible()
     requireRootNodesTipsSinglyUsed()
