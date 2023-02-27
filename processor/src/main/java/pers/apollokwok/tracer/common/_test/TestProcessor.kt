@@ -34,8 +34,6 @@ public class TestProcessor : KspProcessor{
         klass.getSuperSpecificRawTypes(true).let { Log.w(it) }
         klass.getSuperSpecificRawTypes(false).let { Log.w(it) }
 
-        val prop = resolver.getPropertyDeclarationByName("SuperTypes.superTypes")!!
-        prop.getTraceableTypes().let { Log.w(it) }
         return emptyList()
     }
 

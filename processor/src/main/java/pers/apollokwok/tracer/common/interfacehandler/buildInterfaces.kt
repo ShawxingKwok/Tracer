@@ -160,7 +160,7 @@ internal fun buildInterface(klass: KSClassDeclaration) {
 
     Environment.codeGenerator.createFile(
         packageName = Names.GENERATED_PACKAGE,
-        fileName = interfaceName,
+        fileName = interfaceName + "s",
         dependencies = Dependencies(false, klass.containingFile!!),
         content = content,
     )

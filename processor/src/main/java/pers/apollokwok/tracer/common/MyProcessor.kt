@@ -90,7 +90,7 @@ internal object MyProcessor : KspProcessor {
                 }
                 .filter { (_, indices)-> indices.any() }
 
-                // process next round if some invalid symbols remain
+                // continue processing next round if some invalid symbols remain
                 if (invalidSymbolsInfo.any())
                     getRootNodesKlasses()
                 // otherwise build new props

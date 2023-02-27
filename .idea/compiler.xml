@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="1.8">
+      <module name="io.github.apollokwok.TracerCommon.compiler.test" target="8" />
       <module name="Tracer.syntaxTest" target="11" />
       <module name="Tracer.syntaxTest.main" target="11" />
       <module name="Tracer.syntaxTest.test" target="11" />
