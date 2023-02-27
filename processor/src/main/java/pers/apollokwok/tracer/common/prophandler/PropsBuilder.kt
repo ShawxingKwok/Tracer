@@ -210,7 +210,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
     init{
         Environment.codeGenerator.createFile(
             packageName = GENERATED_PACKAGE,
-            fileName = "${srcKlass.contractedName}InnerElements",
+            fileName = "${srcKlass.contractedName}Elements",
             dependencies = Dependencies(false, srcKlass.containingFile!!),
             content = """
                 |$SUPPRESSING

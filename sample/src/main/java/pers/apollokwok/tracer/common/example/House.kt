@@ -2,6 +2,7 @@ package pers.apollokwok.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
 import pers.apollokwok.tracer.common.generated.HouseTracer
+import pers.apollokwok.tracer.common.generated._Quilt
 import pers.apollokwok.tracer.common.generated._WifiRouter
 
 @Tracer.Root

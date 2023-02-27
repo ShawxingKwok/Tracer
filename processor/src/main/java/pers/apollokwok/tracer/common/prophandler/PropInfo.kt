@@ -28,18 +28,7 @@ internal sealed class PropInfo(
         internal fun Collection<PropInfo>.process(){
             if (Tags.PropertiesFullName) return
 
-            val srcKlass = firstOrNull()?.srcKlass ?: return
-
-            val srcPropInfo = FromSrcKlassSuper(
-                klass = srcKlass,
-                type = resolver.createKSTypeReferenceFromKSType(srcKlass.asStarProjectedType()).toProto(),
-                isMutable = false,
-                v = Visibility.PUBLIC,
-                propsBuilder = firstOrNull()?.propsBuilder ?: return
-            )
-
-            plus(srcPropInfo)
-            .filterOutRepeated{ it.grossKey }
+            filterOutRepeated{ it.grossKey }
             .forEach { it.ownerNameContained = true }
 
             // concise though a little time-consuming
