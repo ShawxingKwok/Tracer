@@ -13,6 +13,10 @@ kotlin.sourceSets.main {
     kotlin.srcDirs(file("$buildDir/generated/ksp/main/kotlin"))
 }
 
+ksp{
+    arg("tracer.allInternallyGenerated", "")
+}
+
 dependencies {
     implementation lib_kotlin_reflect
     implementation lib_coroutine
@@ -20,7 +24,7 @@ dependencies {
     api(project(':test:superLib'))
 
     implementation project(":annotations")
-    ksp project(":compiler:test")
+    ksp project(":compiler:overalltest")
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{

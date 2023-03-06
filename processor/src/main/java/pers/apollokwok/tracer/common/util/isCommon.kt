@@ -53,19 +53,21 @@ private val commonContainerQualifiedNames: Set<String> =
         Set::class,
         Map::class,
 
-        MutableIterable::class,
-        MutableCollection::class,
-        MutableList::class,
-        MutableSet::class,
-        MutableMap::class,
-
         Pair::class,
         Triple::class,
         Array::class,
         Sequence::class,
     )
     .map { it.qualifiedName!! }
-    .toSet()
+    .toSet() +
+    // MutableIterable::class.qualifiedName is kotlin.collections.Iterable
+    setOf(
+        "kotlin.collections.MutableIterable",
+        "kotlin.collections.MutableCollection",
+        "kotlin.collections.MutableList",
+        "kotlin.collections.MutableSet",
+        "kotlin.collections.MutableMap",
+    )
 
 internal fun Type<*>.isCommon(): Boolean =
     this is Type.Specific

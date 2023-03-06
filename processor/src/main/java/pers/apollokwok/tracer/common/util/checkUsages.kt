@@ -7,7 +7,6 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.annotations.TracerInterface
 import pers.apollokwok.tracer.common.shared.contractedName
 import pers.apollokwok.tracer.common.shared.getRootNodesKlasses
 import pers.apollokwok.tracer.common.shared.*
@@ -75,17 +74,17 @@ private fun forbidJavaFileUsingTracerAnnot(){
     }
 }
 
-private fun requireAllRootNodesTipsVisible(){
-    val annotatedKlasses = getRootNodesKlasses() + resolver.getAnnotatedSymbols<Tracer.Tips, KSClassDeclaration>()
+private fun requireAllRootNodesTipVisible(){
+    val annotatedKlasses = getRootNodesKlasses() + resolver.getAnnotatedSymbols<Tracer.Tip, KSClassDeclaration>()
     requireNone(annotatedKlasses.filter { it.moduleVisibility() == null }){
-        "Each class annotated with ${Names.Root}, ${Names.Nodes}, or ${Names.Tips} must be module-visible."
+        "Each class annotated with ${Names.Root}, ${Names.Nodes}, or ${Names.Tip} must be module-visible."
     }
 }
 
-private fun requireRootNodesTipsSinglyUsed(){
-    val classes = arrayOf(Tracer.Root::class, Tracer.Nodes::class, Tracer.Tips::class)
+private fun requireRootNodesTipSinglyUsed(){
+    val classes = arrayOf(Tracer.Root::class, Tracer.Nodes::class, Tracer.Tip::class)
     requireNone(getRootNodesKlasses().filter { klass -> classes.count{ klass.isAnnotationPresent(it) } > 1 }){
-        "${Names.Root}, ${Names.Nodes} and ${Names.Tips} can't be used together."
+        "${Names.Root}, ${Names.Nodes} and ${Names.Tip} can't be used together."
     }
 }
 
@@ -98,7 +97,7 @@ private fun checkNodesContexts() {
         .filter { it.moduleVisibility() == Visibility.PUBLIC }
         .filter {
             val context = it.context!!
-            if (context.isNative())
+            if (context.isNativeKt())
                 context.moduleVisibility() == Visibility.INTERNAL
             else {
                 val contextTracerInterfacePath = "${Names.GENERATED_PACKAGE}.${getInterfaceNames(context).first}"
@@ -150,8 +149,8 @@ internal fun checkUsages(): Boolean {
     forbidRepeatedNativeContractedNames()
     forbidSameFileNames()
     forbidJavaFileUsingTracerAnnot()
-    requireAllRootNodesTipsVisible()
-    requireRootNodesTipsSinglyUsed()
+    requireAllRootNodesTipVisible()
+    requireRootNodesTipSinglyUsed()
     checkNodesContexts()
     checkOmittedSymbols()
 

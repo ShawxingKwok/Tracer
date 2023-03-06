@@ -6,9 +6,8 @@ import com.google.devtools.ksp.symbol.Origin
 import pers.apollokwok.ksputil.Environment
 import pers.apollokwok.ksputil.previousGeneratedFiles
 
-internal fun KSNode.isNative(): Boolean =
-    containingFile != null
-    && containingFile!!.origin != Origin.SYNTHETIC
+internal fun KSNode.isNativeKt(): Boolean =
+    containingFile?.origin == Origin.KOTLIN
     && Environment.codeGenerator.previousGeneratedFiles.all {
         it.path != containingFile!!.filePath
     }

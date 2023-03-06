@@ -31,7 +31,7 @@ private tailrec fun getSuperRootOrNodeKlass(klass: KSClassDeclaration): KSClassD
 
         // is Root/Nodes and its tracer interface is visible
         superKlass.isAnnotatedRootOrNodes()
-        &&(superKlass.isNative()
+        &&(superKlass.isNativeKt()
             || "${Names.GENERATED_PACKAGE}.${getInterfaceNames(superKlass).first}"
             .let(resolver::getClassDeclarationByName)!!
             .isPublic()
@@ -92,9 +92,7 @@ internal fun buildInterface(klass: KSClassDeclaration) {
         .associateBy { it.substringAfterLast(".") }
         .toMutableMap()
         // TracerInterface must has its import.
-        .also {
-            it[Names.TracerInterface] = TracerInterface::class.qualifiedName!!
-        }
+        .also { it[Names.TracerInterface] = TracerInterface::class.qualifiedName!! }
         .values
         .sorted()
 

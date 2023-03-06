@@ -15,6 +15,7 @@ kotlin.sourceSets.main {
 
 dependencies {
     implementation(project(':annotations'))
+    implementation(project(":processor"))
     ksp project(':compiler:unittest')
     implementation(lib_kotlin_reflect)
 }

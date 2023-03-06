@@ -18,7 +18,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
         val tracedKlassesStoppedTracingInsideForNullability: Set<KSClassDeclaration> = mutableSetOf()
 
         fun getErrorMsg(klass: KSClassDeclaration) =
-            "Annotate $klass with ${Names.Nodes} or ${Names.Tips} since it appeared in " +
+            "Annotate $klass with ${Names.Nodes} or ${Names.Tip} since it appeared in " +
             "$srcKlass for multiple times and it is in the current module with some " +
             "not omitted visible properties to trace."
     }
@@ -133,7 +133,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
         .map { it.outermostDecl }
         .groupBy { it.simpleName() }
         .mapNotNull { (_, similarKlasses)->
-            similarKlasses.singleOrNull() ?: similarKlasses.firstOrNull { it.isNative() }
+            similarKlasses.singleOrNull() ?: similarKlasses.firstOrNull { it.isNativeKt() }
         }
         .toSet()
         //endregion
@@ -161,7 +161,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
             similarKlasses = grouped.filter { it.value.size > 1 }.values.flatten().toSet()
         }
 
-        ret.filterKeys { !it.isNative() }
+        ret.filterKeys { !it.isNativeKt() }
     }
 
     // process new props, make some declared with its owner name or prop name further.

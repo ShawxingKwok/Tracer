@@ -8,6 +8,6 @@ public object Names {
     public const val Tracer: String = "Tracer"
     public const val Root: String = "$Tracer.Root"
     public const val Nodes: String = "$Tracer.Nodes"
-    public const val Tips: String = "$Tracer.Tips"
+    public const val Tip: String = "$Tracer.Tip"
     public const val Omit: String = "$Tracer.Omit"
 }

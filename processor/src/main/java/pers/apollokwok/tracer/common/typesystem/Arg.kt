@@ -196,7 +196,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
         //region fixed part
         override val allInnerKlasses: List<KSClassDeclaration> = emptyList()
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = "*"
-        override fun getName(isGross: Boolean, getSrcTag: (KSClassDeclaration) -> String?): String = "*"
+        override fun getName(isGross: Boolean, getSrcTag: (KSClassDeclaration) -> String?): String = "✶"
         //endregion
 
         override fun hashCode(): Int {

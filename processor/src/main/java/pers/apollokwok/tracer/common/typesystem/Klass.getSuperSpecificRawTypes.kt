@@ -8,13 +8,13 @@ import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.annotations.Tracer
 import pers.apollokwok.tracer.common.annotations.TracerInterface
 import pers.apollokwok.tracer.common.util.isAnnotatedRootOrNodes
-import pers.apollokwok.tracer.common.util.isNative
+import pers.apollokwok.tracer.common.util.isNativeKt
 import pers.apollokwok.tracer.common.util.moduleVisibility
 
 private val cache = mutableMapOf<Pair<KSClassDeclaration, Boolean>, List<Type.Specific>>().alsoRegister()
 
 internal fun KSClassDeclaration.getSuperSpecificRawTypes(isSrc: Boolean): List<Type.Specific> =
-    if (!isNative()) emptyList()
+    if (!isNativeKt()) emptyList()
     else cache.getOrPut(this to isSrc) {
         val currentSuperKlasses = mutableSetOf<KSClassDeclaration>()
 

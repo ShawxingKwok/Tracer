@@ -13,7 +13,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/annotations" />
             <option value="$PROJECT_DIR$/compiler" />
-            <option value="$PROJECT_DIR$/compiler/test" />
+            <option value="$PROJECT_DIR$/compiler/overalltest" />
             <option value="$PROJECT_DIR$/compiler/unittest" />
             <option value="$PROJECT_DIR$/processor" />
             <option value="$PROJECT_DIR$/sample" />

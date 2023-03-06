@@ -6,9 +6,6 @@ dependencies {
     implementation(lib_coroutine)
     implementation(lib_kotlin_reflect)
     implementation(lib_kt_util)
-
-//    implementation "io.github.apollokwok:tracer-common-tag-allInternallyGenerated:1.7.20-1.0.1"
-    implementation "io.github.apollokwok:tracer-common-tag-fullNameProperties:1.7.20-1.0.1"
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{

@@ -19,7 +19,6 @@ dependencies {
     implementation lib_ksp
     implementation lib_ksp_util
 
-//    implementation project(":annotations")
     implementation lib_tracer_common_annotations
 }
 

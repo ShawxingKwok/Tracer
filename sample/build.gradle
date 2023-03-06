@@ -12,18 +12,13 @@ kotlin.sourceSets {
     test.kotlin.srcDirs += "$buildDir/generated/ksp/test/kotlin"
 }
 
-ksp{
-//    arg("tracer.allInternallyGenerated", "")
-//    arg("tracer.propertiesFullName", "")
-}
-
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
     kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
 
 dependencies {
-    ksp project(":compiler:test")
+    ksp project(":compiler:overalltest")
     implementation project(":annotations")
-//    ksp 'io.github.apollokwok:tracer-common-compiler:1.7.20-1.1.0'
-//    implementation 'io.github.apollokwok:tracer-common-annotations:1.7.20-1.1.0'
+//    ksp 'io.github.apollokwok:tracer-common-compiler:1.7.20-1.2.0'
+//    implementation 'io.github.apollokwok:tracer-common-annotations:1.7.20-1.2.0'
 }

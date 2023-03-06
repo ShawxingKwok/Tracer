@@ -7,10 +7,11 @@ import pers.apollokwok.tracer.common.generated.MyNatureTracer
 @Tracer.Root
 open class MyNature : Nature(), MyNatureTracer {
     override val _MyNature: MyNature get() = this
+    override val _Nature: Nature get() = this
 
     override val earth: MyEarth = MyEarth(this)
 
-//    abstract val abstractX: Int
+    //    abstract val abstractX: Int
     open val openSWithField = "D"
 
 //    @Tracer.Declare

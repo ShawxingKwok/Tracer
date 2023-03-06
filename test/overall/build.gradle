@@ -20,7 +20,7 @@ dependencies {
     implementation project(':test:lib')
 
     implementation project(":annotations")
-    ksp project(":compiler:test")
+    ksp project(":compiler:overalltest")
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{

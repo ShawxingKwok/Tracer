@@ -330,7 +330,8 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
                 @Suppress("LocalVariableName", "NonAsciiCharacters")
                 val `need？` = isNullable && !isGross
 
-                genericName?.let { append("${genericName}_") }
+                if (!isGross && genericName != null)
+                    append(genericName + "_")
 
                 val (isGeneralFunction, isSuspendFunction) =
                     arrayOf(
