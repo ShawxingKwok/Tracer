@@ -3,7 +3,6 @@ package pers.apollokwok.tracer.common.prophandler
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Visibility
-import pers.apollokwok.ksputil.resolver
 import pers.apollokwok.ktutil.lazyFast
 import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.shared.Tags
@@ -12,7 +11,6 @@ import pers.apollokwok.tracer.common.shared.getInterfaceNames
 import pers.apollokwok.tracer.common.shared.outermostDecl
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
-import pers.apollokwok.tracer.common.typesystem.toProto
 import pers.apollokwok.tracer.common.util.filterOutRepeated
 import pers.apollokwok.tracer.common.util.isCommon
 import pers.apollokwok.tracer.common.util.isFinal
@@ -26,7 +24,7 @@ internal sealed class PropInfo(
     companion object{
         // process props, make some declaredWithOwnerName or declaredWithPropName further.
         internal fun Collection<PropInfo>.process(){
-            if (Tags.PropertiesFullName) return
+            if (Tags.FullNameProperties) return
 
             filterOutRepeated{ it.grossKey }
             .forEach { it.ownerNameContained = true }
@@ -38,7 +36,7 @@ internal sealed class PropInfo(
         }
     }
 
-    protected var ownerNameContained = Tags.PropertiesFullName || type.isCommon()
+    protected var ownerNameContained = Tags.FullNameProperties || type.isCommon()
 
     private val typeContent: String? by lazyFast {
         type.getContent(getPathImported = { it.outermostDecl in propsBuilder.importedOutermostKlasses })
@@ -118,7 +116,7 @@ internal sealed class PropInfo(
                             if (!srcKlass.isFinal() || isOuter)
                                 append("_$levelTag")
 
-                            if (Tags.PropertiesFullName)
+                            if (Tags.FullNameProperties)
                                 append("_${parentProp.parentDeclaration!!.contractedName}_$parentProp")
 
                             append("`.`$prop`")

@@ -5,30 +5,37 @@ import kotlin.reflect.KClass
 @Target
 public annotation class Tracer{
     /**
-     * **See** [Tracer Annotations](https://apollokwok.github.io/TracerTutorial/usage/annotations/)
+     * **See** [Root](https://apollokwok.github.io/TracerTutorial/docs/usage/annotations/#root)
      */
     @Target(AnnotationTarget.CLASS)
     @Retention(AnnotationRetention.BINARY)
     public annotation class Root
 
     /**
-     * **See** [Tracer Annotations](https://apollokwok.github.io/TracerTutorial/usage/annotations/)
+     * **See** [Nodes](https://apollokwok.github.io/TracerTutorial/docs/usage/annotations/#nodes)
      */
     @Target(AnnotationTarget.CLASS)
     @Retention(AnnotationRetention.BINARY)
     public annotation class Nodes(val context: KClass<*>)
 
     /**
-     * **See** [Tracer Annotations](https://apollokwok.github.io/TracerTutorial/usage/annotations/)
+     * **See** [Tip](https://apollokwok.github.io/TracerTutorial/docs/usage/annotations/#tip)
      */
     @Target(AnnotationTarget.CLASS)
     @Retention(AnnotationRetention.SOURCE)
     public annotation class Tip
 
     /**
-     * **See** [Tracer Annotations](https://apollokwok.github.io/TracerTutorial/usage/annotations/)
+     * **See** [Omit](https://apollokwok.github.io/TracerTutorial/docs/usage/annotations/#omit)
      */
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
     @Retention(AnnotationRetention.SOURCE)
     public annotation class Omit
+
+    /**
+     * **See** [FullName](https://apollokwok.github.io/TracerTutorial/docs/usage/annotations/#fullname)
+     */
+    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
+    @Retention(AnnotationRetention.SOURCE)
+    public annotation class FullName
 }

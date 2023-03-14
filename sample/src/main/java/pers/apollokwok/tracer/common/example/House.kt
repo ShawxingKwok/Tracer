@@ -1,9 +1,8 @@
 package pers.apollokwok.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.apollokwok.tracer.common.generated.*
 import pers.apollokwok.tracer.common.generated.HouseTracer
-import pers.apollokwok.tracer.common.generated._Quilt
-import pers.apollokwok.tracer.common.generated._WifiRouter
 
 @Tracer.Root
 class House : HouseTracer{
@@ -16,7 +15,13 @@ class House : HouseTracer{
 }
 
 context (HouseTracer)
-class Door
+class Door{
+    private val house get() = _House
+
+    fun foo(){
+        house
+    }
+}
 
 context (HouseTracer)
 class LivingRoom{
