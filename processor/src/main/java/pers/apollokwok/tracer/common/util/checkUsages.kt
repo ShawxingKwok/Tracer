@@ -7,7 +7,6 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.shared.contractedName
 import pers.apollokwok.tracer.common.shared.getRootNodesKlasses
 import pers.apollokwok.tracer.common.shared.*
 import java.util.concurrent.atomic.AtomicBoolean
@@ -38,31 +37,30 @@ private fun requireRootNodesUsedOnClasses(){
     }
 }
 
-// todo: use 'getTrulyAllFiles' when it is supported.
-private fun forbidRepeatedNativeContractedNames(){
-    requireNone(
-        symbols = resolver
-            .getAllFiles()
-            .flatMap { it.declarations }
-            .toList()
-            .let { decls ->
-                val visibleTypeAliases = decls.filterIsInstance<KSTypeAlias>()
-                    .filterNot { it.moduleVisibility() == null }
-                visibleTypeAliases + decls.insideModuleVisibleKlasses()
-            }
-            .filterOutRepeated { it.contractedName }
-    ){
-        "Names below conflict. To make built names more clear, each internal/public class/typealias " +
-            "must be unique for its contracted name in the built module."
-    }
-}
+//private fun forbidRepeatedNativeContractedNames(){
+//    requireNone(
+//        symbols = resolver
+//            .getAllFiles()
+//            .flatMap { it.declarations }
+//            .toList()
+//            .let { decls ->
+//                val visibleTypeAliases = decls.filterIsInstance<KSTypeAlias>()
+//                    .filterNot { it.moduleVisibility() == null }
+//                visibleTypeAliases + decls.insideModuleVisibleKlasses()
+//            }
+//            .filterOutRepeated { it.contractedName }
+//    ){
+//        "Names below conflict. To make built names more clear, each internal/public class/typealias " +
+//            "must be unique for its contracted name in the built module."
+//    }
+//}
 
-// todo: use 'getTrulyAnnotatedSymbols' when it is supported.
-private fun forbidSameFileNames(){
-    requireNone(symbols = getRootNodesKlasses().distinct().filterOutRepeated { it.contractedName.lowercase() }){
-        "Rename some classes below which conflict on names in tracer building."
-    }
-}
+//// todo: use 'getTrulyAnnotatedSymbols' when it is supported.
+//private fun forbidSameFileNames(){
+//    requireNone(symbols = getRootNodesKlasses().distinct().filterOutRepeated { it.contractedName.lowercase() }){
+//        "Rename some classes below which conflict on names in tracer building."
+//    }
+//}
 
 private fun forbidJavaFileUsingTracerAnnot(){
     requireNone(
@@ -117,7 +115,7 @@ private fun checkNodesContexts() {
     }
 }
 
-private fun checkOmittedSymbols() {
+private fun checkOmittedProps() {
     resolver.getAnnotatedSymbols<Tracer.Omit, KSPropertyDeclaration>()
         .forEach { prop ->
             val reasons = mapOf(
@@ -146,13 +144,13 @@ internal fun checkUsages(): Boolean {
 
     requireWholeRebuildingEveryTime()
     requireRootNodesUsedOnClasses()
-    forbidRepeatedNativeContractedNames()
-    forbidSameFileNames()
+//    forbidRepeatedNativeContractedNames()
+//    forbidSameFileNames()
     forbidJavaFileUsingTracerAnnot()
     requireAllRootNodesTipVisible()
     requireRootNodesTipSinglyUsed()
     checkNodesContexts()
-    checkOmittedSymbols()
+    checkOmittedProps()
 
     return valid
 }

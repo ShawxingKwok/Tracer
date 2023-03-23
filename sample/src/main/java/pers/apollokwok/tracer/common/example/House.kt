@@ -17,10 +17,6 @@ class House : HouseTracer{
 context (HouseTracer)
 class Door{
     private val house get() = _House
-
-    fun foo(){
-        house
-    }
 }
 
 context (HouseTracer)

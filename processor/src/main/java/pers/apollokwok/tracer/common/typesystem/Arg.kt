@@ -112,8 +112,8 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String? =
             type.getContent(getPathImported)
 
-        override fun getName(isGross: Boolean, getSrcTag: (KSClassDeclaration) -> String?): String =
-            type.getName(isGross, getSrcTag)
+        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
+            type.getName(isGross, getPackageTag)
     }
 
     class In(type: Type<*>, param: KSTypeParameter) : General<In>(type, param) {
@@ -128,10 +128,10 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
             }
         }
 
-        override fun getName(isGross: Boolean, getSrcTag: (KSClassDeclaration) -> String?): String =
+        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
             buildString {
                 if (!isGross) append("↑")
-                append(type.getName(isGross, getSrcTag))
+                append(type.getName(isGross, getPackageTag))
             }
     }
 
@@ -147,10 +147,10 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
             }
         }
 
-        override fun getName(isGross: Boolean, getSrcTag: (KSClassDeclaration) -> String?): String =
+        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
             buildString {
                 if (!isGross) append("↓")
-                append(type.getName(isGross, getSrcTag))
+                append(type.getName(isGross, getPackageTag))
             }
     }
 
@@ -196,7 +196,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
         //region fixed part
         override val allInnerKlasses: List<KSClassDeclaration> = emptyList()
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = "*"
-        override fun getName(isGross: Boolean, getSrcTag: (KSClassDeclaration) -> String?): String = "✶"
+        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String = "✶"
         //endregion
 
         override fun hashCode(): Int {

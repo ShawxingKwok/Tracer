@@ -138,31 +138,10 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
         .toSet()
         //endregion
 
-    // for these three classes in a same file,
-    // 'java.io.File' and 'com.lib.File' from library, and native 'com.example.File',
-    // srcTags should be java, com¸lib
-    val srcTags: Map<KSClassDeclaration, String> = run {
-        // clear though time-consuming, and the result is mostly empty
-        var i = 0
-        val ret = mutableMapOf<KSClassDeclaration, String>()
-
-        var similarKlasses = allInnerKlasses.filterOutRepeated { it.contractedName }.toSet()
-
-        while (similarKlasses.any()){
-            i++
-
-            val grouped = similarKlasses.groupBy{
-                it.packageName().split(".").take(i).joinToString("¸")
-            }
-
-            ret += grouped.filter { it.value.size == 1 }
-                .map { (srcTag, klasses)-> klasses.first() to srcTag }
-
-            similarKlasses = grouped.filter { it.value.size > 1 }.values.flatten().toSet()
-        }
-
-        ret.filterKeys { !it.isNativeKt() }
-    }
+    val packageTags: Map<KSClassDeclaration, String> = allInnerKlasses
+            .filterOutRepeated{ it.outermostDecl.simpleName() }
+            .filterNot { it.isNativeKt() }
+            .associateWith { it.packageName().replace(".", "․") + "․" }
 
     // process new props, make some declared with its owner name or prop name further.
     init {
@@ -210,7 +189,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
     init{
         Environment.codeGenerator.createFile(
             packageName = GENERATED_PACKAGE,
-            fileName = "${srcKlass.contractedName}Elements",
+            fileName = "${srcKlass.contractedDotName} elements",
             dependencies = Dependencies(false, srcKlass.containingFile!!),
             content = """
                 |$SUPPRESSING

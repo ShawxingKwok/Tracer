@@ -60,12 +60,12 @@ internal fun buildInterface(klass: KSClassDeclaration) {
     // for passing the super context to child classes.
     val superRootOrNodeKlass: KSClassDeclaration? = getSuperRootOrNodeKlass(klass)
 
-    val superName = superRootOrNodeKlass?.contractedName
-    val superTracerName = superName?.plus(Names.Tracer)
+    val superName = superRootOrNodeKlass?.contractedDotName
+    val superTracerName = superRootOrNodeKlass?.contractedName?.plus(Names.Tracer)
 
     val context = klass.context
-    val contextName = context?.contractedName
-    val contextTracerName = contextName?.let { "${Names.OUTER}${it}Tracer" }
+    val contextName = context?.contractedDotName
+    val contextTracerName = context?.contractedName?.let { "${Names.OUTER}${it}Tracer" }
 
     val (implementsPart, outerImplementsPart) =
         when{
@@ -96,9 +96,9 @@ internal fun buildInterface(klass: KSClassDeclaration) {
         .values
         .sorted()
 
-    val contractedName = klass.contractedName
+    val contractedDotName = klass.contractedDotName
 
-    val declPart = "val `_$contractedName`: ${klass.starTypeContent(imports)}"
+    val declPart = "val `_$contractedDotName`: ${klass.starTypeContent(imports)}"
     val outerDeclPart = declPart.replaceFirst("`", "`_")
 
     val superDeclPart =
@@ -109,16 +109,16 @@ internal fun buildInterface(klass: KSClassDeclaration) {
 
             superRootOrNodeKlass.isMyAbstract() ->
                 "override val `_$superName`: ${superRootOrNodeKlass.starTypeContent(imports)} " +
-                    "get() = `_$contractedName`"
+                    "get() = `_$contractedDotName`"
 
             else -> Bug()
         }
 
     val outerSuperDeclPart = superRootOrNodeKlass?.let {
-        "override val `__$superName`: ${it.starTypeContent(imports)} get() = `__$contractedName`"
+        "override val `__$superName`: ${it.starTypeContent(imports)} get() = `__$contractedDotName`"
     }
 
-    val grandpaContextDeclPart = grandpaContext?.contractedName?.let { grandpaContextName ->
+    val grandpaContextDeclPart = grandpaContext?.contractedDotName?.let { grandpaContextName ->
         "override val `__$grandpaContextName`: ${grandpaContext.starTypeContent(imports)} " +
             "get() = `__${contextName!!}`.`__$grandpaContextName`"
     }

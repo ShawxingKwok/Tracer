@@ -5,7 +5,7 @@ import com.google.devtools.ksp.symbol.KSTypeAlias
 import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
-import pers.apollokwok.tracer.common.shared.contractedName
+import pers.apollokwok.tracer.common.shared.contractedDotName
 
 internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Type<*>>(){
     companion object{
@@ -140,7 +140,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
 
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = Bug()
 
-        override fun getName(isGross: Boolean, getSrcTag: (KSClassDeclaration) -> String?): String = Bug()
+        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String = Bug()
         //endregion
     }
 
@@ -225,7 +225,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
 
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = Bug()
 
-        override fun getName(isGross: Boolean, getSrcTag: (KSClassDeclaration) -> String?): String = Bug()
+        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String = Bug()
         //endregion
     }
 
@@ -325,7 +325,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
             }
 
         // gross and the other
-        override fun getName(isGross: Boolean, getSrcTag: (KSClassDeclaration) -> String?): String =
+        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
             buildString {
                 @Suppress("LocalVariableName", "NonAsciiCharacters")
                 val `need？` = isNullable && !isGross
@@ -349,11 +349,11 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
                         append("❨")
 
                         args.dropLast(1)
-                            .joinToString("，") { it.getName(isGross, getSrcTag) }
+                            .joinToString("，") { it.getName(isGross, getPackageTag) }
                             .let(::append)
 
                         append("❩-›")
-                        append(args.last().getName(isGross, getSrcTag))
+                        append(args.last().getName(isGross, getPackageTag))
                     }
 
                     if (`need？`)
@@ -361,16 +361,16 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
                     else
                         append(body)
                 } else {
-                    append(decl.contractedName)
+                    getPackageTag(decl)?.let(::append)
+
+                    append(decl.contractedDotName)
 
                     if (`need？` && args.none()) append("？")
-
-                    getSrcTag(decl)?.let { append("_$it") }
 
                     if (args.any()) {
                         args.joinToString(
                             prefix = "‹",
-                            transform = { it.getName(isGross, getSrcTag) },
+                            transform = { it.getName(isGross, getPackageTag) },
                             separator = "，",
                             postfix = "›",
                         )
@@ -458,11 +458,11 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String? =
             if (isDeclarable) "*" else null
 
-        override fun getName(isGross: Boolean, getSrcTag: (KSClassDeclaration) -> String?): String =
+        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
             buildString {
                 genericName?.let { append("${it}_") }
                 append("‹")
-                append(types.joinToString("，"){ it.getName(isGross, getSrcTag) })
+                append(types.joinToString("，"){ it.getName(isGross, getPackageTag) })
                 append("›")
                 if (isNullable && !isGross) append("？")
             }

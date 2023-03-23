@@ -5,10 +5,7 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Visibility
 import pers.apollokwok.ktutil.lazyFast
 import pers.apollokwok.ktutil.updateIf
-import pers.apollokwok.tracer.common.shared.Tags
-import pers.apollokwok.tracer.common.shared.contractedName
-import pers.apollokwok.tracer.common.shared.getInterfaceNames
-import pers.apollokwok.tracer.common.shared.outermostDecl
+import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
 import pers.apollokwok.tracer.common.util.filterOutRepeated
@@ -43,11 +40,11 @@ internal sealed class PropInfo(
     }
 
     val grossKey: String by lazyFast {
-        type.getName(isGross = true, getSrcTag = propsBuilder.srcTags::get)
+        type.getName(isGross = true, getPackageTag = propsBuilder.packageTags::get)
     }
 
     private val propInfoNameCore: String by lazyFast {
-        type.getName(false, propsBuilder.srcTags::get)
+        type.getName(false, propsBuilder.packageTags::get)
             .updateIf(
                 predicate = {
                     typeContent == null
@@ -61,7 +58,7 @@ internal sealed class PropInfo(
     }
 
     private val srcKlass = propsBuilder.srcKlass
-    private val levelTag = "˚${srcKlass.contractedName}"
+    private val levelTag = "˚${srcKlass.contractedDotName}"
 
     // Here needn't consider about packageNameTag because it's owned only by other-module
     // declarations.
@@ -79,11 +76,11 @@ internal sealed class PropInfo(
                 when(this@PropInfo){
                     is FromSrcKlassSuper ->
                         if (ownerNameContained)
-                            append("_by${klass.contractedName}")
+                            append("_by${klass.contractedDotName}")
 
                     is FromElement -> {
                         if (ownerNameContained)
-                            append("_${prop.parentDeclaration!!.contractedName}")
+                            append("_${prop.parentDeclaration!!.contractedDotName}")
 
                         if (propNameContained)
                             append("_$prop")
@@ -102,22 +99,22 @@ internal sealed class PropInfo(
                 if (isOuter) append("_")
 
                 when(this@PropInfo) {
-                    is FromSrcKlassSuper -> append("${klass.contractedName}`")
+                    is FromSrcKlassSuper -> append("${klass.contractedDotName}`")
 
                     is FromElement ->
                         // properties in sourceKlass
                         if (parentProp == null)
-                            append("${srcKlass.contractedName}`.`$prop`")
+                            append("${srcKlass.contractedDotName}`.`$prop`")
 
                         // below are properties in general classes
                         else {
-                            append(prop.parentDeclaration!!.contractedName)
+                            append(prop.parentDeclaration!!.contractedDotName)
 
                             if (!srcKlass.isFinal() || isOuter)
                                 append("_$levelTag")
 
                             if (Tags.FullNameProperties)
-                                append("_${parentProp.parentDeclaration!!.contractedName}_$parentProp")
+                                append("_${parentProp.parentDeclaration!!.contractedDotName}_$parentProp")
 
                             append("`.`$prop`")
                         }
