@@ -3,10 +3,11 @@ package pers.apollokwok.tracer.common.prophandler
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
-import pers.apollokwok.tracer.common.prophandler.PropInfo.Companion.process
-import pers.apollokwok.tracer.common.shared.*
+import pers.apollokwok.tracer.common.shared.Names
 import pers.apollokwok.tracer.common.shared.Names.GENERATED_PACKAGE
 import pers.apollokwok.tracer.common.shared.Tags.AllInternal
+import pers.apollokwok.tracer.common.shared.contractedDotName
+import pers.apollokwok.tracer.common.shared.outermostDecl
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getSrcKlassTraceableSuperTypes
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
@@ -83,7 +84,14 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                                 prop.type.containT()
                             })
 
-                    newPropsInfo += PropInfo.FromElement(prop, parentProp, isMutable, type, v, this)
+                    newPropsInfo += PropInfo.FromElement(
+                        prop = prop,
+                        parentProp = parentProp,
+                        isMutable = isMutable,
+                        type = type,
+                        v = v,
+                        propsBuilder = this
+                    )
                 }
             }
             // filter and trace inside, other filtering conditions are in 'getPreNeededProperties'
@@ -115,9 +123,14 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
 
     // collect sourceKlass superTypes in new props
     init {
-        getSrcKlassTraceableSuperTypes(srcKlass).forEach { type ->
-            val v = getV(srcKlass, type) ?: return@forEach
-            newPropsInfo += PropInfo.FromSrcKlassSuper(srcKlass, type, false, v, this)
+        newPropsInfo += getSrcKlassTraceableSuperTypes(srcKlass).mapNotNull { type ->
+            PropInfo.FromSrcKlassSuper(
+                klass = srcKlass,
+                type = type,
+                isMutable = false,
+                v = getV(srcKlass, type) ?: return@mapNotNull null,
+                propsBuilder = this
+            )
         }
     }
 
@@ -142,11 +155,6 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
             .filterOutRepeated{ it.outermostDecl.simpleName() }
             .filterNot { it.isNativeKt() }
             .associateWith { it.packageName().replace(".", "․") + "․" }
-
-    // process new props, make some declared with its owner name or prop name further.
-    init {
-        newPropsInfo.process()
-    }
 
     private val imports = importedOutermostKlasses
         .filterNot { it.packageName() in AutoImportedPackageNames }

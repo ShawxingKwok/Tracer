@@ -31,11 +31,4 @@ public annotation class Tracer{
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
     @Retention(AnnotationRetention.SOURCE)
     public annotation class Omit
-
-    /**
-     * **See** [FullName](https://apollokwok.github.io/TracerTutorial/docs/usage/annotations/#fullname)
-     */
-    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
-    @Retention(AnnotationRetention.SOURCE)
-    public annotation class FullName
 }

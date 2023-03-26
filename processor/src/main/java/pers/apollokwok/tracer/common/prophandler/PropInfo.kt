@@ -8,8 +8,6 @@ import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
-import pers.apollokwok.tracer.common.util.filterOutRepeated
-import pers.apollokwok.tracer.common.util.isCommon
 import pers.apollokwok.tracer.common.util.isFinal
 
 internal sealed class PropInfo(
@@ -18,43 +16,12 @@ internal sealed class PropInfo(
     v: Visibility,
     private val propsBuilder: PropsBuilder,
 ){
-    companion object{
-        // process props, make some declaredWithOwnerName or declaredWithPropName further.
-        internal fun Collection<PropInfo>.process(){
-            if (Tags.FullNameProperties) return
-
-            filterOutRepeated{ it.grossKey }
-            .forEach { it.ownerNameContained = true }
-
-            // concise though a little time-consuming
-            filterIsInstance<FromElement>()
-            .filterOutRepeated{ it.grossKey to it.prop.parentDeclaration }
-            .forEach { it.propNameContained = true }
-        }
-    }
-
-    protected var ownerNameContained = Tags.FullNameProperties || type.isCommon()
-
     private val typeContent: String? by lazyFast {
         type.getContent(getPathImported = { it.outermostDecl in propsBuilder.importedOutermostKlasses })
     }
 
     val grossKey: String by lazyFast {
         type.getName(isGross = true, getPackageTag = propsBuilder.packageTags::get)
-    }
-
-    private val propInfoNameCore: String by lazyFast {
-        type.getName(false, propsBuilder.packageTags::get)
-            .updateIf(
-                predicate = {
-                    typeContent == null
-                    && when (this@PropInfo) {
-                        is FromSrcKlassSuper -> true
-                        is FromElement -> type != prop.getTraceableTypes().first()
-                    }
-                },
-                update = { "$it¦" }
-            )
     }
 
     private val srcKlass = propsBuilder.srcKlass
@@ -68,23 +35,23 @@ internal sealed class PropInfo(
                 // add `` on both sides in case users use special characters themselves.
                 append("`_")
                 if (isOuter) append("_")
-                append(propInfoNameCore)
+
+                type.getName(false, propsBuilder.packageTags::get).let(::append)
+
+                if (typeContent == null
+                    && when (this@PropInfo) {
+                        is FromSrcKlassSuper -> true
+                        is FromElement -> type != prop.getTraceableTypes().first()
+                    }
+                )
+                    append("¦")
 
                 if (!srcKlass.isFinal() || isOuter)
                     append("_$levelTag")
 
                 when(this@PropInfo){
-                    is FromSrcKlassSuper ->
-                        if (ownerNameContained)
-                            append("_by${klass.contractedDotName}")
-
-                    is FromElement -> {
-                        if (ownerNameContained)
-                            append("_${prop.parentDeclaration!!.contractedDotName}")
-
-                        if (propNameContained)
-                            append("_$prop")
-                    }
+                    is FromSrcKlassSuper -> append("_${klass.contractedDotName}")
+                    is FromElement -> append("_${prop.parentDeclaration!!.contractedDotName}_$prop")
                 }
 
                 append("`")
@@ -113,8 +80,7 @@ internal sealed class PropInfo(
                             if (!srcKlass.isFinal() || isOuter)
                                 append("_$levelTag")
 
-                            if (Tags.FullNameProperties)
-                                append("_${parentProp.parentDeclaration!!.contractedDotName}_$parentProp")
+                            append("_${parentProp.parentDeclaration!!.contractedDotName}_$parentProp")
 
                             append("`.`$prop`")
                         }
@@ -148,9 +114,6 @@ internal sealed class PropInfo(
         propsBuilder: PropsBuilder,
     ) :
         PropInfo(type, isMutable, v, propsBuilder)
-    {
-        var propNameContained = ownerNameContained
-    }
 
     class FromSrcKlassSuper(
         val klass: KSClassDeclaration,

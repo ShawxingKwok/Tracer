@@ -6,6 +6,7 @@ import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
 import pers.apollokwok.tracer.common.shared.contractedDotName
+import sun.jvm.hotspot.types.basic.BasicOopField
 
 internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Type<*>>(){
     companion object{
@@ -17,6 +18,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
             isNullable = true,
             hasAlias = false,
             hasConvertibleStar = false,
+            isAnnotatedFullName = false,
         )
     }
 
@@ -236,6 +238,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
         val genericName: String? = null,
         val hasAlias: Boolean,
         val hasConvertibleStar: Boolean,
+        val isAnnotatedFullName: Boolean,
     ) :
         Type<Specific>(isNullable)
     {
@@ -286,6 +289,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
             genericName: String? = this.genericName,
             hasAlias: Boolean = this.hasAlias,
             hasConvertibleStar: Boolean = this.hasConvertibleStar,
+            isAnnotatedFullName: Boolean = this.isAnnotatedFullName,
         ): Specific =
             if (decl == this.decl
                 && args == this.args
@@ -296,7 +300,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
             )
                 this
             else
-                Specific(decl, args, isNullable, genericName, hasAlias, hasConvertibleStar)
+                Specific(decl, args, isNullable, genericName, hasAlias, hasConvertibleStar, isAnnotatedFullName)
         //endregion
 
         //region fixed part
@@ -352,7 +356,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
                             .joinToString("，") { it.getName(isGross, getPackageTag) }
                             .let(::append)
 
-                        append("❩-›")
+                        append("❩→")
                         append(args.last().getName(isGross, getPackageTag))
                     }
 

@@ -4,7 +4,6 @@ import java.io.File
 
 fun main() {
     arrayOf(
-        "annotations/src/main/java",
         "processor/src/main/java",
     )
     .sumOf { path ->
