@@ -1,5 +1,3 @@
-package pers.apollokwok.tracer.common.example
-
 import pers.apollokwok.tracer.common.annotations.Tracer
 import pers.apollokwok.tracer.common.generated.CompoundTypeSampleTracer
 import java.io.Serializable

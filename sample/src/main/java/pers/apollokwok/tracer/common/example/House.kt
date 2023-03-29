@@ -1,21 +1,18 @@
 package pers.apollokwok.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.*
 import pers.apollokwok.tracer.common.generated.HouseTracer
+import pers.apollokwok.tracer.common.generated._Door_House_door
+import pers.apollokwok.tracer.common.generated._WifiRouter_LivingRoom_wifiRouter
 
 @Tracer.Root
 class House : HouseTracer{
-    val bedroom = Bedroom()
+    val masterBedroom = Bedroom(_House)
+    val secondaryBedroom = Bedroom(_House)
     val door = Door()
     val livingRoom = LivingRoom()
 
-    override val _House: House = this
-}
-
-context (HouseTracer)
-class Bedroom{
-    private val wifiRouter get() = _WifiRouter_LivingRoom_wifiRouter
+    override val _House: House get() = this
 }
 
 context (HouseTracer)
@@ -28,8 +25,3 @@ class LivingRoom{
 
 context (HouseTracer)
 class WifiRouter
-
-
-
-//val masterBedroom = Bedroom(this)
-//val secondaryBedroom = Bedroom(this)
