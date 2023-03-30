@@ -121,7 +121,7 @@ private fun checkOmittedProps() {
             val reasons = mapOf(
                 (prop.parentDeclaration == null) to "top-level",
 
-                ((prop.parentDeclaration as? KSClassDeclaration)?.classKind == ClassKind.INTERFACE) to
+                ((prop.parentDeclaration as? KSClassDeclaration)?.classKind != ClassKind.CLASS) to
                         "in interfaces",
 
                 (prop.moduleVisibility() == null) to "module-invisible",

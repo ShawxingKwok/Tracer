@@ -3,6 +3,7 @@ package pers.apollokwok.tracer.common.util
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAnnotationPresent
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import pers.apollokwok.ksputil.alsoRegister
@@ -13,7 +14,9 @@ private val cache = mutableMapOf<KSClassDeclaration, List<KSPropertyDeclaration>
 internal fun KSClassDeclaration.getPreNeededProperties(): List<KSPropertyDeclaration> =
     cache.getOrPut(this) {
         when {
-            !isNativeKt() || isAnnotationPresent(Tracer.Tip::class) -> emptyList()
+            classKind != ClassKind.CLASS
+            || !isNativeKt()
+            || isAnnotationPresent(Tracer.Tip::class) -> emptyList()
 
             // general rebuilt classes
             isAnnotatedRootOrNodes()
