@@ -17,7 +17,7 @@ internal val KSClassDeclaration.convertedStarArgsMap get() =
                 val genericName = param.simpleName()
                 val arg = Arg.Out(
                     type = when (type) {
-                        is Type.Compound -> type.copy(genericName = genericName, isReturnable = false)
+                        is Type.Compound -> type.copy(genericName = genericName, isDeclarable = false)
                         is Type.Specific -> type.copy(genericName = genericName)
                         else -> Bug()
                     },

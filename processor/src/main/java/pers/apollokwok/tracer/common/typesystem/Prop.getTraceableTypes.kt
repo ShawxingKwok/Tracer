@@ -28,6 +28,24 @@ internal fun KSPropertyDeclaration.getTraceableTypes(): List<Type<*>> =
         }
 
         fun getSuperTypesOfSpecific(specific: Type.Specific): List<Type.Specific> {
+//            val args = specific.args.map { arg ->
+//                when{
+//                    arg is Arg.General<*>
+//                    && arg.type is Type.Compound ->
+//                        arg.copy(type = arg.type.copy(isDeclarable = false))
+//
+//                    arg is Arg.Star -> TODO()
+//
+//                    else -> arg
+//                }
+//            }
+//
+//            val map = args.associateBy { it.param.simpleName() }
+//
+//            return specific.decl
+//                .getSuperSpecificRawTypes(false)
+//                .map { it.convertGeneric(map).first }
+
             val mapForConvertingFixedStar = specific
                 .args
                 .filterIsInstance<Arg.General<*>>()
@@ -43,7 +61,7 @@ internal fun KSPropertyDeclaration.getTraceableTypes(): List<Type<*>> =
                                 .convertAll(mapForConvertingFixedStar)
                                 .updateIf(
                                     { it is Type.Compound },
-                                    { (it as Type.Compound).copy(isReturnable = false) }
+                                    { (it as Type.Compound).copy(isDeclarable = false) }
                                 ),
                             param = arg.param
                         )

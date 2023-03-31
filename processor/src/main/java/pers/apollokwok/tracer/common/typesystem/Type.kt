@@ -6,7 +6,6 @@ import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
 import pers.apollokwok.tracer.common.shared.contractedDotName
-import sun.jvm.hotspot.types.basic.BasicOopField
 
 internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Type<*>>(){
     companion object{
@@ -442,16 +441,16 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
             types: List<Type<*>> = this.types,
             isNullable: Boolean = this.isNullable,
             genericName: String? = this.genericName,
-            isReturnable: Boolean = this.isDeclarable,
+            isDeclarable: Boolean = this.isDeclarable,
         ): Compound =
             if (types == this.types
                 && isNullable == this.isNullable
                 && genericName == this.genericName
-                && isReturnable == this.isDeclarable
+                && isDeclarable == this.isDeclarable
             )
                 this
             else
-                Compound(types, isNullable, genericName, isReturnable)
+                Compound(types, isNullable, genericName, isDeclarable)
         //endregion
 
         //region fixed part
@@ -460,7 +459,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
         }
 
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String? =
-            if (isDeclarable) "*" else null
+            "*".takeIf { isDeclarable }
 
         override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
             buildString {

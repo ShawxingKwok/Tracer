@@ -6,7 +6,7 @@ import kotlin.coroutines.CoroutineContext
 
 @Tracer.Root
 class GenericSample<T: CharSequence, V>
-    where V: Foo, V: CoroutineContext
+    where V: Serializable, V: CoroutineContext
 {
     val singleBound: T = TODO()
     val multipleBounds: V = TODO()
@@ -15,5 +15,3 @@ class GenericSample<T: CharSequence, V>
     val arr: Array<T> = TODO()
     val list: List<T> = TODO()
 }
-
-interface Foo: Serializable

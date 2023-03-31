@@ -1,7 +1,8 @@
+@file:Suppress("RedundantNullableReturnType")
+
 package pers.apollokwok.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.TraceEndSampleTracer
 
 @Tracer.Root
 class TraceEndSample {

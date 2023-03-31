@@ -1,6 +1,4 @@
-package pers.apollokwok.mylibrary
+@file:Suppress("PropertyName", "NonAsciiCharacters")
 
-class Android {
-    val `sdf-s` =2
-}
+package pers.apollokwok.mylibrary
 

@@ -14,6 +14,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.javaGetter
 import kotlin.reflect.jvm.javaMethod
 
 public typealias NullableInt = Int?
@@ -30,24 +31,9 @@ private class J<T: V, V: CharSequence?> {
 
 public class TestProcessor : KspProcessor{
     override fun process(times: Int): List<KSAnnotated> {
-        val decl = J<*,*>::list.convert().type.resolve().declaration
-        Log.w(decl)
-        Log.w(decl.qualifiedName())
-        Log.w(MutableList::class.qualifiedName)
-        arrayOf(
-            Pair::class,
-            Triple::class,
-            Array::class,
-            Sequence::class,
-
-            MutableIterable::class,
-            MutableCollection::class,
-            MutableList::class,
-            MutableSet::class,
-            MutableMap::class,
-        )
-        .map { it.qualifiedName }
-        .let{ Log.w(it) }
+        val prop = resolver.getPropertyDeclarationByName("MultiBounds.myList")!!
+        val s = prop.getTraceableTypes().last() as Type.Specific
+        Log.w(s.getContent { true })
         return emptyList()
     }
 
@@ -65,8 +51,9 @@ private fun KFunction<*>.convert(): KSFunctionDeclaration{
     return resolver.getFunctionDeclarationsByName(path).first()
 }
 
-private fun KProperty<*>.convert(): KSPropertyDeclaration =
-    when(val clazz = this.javaField!!.declaringClass){
-        null -> resolver.getPropertyDeclarationByName(name, true)!!
-        else -> resolver.getPropertyDeclarationByName(clazz.canonicalName + "." + name)!!
-    }
+private fun KProperty<*>.convert(): KSPropertyDeclaration {
+    val clazz = this.javaGetter!!.declaringClass
+
+    return resolver.getPropertyDeclarationByName(clazz.canonicalName + "." + name)
+            ?: error("Top-level properties can't be got.")
+}

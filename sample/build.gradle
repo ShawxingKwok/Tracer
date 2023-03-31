@@ -12,6 +12,10 @@ kotlin.sourceSets {
     test.kotlin.srcDirs += "$buildDir/generated/ksp/test/kotlin"
 }
 
+ksp{
+    arg("tracer.internal", "")
+}
+
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
     kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
