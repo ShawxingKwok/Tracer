@@ -2,3 +2,4 @@
 
 package pers.apollokwok.mylibrary
 
+val `✕` = 1

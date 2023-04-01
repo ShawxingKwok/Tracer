@@ -307,7 +307,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             args.flatMap { it.allInnerKlasses } + decl
         }
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String? =
+        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
             buildString{
                 if (getPathImported(decl))
                     append(decl.noPackageName())
@@ -317,7 +317,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                 if (args.any()){
                     append("<")
 
-                    args.map{ it.getContent(getPathImported) ?: return null }
+                    args.map{ it.getContent(getPathImported) }
                         .joinToString(", ")
                         .let(::append)
 
@@ -416,7 +416,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         val types: List<Type<*>>,
         nullable: Boolean,
         val genericName: String? = null,
-        val declarable: Boolean = true,
     ):
         Type<Compound>(nullable)
     {
@@ -441,16 +440,14 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             types: List<Type<*>> = this.types,
             nullable: Boolean = this.nullable,
             genericName: String? = this.genericName,
-            declarable: Boolean = this.declarable,
         ): Compound =
             if (types == this.types
                 && nullable == this.nullable
                 && genericName == this.genericName
-                && declarable == this.declarable
             )
                 this
             else
-                Compound(types, nullable, genericName, declarable)
+                Compound(types, nullable, genericName)
         //endregion
 
         //region fixed part
@@ -458,8 +455,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             types.flatMap { it.allInnerKlasses }
         }
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String? =
-            "*".takeIf { declarable }
+        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = "*"
 
         override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
             buildString {
@@ -467,7 +463,10 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                 append("‹")
                 append(types.joinToString("，"){ it.getName(isGross, getPackageTag) })
                 append("›")
-                if (nullable && !isGross) append("？")
+                if (!isGross){
+                    if (nullable) append("？")
+                    if (genericName != null) append("✕")
+                }
             }
         //endregion
 
@@ -475,7 +474,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             var result = types.hashCode()
             result = 31 * result + (genericName?.hashCode() ?: 0)
             result = 31 * result + nullable.hashCode()
-            result = 31 * result + declarable.hashCode()
             return result
         }
 
@@ -488,7 +486,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             if (types != other.types) return false
             if (genericName != other.genericName) return false
             if (nullable != other.nullable) return false
-            if (declarable != other.declarable) return false
 
             return true
         }

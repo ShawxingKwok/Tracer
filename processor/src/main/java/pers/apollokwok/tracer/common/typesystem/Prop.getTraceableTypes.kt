@@ -16,7 +16,7 @@ internal fun KSPropertyDeclaration.getTraceableTypes(): List<Type<*>> =
     cache.getOrPut(type.resolve()) {
         val convertedBasicType = run {
             val map = when (val parentDecl = parentDeclaration) {
-                is KSClassDeclaration -> parentDecl.convertedStarArgsMap
+                is KSClassDeclaration -> parentDecl.typeParamBoundsMap
                 null -> emptyMap() // This is only for helping testing top-level properties.
                 else -> Log.e("Local properties are forbidden to use.", this)
             }
@@ -57,12 +57,7 @@ internal fun KSPropertyDeclaration.getTraceableTypes(): List<Type<*>> =
                         is Arg.General<*> -> arg
 
                         is Arg.Star -> Arg.Out(
-                            type = arg.param.getBoundProto()
-                                .convertAll(mapForConvertingFixedStar)
-                                .updateIf(
-                                    { it is Type.Compound },
-                                    { (it as Type.Compound).copy(declarable = false) }
-                                ),
+                            type = arg.param.getBoundProto().convertAll(mapForConvertingFixedStar),
                             param = arg.param
                         )
                     }

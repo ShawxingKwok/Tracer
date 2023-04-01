@@ -4,6 +4,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Visibility
 import pers.apollokwok.ktutil.lazyFast
+import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
@@ -15,7 +16,7 @@ internal sealed class PropInfo(
     v: Visibility,
     private val propsBuilder: PropsBuilder,
 ){
-    private val typeContent: String? by lazyFast {
+    private val typeContent: String by lazyFast {
         type.getContent(getPathImported = { it.outermostDecl in propsBuilder.importedOutermostKlasses })
     }
 
@@ -25,6 +26,11 @@ internal sealed class PropInfo(
 
     private val srcKlass = propsBuilder.srcKlass
     private val levelTag = "˚${srcKlass.contractedDotName}"
+
+    private val compoundTypeSupported by lazyFast {
+        this is FromElement
+        && type == prop.getTraceableTypes().first()
+    }
 
     // Here needn't consider about packageNameTag because it's owned only by other-module
     // declarations.
@@ -37,14 +43,6 @@ internal sealed class PropInfo(
 
                 type.getName(false, propsBuilder.packageTags::get).let(::append)
 
-                if (typeContent == null
-                    && when (this@PropInfo) {
-                        is FromSrcKlassSuper -> true
-                        is FromElement -> type != prop.getTraceableTypes().first()
-                    }
-                )
-                    append("¦")
-
                 if (!srcKlass.isFinal() || isOuter)
                     append("_$levelTag")
 
@@ -54,6 +52,9 @@ internal sealed class PropInfo(
                 }
 
                 append("`")
+            }
+            .updateIf({ compoundTypeSupported }){
+                it.replace("✕", "")
             }
         }
     }
@@ -91,7 +92,11 @@ internal sealed class PropInfo(
     private val declContents: List<String> by lazyFast{
         (0..1).map { i ->
             val interfaceName = getInterfaceNames(srcKlass).toList()[i]
-            val typePart = typeContent?.let { "as $it" } ?: ""
+
+            val typePart =
+                if (compoundTypeSupported) ""
+                else "as $typeContent"
+
             if (!mutable)
                 "${v.name.lowercase()} val $interfaceName.${propInfoNames[i]} inline get() = ${references[i]} $typePart"
             else

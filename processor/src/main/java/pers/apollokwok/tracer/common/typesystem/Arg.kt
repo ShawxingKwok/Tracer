@@ -4,6 +4,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
+import pers.apollokwok.ktutil.updateIf
 
 internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<Arg<*>>(){
     sealed class General<T: General<T>>(
@@ -109,7 +110,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
     class Simple(type: Type<*>, param: KSTypeParameter) : General<Simple>(type, param) {
         override fun toString(): String = "$type"
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String? =
+        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
             type.getContent(getPathImported)
 
         override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
@@ -119,14 +120,11 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
     class In(type: Type<*>, param: KSTypeParameter) : General<In>(type, param) {
         override fun toString(): String = "in $type"
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String? {
-            val content = type.getContent(getPathImported)
-            return when{
-                content == null -> null
-                type is Type.Compound -> content
-                else -> "in $content"
-            }
-        }
+        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
+            type.getContent(getPathImported)
+                .updateIf({ type !is Type.Compound}){
+                    "in $it"
+                }
 
         override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
             buildString {
@@ -138,14 +136,11 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
     class Out(type: Type<*>, param: KSTypeParameter) : General<Out>(type, param) {
         override fun toString(): String = "out $type"
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String? {
-            val content = type.getContent(getPathImported)
-            return when{
-                content == null -> null
-                type is Type.Compound -> content
-                else -> "out $content"
-            }
-        }
+        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
+            type.getContent(getPathImported)
+                .updateIf({ type !is Type.Compound}){
+                    "out $it"
+                }
 
         override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
             buildString {

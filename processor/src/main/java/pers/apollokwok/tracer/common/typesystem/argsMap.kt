@@ -7,7 +7,7 @@ import pers.apollokwok.ktutil.Bug
 
 private val cache = mutableMapOf<KSClassDeclaration, Map<String, Arg.Out>>().alsoRegister()
 
-internal val KSClassDeclaration.convertedStarArgsMap get() =
+internal val KSClassDeclaration.typeParamBoundsMap get() =
     if (typeParameters.none())
         emptyMap()
     else
@@ -17,7 +17,7 @@ internal val KSClassDeclaration.convertedStarArgsMap get() =
                 val genericName = param.simpleName()
                 val arg = Arg.Out(
                     type = when (type) {
-                        is Type.Compound -> type.copy(genericName = genericName, declarable = false)
+                        is Type.Compound -> type.copy(genericName = genericName)
                         is Type.Specific -> type.copy(genericName = genericName)
                         else -> Bug()
                     },
