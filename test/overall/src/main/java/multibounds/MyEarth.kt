@@ -1,4 +1,4 @@
-package test
+package multibounds
 
 import com.example.testlib.Earth
 import com.example.testlib.Nature

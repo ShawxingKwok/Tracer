@@ -7,14 +7,14 @@ import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
 import pers.apollokwok.tracer.common.shared.contractedDotName
 
-internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Type<*>>(){
+internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type<*>>(){
     companion object{
         // use 'get()=' since anyType.declaration varies every round.
         @Suppress("DANGEROUS_CHARACTERS", "ObjectPropertyName", "NonAsciiCharacters")
         val `Any？` get() = Specific(
             decl = resolver.builtIns.anyType.declaration as KSClassDeclaration,
             args = emptyList(),
-            isNullable = true,
+            nullable = true,
             hasAlias = false,
             hasConvertibleStar = false,
             isAnnotatedFullName = false,
@@ -54,7 +54,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
             }
 
             when{
-                isNullable -> append("?")
+                nullable -> append("?")
                 this@Type is Generic && isDefNotNull -> append(" & Any")
             }
         }
@@ -62,10 +62,10 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
     class Generic(
         val name: String,
         val bound: Type<*>,
-        isNullable: Boolean,
+        nullable: Boolean,
         val isDefNotNull: Boolean,
     ) :
-        Type<Generic>(isNullable)
+        Type<Generic>(nullable)
     {
         //region conversion
         override fun convertAlias(): Generic = this
@@ -91,9 +91,9 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
                 is Arg.General<*> -> arg.type
             }
 
-            val isNullable = this.isNullable || (!isDefNotNull && type.isNullable)
+            val nullable = this.nullable || (!isDefNotNull && type.nullable)
 
-            val newType = type.updateNullability(isNullable)
+            val newType = type.updateNullability(nullable)
 
             return newType to requireOut
         }
@@ -103,17 +103,17 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
         fun copy(
             name: String = this.name,
             bound: Type<*> = this.bound,
-            isNullable: Boolean = this.isNullable,
+            nullable: Boolean = this.nullable,
             isDefNotNull: Boolean = this.isDefNotNull,
         ) =
             if (name == this.name
                 && bound == this.bound
-                && isNullable == this.isNullable
+                && nullable == this.nullable
                 && isDefNotNull == this.isDefNotNull
             )
                 this
             else
-                Generic(name, bound, isNullable, isDefNotNull)
+                Generic(name, bound, nullable, isDefNotNull)
         //endregion
 
         override fun equals(other: Any?): Boolean {
@@ -124,7 +124,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
 
             if (name != other.name) return false
             if (bound != other.bound) return false
-            if (isNullable != other.isNullable) return false
+            if (nullable != other.nullable) return false
 
             return true
         }
@@ -132,7 +132,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
         override fun hashCode(): Int {
             var result = name.hashCode()
             result = 31 * result + bound.hashCode()
-            result = 31 * result + isNullable.hashCode()
+            result = 31 * result + nullable.hashCode()
             return result
         }
 
@@ -148,10 +148,10 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
     class Alias(
         val decl: KSTypeAlias,
         val args: List<Arg<*>>,
-        isNullable: Boolean,
+        nullable: Boolean,
         val genericName: String? = null,
     ) :
-        Type<Alias>(isNullable)
+        Type<Alias>(nullable)
     {
         //region conversion
         override fun convertAlias(): Specific {
@@ -164,9 +164,9 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
                 .first
                 .convertAlias() as Specific
 
-            val isNullable = this.isNullable || converted.isNullable
+            val nullable = this.nullable || converted.nullable
 
-            return converted.copy(hasAlias = false, isNullable = isNullable)
+            return converted.copy(hasAlias = false, nullable = nullable)
         }
 
         // may be unreachable
@@ -186,24 +186,24 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
         fun copy(
             decl: KSTypeAlias = this.decl,
             args: List<Arg<*>> = this.args,
-            isNullable: Boolean = this.isNullable,
+            nullable: Boolean = this.nullable,
             genericName: String? = this.genericName,
         ) =
             if (decl == this.decl
                 && args == this.args
-                && isNullable == this.isNullable
+                && nullable == this.nullable
                 && genericName == this.genericName
             )
                 this
             else
-                Alias(decl, args, isNullable, genericName)
+                Alias(decl, args, nullable, genericName)
         //endregion
 
         override fun hashCode(): Int {
             var result = decl.hashCode()
             result = 31 * result + args.hashCode()
             result = 31 * result + (genericName?.hashCode() ?: 0)
-            result = 31 * result + isNullable.hashCode()
+            result = 31 * result + nullable.hashCode()
             return result
         }
 
@@ -216,7 +216,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
             if (decl != other.decl) return false
             if (args != other.args) return false
             if (genericName != other.genericName) return false
-            if (isNullable != other.isNullable) return false
+            if (nullable != other.nullable) return false
 
             return true
         }
@@ -233,13 +233,13 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
     class Specific(
         val decl: KSClassDeclaration,
         val args: List<Arg<*>>,
-        isNullable: Boolean,
+        nullable: Boolean,
         val genericName: String? = null,
         val hasAlias: Boolean,
         val hasConvertibleStar: Boolean,
         val isAnnotatedFullName: Boolean,
     ) :
-        Type<Specific>(isNullable)
+        Type<Specific>(nullable)
     {
         //region conversion
         override fun convertAlias(): Specific =
@@ -284,7 +284,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
         fun copy(
             decl: KSClassDeclaration = this.decl,
             args: List<Arg<*>> = this.args,
-            isNullable: Boolean = this.isNullable,
+            nullable: Boolean = this.nullable,
             genericName: String? = this.genericName,
             hasAlias: Boolean = this.hasAlias,
             hasConvertibleStar: Boolean = this.hasConvertibleStar,
@@ -292,14 +292,14 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
         ): Specific =
             if (decl == this.decl
                 && args == this.args
-                && isNullable == this.isNullable
+                && nullable == this.nullable
                 && genericName == this.genericName
                 && hasAlias == this.hasAlias
                 && hasConvertibleStar == this.hasConvertibleStar
             )
                 this
             else
-                Specific(decl, args, isNullable, genericName, hasAlias, hasConvertibleStar, isAnnotatedFullName)
+                Specific(decl, args, nullable, genericName, hasAlias, hasConvertibleStar, isAnnotatedFullName)
         //endregion
 
         //region fixed part
@@ -324,14 +324,14 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
                     append(">")
                 }
 
-                if (isNullable) append("?")
+                if (nullable) append("?")
             }
 
         // gross and the other
         override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
             buildString {
                 @Suppress("LocalVariableName", "NonAsciiCharacters")
-                val `need？` = isNullable && !isGross
+                val `need？` = nullable && !isGross
 
                 if (!isGross && genericName != null)
                     append(genericName + "_")
@@ -391,7 +391,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
             result = 31 * result + (genericName?.hashCode() ?: 0)
             result = 31 * result + hasAlias.hashCode()
             result = 31 * result + hasConvertibleStar.hashCode()
-            result = 31 * result + isNullable.hashCode()
+            result = 31 * result + nullable.hashCode()
             return result
         }
 
@@ -406,7 +406,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
             if (genericName != other.genericName) return false
             if (hasAlias != other.hasAlias) return false
             if (hasConvertibleStar != other.hasConvertibleStar) return false
-            if (isNullable != other.isNullable) return false
+            if (nullable != other.nullable) return false
 
             return true
         }
@@ -414,11 +414,11 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
 
     class Compound(
         val types: List<Type<*>>,
-        isNullable: Boolean,
+        nullable: Boolean,
         val genericName: String? = null,
-        val isDeclarable: Boolean = true,
+        val declarable: Boolean = true,
     ):
-        Type<Compound>(isNullable)
+        Type<Compound>(nullable)
     {
         init {
             require(types.count() >= 2)
@@ -439,18 +439,18 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
         //region fun copy
         fun copy(
             types: List<Type<*>> = this.types,
-            isNullable: Boolean = this.isNullable,
+            nullable: Boolean = this.nullable,
             genericName: String? = this.genericName,
-            isDeclarable: Boolean = this.isDeclarable,
+            declarable: Boolean = this.declarable,
         ): Compound =
             if (types == this.types
-                && isNullable == this.isNullable
+                && nullable == this.nullable
                 && genericName == this.genericName
-                && isDeclarable == this.isDeclarable
+                && declarable == this.declarable
             )
                 this
             else
-                Compound(types, isNullable, genericName, isDeclarable)
+                Compound(types, nullable, genericName, declarable)
         //endregion
 
         //region fixed part
@@ -459,7 +459,7 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
         }
 
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String? =
-            "*".takeIf { isDeclarable }
+            "*".takeIf { declarable }
 
         override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
             buildString {
@@ -467,15 +467,15 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
                 append("‹")
                 append(types.joinToString("，"){ it.getName(isGross, getPackageTag) })
                 append("›")
-                if (isNullable && !isGross) append("？")
+                if (nullable && !isGross) append("？")
             }
         //endregion
 
         override fun hashCode(): Int {
             var result = types.hashCode()
             result = 31 * result + (genericName?.hashCode() ?: 0)
-            result = 31 * result + isNullable.hashCode()
-            result = 31 * result + isDeclarable.hashCode()
+            result = 31 * result + nullable.hashCode()
+            result = 31 * result + declarable.hashCode()
             return result
         }
 
@@ -487,8 +487,8 @@ internal sealed class Type<T: Type<T>>(val isNullable: Boolean) : Convertible<Ty
 
             if (types != other.types) return false
             if (genericName != other.genericName) return false
-            if (isNullable != other.isNullable) return false
-            if (isDeclarable != other.isDeclarable) return false
+            if (nullable != other.nullable) return false
+            if (declarable != other.declarable) return false
 
             return true
         }

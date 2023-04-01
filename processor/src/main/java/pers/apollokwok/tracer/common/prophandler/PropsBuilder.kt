@@ -72,9 +72,9 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                 types.forEachIndexed { i, type ->
                     val v = getV(prop, type) ?: return@forEachIndexed
 
-                    val isMutable = prop.isMutable
-                        && i == 0
-                        && !(klass == srcKlass
+                    val mutable = prop.isMutable
+                                  && i == 0
+                                  && !(klass == srcKlass
                              && srcKlass.typeParameters.any()
                              && kotlin.run {
                                 fun KSTypeReference.containT(): Boolean =
@@ -87,7 +87,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                     newPropsInfo += PropInfo.FromElement(
                         prop = prop,
                         parentProp = parentProp,
-                        isMutable = isMutable,
+                        mutable = mutable,
                         type = type,
                         v = v,
                         propsBuilder = this
@@ -101,7 +101,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
             }
             .filterNot { (_, basicType)-> basicType.decl.isAnnotatedRootOrNodes() }
             .filterNot { (prop, basicType)->
-                if (basicType.isNullable) {
+                if (basicType.nullable) {
                     Log.require(
                         condition = basicType.decl !in record.validlyTracedInsideKlasses,
                         symbols = listOf(prop, klass),
@@ -111,7 +111,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                     (record.tracedKlassesStoppedTracingInsideForNullability as MutableSet) += basicType.decl
                 }
 
-                basicType.isNullable
+                basicType.nullable
             }
             .forEach { (prop, basicType)->
                 trace(

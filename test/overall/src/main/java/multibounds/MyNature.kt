@@ -1,4 +1,4 @@
-package test
+package multibounds
 
 import com.example.testlib.Nature
 import pers.apollokwok.tracer.common.annotations.Tracer

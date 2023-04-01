@@ -4,7 +4,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Visibility
 import pers.apollokwok.ktutil.lazyFast
-import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
@@ -12,7 +11,7 @@ import pers.apollokwok.tracer.common.util.isFinal
 
 internal sealed class PropInfo(
     val type: Type<*>,
-    private val isMutable: Boolean,
+    private val mutable: Boolean,
     v: Visibility,
     private val propsBuilder: PropsBuilder,
 ){
@@ -93,7 +92,7 @@ internal sealed class PropInfo(
         (0..1).map { i ->
             val interfaceName = getInterfaceNames(srcKlass).toList()[i]
             val typePart = typeContent?.let { "as $it" } ?: ""
-            if (!isMutable)
+            if (!mutable)
                 "${v.name.lowercase()} val $interfaceName.${propInfoNames[i]} inline get() = ${references[i]} $typePart"
             else
                 """
@@ -108,12 +107,12 @@ internal sealed class PropInfo(
     class FromElement(
         val prop: KSPropertyDeclaration,
         val parentProp:  KSPropertyDeclaration?,
-        isMutable: Boolean,
+        mutable: Boolean,
         type: Type<*>,
         v: Visibility,
         propsBuilder: PropsBuilder,
     ) :
-        PropInfo(type, isMutable, v, propsBuilder)
+        PropInfo(type, mutable, v, propsBuilder)
 
     class FromSrcKlassSuper(
         val klass: KSClassDeclaration,

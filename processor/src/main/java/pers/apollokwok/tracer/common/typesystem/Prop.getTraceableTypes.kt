@@ -61,7 +61,7 @@ internal fun KSPropertyDeclaration.getTraceableTypes(): List<Type<*>> =
                                 .convertAll(mapForConvertingFixedStar)
                                 .updateIf(
                                     { it is Type.Compound },
-                                    { (it as Type.Compound).copy(isDeclarable = false) }
+                                    { (it as Type.Compound).copy(declarable = false) }
                                 ),
                             param = arg.param
                         )
@@ -89,7 +89,7 @@ internal fun KSPropertyDeclaration.getTraceableTypes(): List<Type<*>> =
 
                 else -> Bug()
             }
-            .map { it.updateNullability(convertedBasicType.isNullable) }
+            .map { it.updateNullability(convertedBasicType.nullable) }
 
         listOf(convertedBasicType) + convertedSuperTypes
     }

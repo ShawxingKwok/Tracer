@@ -31,9 +31,9 @@ private class J<T: V, V: CharSequence?> {
 
 public class TestProcessor : KspProcessor{
     override fun process(times: Int): List<KSAnnotated> {
-        val prop = resolver.getPropertyDeclarationByName("MultiBounds.myList")!!
-        val s = prop.getTraceableTypes().last() as Type.Specific
-        Log.w(s.getContent { true })
+//        val prop = resolver.getPropertyDeclarationByName("MultiBounds.myList")!!
+//        val s = prop.getTraceableTypes().last() as Type.Specific
+//        Log.w(s.getContent { true })
         return emptyList()
     }
 

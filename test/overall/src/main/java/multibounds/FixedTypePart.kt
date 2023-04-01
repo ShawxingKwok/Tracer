@@ -1,4 +1,4 @@
-package test
+package multibounds
 
 import kotlinx.coroutines.Job
 import pers.apollokwok.tracer.common.annotations.Tracer
@@ -18,8 +18,8 @@ class FixedTypePart<T> : List<T>, FixedTypePartTracer
     lateinit var kjob: Job
     lateinit var libJob: com.example.testlib.Job
 
-    var func: ((test.String, Long)->Unit)? = TODO()
-    val suspendFunc: suspend (test.String, Long)->Unit = TODO()
+    var func: ((multibounds.String, Long)->Unit)? = TODO()
+    val suspendFunc: suspend (multibounds.String, Long)->Unit = TODO()
 
     var str = String()
 
