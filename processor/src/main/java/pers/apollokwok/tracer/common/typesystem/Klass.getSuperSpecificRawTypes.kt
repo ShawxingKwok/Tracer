@@ -18,14 +18,15 @@ internal fun KSClassDeclaration.getSuperSpecificRawTypes(isSrc: Boolean): List<T
     else cache.getOrPut(this to isSrc) {
         val currentSuperKlasses = mutableSetOf<KSClassDeclaration>()
 
-        superTypes
-            .filterNot { it.isAnnotationPresent(Tracer.Omit::class) }
+        superTypes.filterNot { it.isAnnotationPresent(Tracer.Omit::class) }
             .map { typeRef ->
                 // remove '?' since they may be converted from some alias types with '?'
-                typeRef.toProtoWithoutAliasAndStar().updateNullability(false) as Type.Specific
+                typeRef.toProto().convertAlias().convertStar().updateNullability(false) as Type.Specific
             }
             .filterNot {
                 it.decl.moduleVisibility() == null
+                // for source root/nodes classes, super types of their super root/nodes classes
+                // were implemented.
                 || isSrc && it.decl.isAnnotatedRootOrNodes()
                 || it.decl.isAnnotationPresent(TracerInterface::class)
                 || it.decl == Type.`Any？`.decl

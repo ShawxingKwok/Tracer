@@ -113,8 +113,8 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
             type.getContent(getPathImported)
 
-        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
-            type.getName(isGross, getPackageTag)
+        override fun getName(isGross: Boolean): String =
+            type.getName(isGross)
     }
 
     class In(type: Type<*>, param: KSTypeParameter) : General<In>(type, param) {
@@ -122,14 +122,14 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
 
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
             type.getContent(getPathImported)
-                .updateIf({ type !is Type.Compound}){
+                .updateIf({ type !is Type.Compound }){
                     "in $it"
                 }
 
-        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
+        override fun getName(isGross: Boolean): String =
             buildString {
                 if (!isGross) append("↑")
-                append(type.getName(isGross, getPackageTag))
+                append(type.getName(isGross))
             }
     }
 
@@ -142,10 +142,10 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
                     "out $it"
                 }
 
-        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
+        override fun getName(isGross: Boolean): String =
             buildString {
                 if (!isGross) append("↓")
-                append(type.getName(isGross, getPackageTag))
+                append(type.getName(isGross))
             }
     }
 
@@ -191,7 +191,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
         //region fixed part
         override val allInnerKlasses: List<KSClassDeclaration> = emptyList()
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = "*"
-        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String = "✶"
+        override fun getName(isGross: Boolean): String = "✶"
         //endregion
 
         override fun hashCode(): Int {

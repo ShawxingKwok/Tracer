@@ -12,5 +12,5 @@ internal sealed class Convertible<T: Convertible<T>>{
 
     abstract val allInnerKlasses: List<KSClassDeclaration>
     abstract fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String
-    abstract fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String
+    abstract fun getName(isGross: Boolean): String
 }

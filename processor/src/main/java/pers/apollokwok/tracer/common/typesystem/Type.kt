@@ -21,43 +21,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         )
     }
 
-    final override fun toString(): String =
-        buildString {
-            when(this@Type){
-                is Generic -> append(name)
-
-                is Alias -> {
-                    append(this@Type.decl)
-
-                    if (args.any()){
-                        append("<")
-                        append(args.joinToString(", "))
-                        append(">")
-                    }
-                }
-
-                is Specific -> {
-                    append(this@Type.decl.noPackageName())
-
-                    if (args.any()){
-                        append("<")
-                        append(args.joinToString(", "))
-                        append(">")
-                    }
-                }
-
-                is Compound -> {
-                    append("[")
-                    append(types.joinToString(", "))
-                    append("]")
-                }
-            }
-
-            when{
-                nullable -> append("?")
-                this@Type is Generic && isDefNotNull -> append(" & Any")
-            }
-        }
+    final override fun toString(): String = getName(false)
 
     class Generic(
         val name: String,
@@ -83,7 +47,11 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             val type = when(arg){
                 null -> {
                     require(!fromAlias)
-                    bound.convertGeneric(map, fromAlias).first
+                    when (val it = bound.convertAll(map)) {
+                        is Generic, is Alias -> Bug()
+                        is Compound -> it.copy(genericNames = listOf(name) + it.genericNames)
+                        is Specific -> it.copy(genericNames = listOf(name) + it.genericNames)
+                    }
                 }
 
                 is Arg.Star -> error("This should be handled by parent arg.")
@@ -99,7 +67,29 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         }
         //endregion
 
-        //region fun copy
+        //region fixed part
+        override val allInnerKlasses: List<KSClassDeclaration> get() = Bug()
+
+        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
+            buildString{
+                append(name)
+                when{
+                    nullable -> append("?")
+                    isDefNotNull -> append(" & Any")
+                }
+            }
+
+        override fun getName(isGross: Boolean): String =
+            buildString{
+                append(name)
+                when{
+                    nullable -> append("?")
+                    isDefNotNull -> append(" & Any")
+                }
+            }
+        //endregion
+
+        //region common
         fun copy(
             name: String = this.name,
             bound: Type<*> = this.bound,
@@ -114,7 +104,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                 this
             else
                 Generic(name, bound, nullable, isDefNotNull)
-        //endregion
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -135,13 +124,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             result = 31 * result + nullable.hashCode()
             return result
         }
-
-        //region fixed part
-        override val allInnerKlasses: List<KSClassDeclaration> get() = Bug()
-
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = Bug()
-
-        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String = Bug()
         //endregion
     }
 
@@ -149,7 +131,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         val decl: KSTypeAlias,
         val args: List<Arg<*>>,
         nullable: Boolean,
-        val genericName: String? = null,
     ) :
         Type<Alias>(nullable)
     {
@@ -182,27 +163,40 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         }
         //endregion
 
-        //region fun copy
+        //region fixed part
+        override val allInnerKlasses: List<KSClassDeclaration> get() = Bug()
+
+        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = Bug()
+
+        override fun getName(isGross: Boolean): String =
+            buildString {
+                append(decl)
+                if (args.any()) {
+                    append("‹")
+                    append(args.joinToString { "，" })
+                    append("›")
+                }
+                if (nullable) append("？")
+            }
+        //endregion
+
+        //region common
         fun copy(
             decl: KSTypeAlias = this.decl,
             args: List<Arg<*>> = this.args,
             nullable: Boolean = this.nullable,
-            genericName: String? = this.genericName,
         ) =
             if (decl == this.decl
                 && args == this.args
                 && nullable == this.nullable
-                && genericName == this.genericName
             )
                 this
             else
-                Alias(decl, args, nullable, genericName)
-        //endregion
+                Alias(decl, args, nullable)
 
         override fun hashCode(): Int {
             var result = decl.hashCode()
             result = 31 * result + args.hashCode()
-            result = 31 * result + (genericName?.hashCode() ?: 0)
             result = 31 * result + nullable.hashCode()
             return result
         }
@@ -215,18 +209,10 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
 
             if (decl != other.decl) return false
             if (args != other.args) return false
-            if (genericName != other.genericName) return false
             if (nullable != other.nullable) return false
 
             return true
         }
-
-        //region fixed part
-        override val allInnerKlasses: List<KSClassDeclaration> get() = Bug()
-
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = Bug()
-
-        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String = Bug()
         //endregion
     }
 
@@ -234,7 +220,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         val decl: KSClassDeclaration,
         val args: List<Arg<*>>,
         nullable: Boolean,
-        val genericName: String? = null,
+        val genericNames: List<String> = emptyList(),
         val hasAlias: Boolean,
         val hasConvertibleStar: Boolean,
         val isAnnotatedFullName: Boolean,
@@ -280,28 +266,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         }
         //endregion
 
-        //region fun copy
-        fun copy(
-            decl: KSClassDeclaration = this.decl,
-            args: List<Arg<*>> = this.args,
-            nullable: Boolean = this.nullable,
-            genericName: String? = this.genericName,
-            hasAlias: Boolean = this.hasAlias,
-            hasConvertibleStar: Boolean = this.hasConvertibleStar,
-            isAnnotatedFullName: Boolean = this.isAnnotatedFullName,
-        ): Specific =
-            if (decl == this.decl
-                && args == this.args
-                && nullable == this.nullable
-                && genericName == this.genericName
-                && hasAlias == this.hasAlias
-                && hasConvertibleStar == this.hasConvertibleStar
-            )
-                this
-            else
-                Specific(decl, args, nullable, genericName, hasAlias, hasConvertibleStar, isAnnotatedFullName)
-        //endregion
-
         //region fixed part
         override val allInnerKlasses: List<KSClassDeclaration> by lazyFast {
             args.flatMap { it.allInnerKlasses } + decl
@@ -317,9 +281,10 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                 if (args.any()){
                     append("<")
 
-                    args.map{ it.getContent(getPathImported) }
-                        .joinToString(", ")
-                        .let(::append)
+                    args.joinToString(", ") {
+                        it.getContent(getPathImported)
+                    }
+                    .let(::append)
 
                     append(">")
                 }
@@ -328,13 +293,15 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             }
 
         // gross and the other
-        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
+        override fun getName(isGross: Boolean): String =
             buildString {
                 @Suppress("LocalVariableName", "NonAsciiCharacters")
                 val `need？` = nullable && !isGross
 
-                if (!isGross && genericName != null)
-                    append(genericName + "_")
+                if (!isGross)
+                    genericNames.forEach {
+                        append("$it-")
+                    }
 
                 val (isGeneralFunction, isSuspendFunction) =
                     arrayOf(
@@ -352,11 +319,11 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                         append("❨")
 
                         args.dropLast(1)
-                            .joinToString("，") { it.getName(isGross, getPackageTag) }
+                            .joinToString("，") { it.getName(isGross) }
                             .let(::append)
 
                         append("❩→")
-                        append(args.last().getName(isGross, getPackageTag))
+                        append(args.last().getName(isGross))
                     }
 
                     if (`need？`)
@@ -364,8 +331,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                     else
                         append(body)
                 } else {
-                    getPackageTag(decl)?.let(::append)
-
                     append(decl.contractedDotName)
 
                     if (`need？` && args.none()) append("？")
@@ -373,7 +338,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                     if (args.any()) {
                         args.joinToString(
                             prefix = "‹",
-                            transform = { it.getName(isGross, getPackageTag) },
+                            transform = { it.getName(isGross) },
                             separator = "，",
                             postfix = "›",
                         )
@@ -385,10 +350,31 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             }
         //endregion
 
+        //region common
+        fun copy(
+            decl: KSClassDeclaration = this.decl,
+            args: List<Arg<*>> = this.args,
+            nullable: Boolean = this.nullable,
+            genericNames: List<String> = this.genericNames,
+            hasAlias: Boolean = this.hasAlias,
+            hasConvertibleStar: Boolean = this.hasConvertibleStar,
+            isAnnotatedFullName: Boolean = this.isAnnotatedFullName,
+        ): Specific =
+            if (decl == this.decl
+                && args == this.args
+                && nullable == this.nullable
+                && genericNames == this.genericNames
+                && hasAlias == this.hasAlias
+                && hasConvertibleStar == this.hasConvertibleStar
+            )
+                this
+            else
+                Specific(decl, args, nullable, genericNames, hasAlias, hasConvertibleStar, isAnnotatedFullName)
+
         override fun hashCode(): Int {
             var result = decl.hashCode()
             result = 31 * result + args.hashCode()
-            result = 31 * result + (genericName?.hashCode() ?: 0)
+            result = 31 * result + genericNames.hashCode()
             result = 31 * result + hasAlias.hashCode()
             result = 31 * result + hasConvertibleStar.hashCode()
             result = 31 * result + nullable.hashCode()
@@ -403,19 +389,20 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
 
             if (decl != other.decl) return false
             if (args != other.args) return false
-            if (genericName != other.genericName) return false
+            if (genericNames != other.genericNames) return false
             if (hasAlias != other.hasAlias) return false
             if (hasConvertibleStar != other.hasConvertibleStar) return false
             if (nullable != other.nullable) return false
 
             return true
         }
+        //endregion
     }
 
     class Compound(
         val types: List<Type<*>>,
         nullable: Boolean,
-        val genericName: String? = null,
+        val genericNames: List<String> = emptyList(),
     ):
         Type<Compound>(nullable)
     {
@@ -435,21 +422,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             Pair<Compound, Boolean> = this to false
         //endregion
 
-        //region fun copy
-        fun copy(
-            types: List<Type<*>> = this.types,
-            nullable: Boolean = this.nullable,
-            genericName: String? = this.genericName,
-        ): Compound =
-            if (types == this.types
-                && nullable == this.nullable
-                && genericName == this.genericName
-            )
-                this
-            else
-                Compound(types, nullable, genericName)
-        //endregion
-
         //region fixed part
         override val allInnerKlasses: List<KSClassDeclaration> by lazyFast {
             types.flatMap { it.allInnerKlasses }
@@ -457,22 +429,38 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
 
         override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = "*"
 
-        override fun getName(isGross: Boolean, getPackageTag: (KSClassDeclaration) -> String?): String =
+        override fun getName(isGross: Boolean): String =
             buildString {
-                genericName?.let { append("${it}_") }
+                genericNames.forEach {
+                    append("$it-")
+                }
                 append("‹")
-                append(types.joinToString("，"){ it.getName(isGross, getPackageTag) })
+                append(types.joinToString("，"){ it.getName(isGross) })
                 append("›")
                 if (!isGross){
                     if (nullable) append("？")
-                    if (genericName != null) append("✕")
+                    if (genericNames.any()) append("✕")
                 }
             }
         //endregion
 
+        //region copy
+        fun copy(
+            types: List<Type<*>> = this.types,
+            nullable: Boolean = this.nullable,
+            genericNames: List<String> = this.genericNames,
+        ): Compound =
+            if (types == this.types
+                && nullable == this.nullable
+                && genericNames == this.genericNames
+            )
+                this
+            else
+                Compound(types, nullable, genericNames)
+
         override fun hashCode(): Int {
             var result = types.hashCode()
-            result = 31 * result + (genericName?.hashCode() ?: 0)
+            result = 31 * result + genericNames.hashCode()
             result = 31 * result + nullable.hashCode()
             return result
         }
@@ -484,10 +472,11 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             other as Compound
 
             if (types != other.types) return false
-            if (genericName != other.genericName) return false
+            if (genericNames != other.genericNames) return false
             if (nullable != other.nullable) return false
 
             return true
         }
+        //endregion
     }
 }

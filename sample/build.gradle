@@ -13,7 +13,7 @@ kotlin.sourceSets {
 }
 
 ksp{
-    arg("tracer.internal", "")
+//    arg("tracer.internal", "")
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{

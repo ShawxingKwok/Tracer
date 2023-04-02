@@ -14,23 +14,11 @@ internal sealed class PropInfo(
     val type: Type<*>,
     private val mutable: Boolean,
     v: Visibility,
+    compoundTypeSupported: Boolean,
     private val propsBuilder: PropsBuilder,
 ){
-    private val typeContent: String by lazyFast {
-        type.getContent(getPathImported = { it.outermostDecl in propsBuilder.importedOutermostKlasses })
-    }
-
-    val grossKey: String by lazyFast {
-        type.getName(isGross = true, getPackageTag = propsBuilder.packageTags::get)
-    }
-
     private val srcKlass = propsBuilder.srcKlass
     private val levelTag = "˚${srcKlass.contractedDotName}"
-
-    private val compoundTypeSupported by lazyFast {
-        this is FromElement
-        && type == prop.getTraceableTypes().first()
-    }
 
     // Here needn't consider about packageNameTag because it's owned only by other-module
     // declarations.
@@ -41,7 +29,11 @@ internal sealed class PropInfo(
                 append("`_")
                 if (isOuter) append("_")
 
-                type.getName(false, propsBuilder.packageTags::get).let(::append)
+                type.getName(false)
+                    .updateIf({ compoundTypeSupported }){
+                        it.replace("✕", "")
+                    }
+                    .let(::append)
 
                 if (!srcKlass.isFinal() || isOuter)
                     append("_$levelTag")
@@ -52,9 +44,6 @@ internal sealed class PropInfo(
                 }
 
                 append("`")
-            }
-            .updateIf({ compoundTypeSupported }){
-                it.replace("✕", "")
             }
         }
     }
@@ -89,6 +78,10 @@ internal sealed class PropInfo(
         }
     }
 
+    private val typeContent: String by lazyFast {
+        type.getContent(getPathImported = { it.outermostDecl in propsBuilder.importedOutermostKlasses })
+    }
+
     private val declContents: List<String> by lazyFast{
         (0..1).map { i ->
             val interfaceName = getInterfaceNames(srcKlass).toList()[i]
@@ -117,14 +110,20 @@ internal sealed class PropInfo(
         v: Visibility,
         propsBuilder: PropsBuilder,
     ) :
-        PropInfo(type, mutable, v, propsBuilder)
+        PropInfo(
+            type = type,
+            mutable = mutable,
+            v = v,
+            compoundTypeSupported = type == prop.getTraceableTypes().first()
+                                    && "✕" in type.getName(false),
+            propsBuilder = propsBuilder
+        )
 
     class FromSrcKlassSuper(
         val klass: KSClassDeclaration,
         type: Type<*>,
-        isMutable: Boolean,
         v: Visibility,
         propsBuilder: PropsBuilder
     ) :
-        PropInfo(type, isMutable, v, propsBuilder)
+        PropInfo(type, false, v, false, propsBuilder)
 }

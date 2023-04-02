@@ -1,12 +1,9 @@
 package pers.apollokwok.tracer.common.typesystem
 
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
-import pers.apollokwok.ksputil.Log
 import pers.apollokwok.ksputil.simpleName
 import pers.apollokwok.ktutil.Bug
-import pers.apollokwok.ktutil.updateIf
 
 private val cache = mutableMapOf<KSType, List<Type<*>>>()
 
@@ -14,37 +11,11 @@ private val cache = mutableMapOf<KSType, List<Type<*>>>()
 internal fun KSPropertyDeclaration.getTraceableTypes(): List<Type<*>> =
     // convert generic, aliases and convertible stars, and get Specific or Compound
     cache.getOrPut(type.resolve()) {
-        val convertedBasicType = run {
-            val map = when (val parentDecl = parentDeclaration) {
-                is KSClassDeclaration -> parentDecl.typeParamBoundsMap
-                null -> emptyMap() // This is only for helping testing top-level properties.
-                else -> Log.e("Local properties are forbidden to use.", this)
-            }
-
-            type.toProtoWithoutAliasAndStar()
-                .updateIf({ map.any() }){
-                    it.convertGeneric(map).first
-                }
-        }
+        val convertedBasicType = type.toProto().convertAll(emptyMap())
 
         fun getSuperTypesOfSpecific(specific: Type.Specific): List<Type.Specific> {
-//            val args = specific.args.map { arg ->
-//                when{
-//                    arg is Arg.General<*>
-//                    && arg.type is Type.Compound ->
-//                        arg.copy(type = arg.type.copy(isDeclarable = false))
-//
-//                    arg is Arg.Star -> TODO()
-//
-//                    else -> arg
-//                }
-//            }
-//
-//            val map = args.associateBy { it.param.simpleName() }
-//
-//            return specific.decl
-//                .getSuperSpecificRawTypes(false)
-//                .map { it.convertGeneric(map).first }
+            // get args in the basic converted type, convert stars if any,
+            // and pass them to super raw types
 
             val mapForConvertingFixedStar = specific
                 .args

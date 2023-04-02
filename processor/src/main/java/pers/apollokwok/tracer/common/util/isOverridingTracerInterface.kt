@@ -11,7 +11,7 @@ import pers.apollokwok.tracer.common.shared.Names
 import pers.apollokwok.tracer.common.shared.contractedDotName
 import pers.apollokwok.tracer.common.shared.getInterfaceNames
 import pers.apollokwok.tracer.common.typesystem.Type
-import pers.apollokwok.tracer.common.typesystem.toProtoWithoutAliasAndStar
+import pers.apollokwok.tracer.common.typesystem.toProto
 
 private val cache = mutableMapOf<String, Boolean>()
 
@@ -21,8 +21,9 @@ internal fun KSPropertyDeclaration.isOverridingTracerInterface(): Boolean =
         require(MyProcessor.times >= 2)
         if (Modifier.OVERRIDE !in modifiers) return false
         if (type.myValidate() != true) return false
-        val typeKlass = (type.toProtoWithoutAliasAndStar() as? Type.Specific)?.decl ?: return false
+        val typeKlass = (type.toProto().convertAlias() as? Type.Specific)?.decl ?: return false
         if (!typeKlass.isAnnotatedRootOrNodes()) return false
+
         val (interfaceName, outerInterfaceName) = getInterfaceNames(typeKlass)
 
         return arrayOf("__" to outerInterfaceName, "_" to interfaceName)

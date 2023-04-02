@@ -24,8 +24,6 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
             "not omitted visible properties to trace."
     }
 
-    private val newPropsInfo = mutableListOf<PropInfo>()
-
     private fun getV(decl: KSDeclaration, type: Type<*>): Visibility?{
         val limitedV = limitVisibility(decl, *type.allInnerKlasses.toTypedArray())
 
@@ -35,6 +33,19 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
             else -> limitedV
         }
     }
+
+    // collect sourceKlass superTypes in a mutable list
+    private val newPropsInfo: MutableList<PropInfo> =
+        getSrcKlassTraceableSuperTypes(srcKlass)
+        .mapNotNull { type ->
+            PropInfo.FromSrcKlassSuper(
+                klass = srcKlass,
+                type = type,
+                v = getV(srcKlass, type) ?: return@mapNotNull null,
+                propsBuilder = this
+            )
+        }
+        .toMutableList()
 
     private fun trace(klass: KSClassDeclaration, parentProp: KSPropertyDeclaration?){
         klass.getPreNeededProperties()
@@ -73,10 +84,10 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                     val v = getV(prop, type) ?: return@forEachIndexed
 
                     val mutable = prop.isMutable
-                                  && i == 0
-                                  && !(klass == srcKlass
-                             && srcKlass.typeParameters.any()
-                             && kotlin.run {
+                        && i == 0
+                        && !(klass == srcKlass
+                            && srcKlass.typeParameters.any()
+                            && kotlin.run {
                                 fun KSTypeReference.containT(): Boolean =
                                     resolve().declaration is KSTypeParameter
                                     || element?.typeArguments?.any { it.type?.containT() == true } == true
@@ -121,19 +132,6 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
             }
     }
 
-    // collect sourceKlass superTypes in new props
-    init {
-        newPropsInfo += getSrcKlassTraceableSuperTypes(srcKlass).mapNotNull { type ->
-            PropInfo.FromSrcKlassSuper(
-                klass = srcKlass,
-                type = type,
-                isMutable = false,
-                v = getV(srcKlass, type) ?: return@mapNotNull null,
-                propsBuilder = this
-            )
-        }
-    }
-
     // start tracing inner property types in recurse in new props
     init {
         trace(srcKlass, null)
@@ -151,11 +149,6 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
         .toSet()
         //endregion
 
-    val packageTags: Map<KSClassDeclaration, String> = allInnerKlasses
-            .filterOutRepeated{ it.outermostDecl.simpleName() }
-            .filterNot { it.isNativeKt() }
-            .associateWith { it.packageName().replace(".", "․") + "․" }
-
     private val imports = importedOutermostKlasses
         .filterNot { it.packageName() in AutoImportedPackageNames }
         .map { it.outermostDecl.qualifiedName()!! }
@@ -165,7 +158,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
     private val builtTimesComment: String =
         //region
         newPropsInfo
-        .groupingBy { it.grossKey }
+        .groupingBy { it.type.getName(true) }
         .eachCount()
         .toList()
         .groupingBy { (_, times)-> times }

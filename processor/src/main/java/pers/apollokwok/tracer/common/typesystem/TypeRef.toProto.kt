@@ -56,7 +56,7 @@ internal fun KSTypeReference.toProto(): Type<*> {
                 decl = decl,
                 args = newArgs,
                 nullable = nullable,
-                genericName = null,
+                genericNames = emptyList(),
                 hasAlias = true,
                 hasConvertibleStar = true,
                 isAnnotatedFullName = this.isAnnotationPresent(Tracer.FullName::class),
