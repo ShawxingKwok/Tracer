@@ -2,4 +2,4 @@
 
 package pers.apollokwok.mylibrary
 
-val `✕` = 1
+class Android 

@@ -16,7 +16,7 @@ internal fun KSTypeParameter.getBoundProto(): Type<*> =
                 Type.Specific(
                     decl = boundType.declaration as KSClassDeclaration,
                     args = listOf(Arg.Star(this)),
-                    genericName = null,
+                    genericNames = emptyList(),
                     nullable = boundType.isMarkedNullable,
                     hasAlias = false,
                     hasConvertibleStar = false,

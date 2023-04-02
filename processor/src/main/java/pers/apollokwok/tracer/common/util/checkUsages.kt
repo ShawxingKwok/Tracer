@@ -37,31 +37,6 @@ private fun requireRootNodesUsedOnClasses(){
     }
 }
 
-//private fun forbidRepeatedNativeContractedNames(){
-//    requireNone(
-//        symbols = resolver
-//            .getAllFiles()
-//            .flatMap { it.declarations }
-//            .toList()
-//            .let { decls ->
-//                val visibleTypeAliases = decls.filterIsInstance<KSTypeAlias>()
-//                    .filterNot { it.moduleVisibility() == null }
-//                visibleTypeAliases + decls.insideModuleVisibleKlasses()
-//            }
-//            .filterOutRepeated { it.contractedName }
-//    ){
-//        "Names below conflict. To make built names more clear, each internal/public class/typealias " +
-//            "must be unique for its contracted name in the built module."
-//    }
-//}
-
-//// todo: use 'getTrulyAnnotatedSymbols' when it is supported.
-//private fun forbidSameFileNames(){
-//    requireNone(symbols = getRootNodesKlasses().distinct().filterOutRepeated { it.contractedName.lowercase() }){
-//        "Rename some classes below which conflict on names in tracer building."
-//    }
-//}
-
 private fun forbidJavaFileUsingTracerAnnot(){
     requireNone(
         symbols = Tracer::class.nestedClasses
