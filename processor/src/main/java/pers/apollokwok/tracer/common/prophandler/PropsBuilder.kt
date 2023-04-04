@@ -6,7 +6,7 @@ import pers.apollokwok.ksputil.*
 import pers.apollokwok.tracer.common.shared.Names
 import pers.apollokwok.tracer.common.shared.Names.GENERATED_PACKAGE
 import pers.apollokwok.tracer.common.shared.Tags.AllInternal
-import pers.apollokwok.tracer.common.shared.contractedDotName
+import pers.apollokwok.tracer.common.shared.contractedName
 import pers.apollokwok.tracer.common.shared.outermostDecl
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getSrcKlassTraceableSuperTypes
@@ -190,7 +190,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
     init{
         Environment.codeGenerator.createFile(
             packageName = GENERATED_PACKAGE,
-            fileName = "${srcKlass.contractedDotName}Elements",
+            fileName = "${srcKlass.contractedName}Elements",
             dependencies = Dependencies(false, srcKlass.containingFile!!),
             content = """
                 |$SUPPRESSING

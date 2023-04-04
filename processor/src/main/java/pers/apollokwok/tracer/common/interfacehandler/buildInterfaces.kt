@@ -158,7 +158,7 @@ internal fun buildInterface(klass: KSClassDeclaration) {
 
     Environment.codeGenerator.createFile(
         packageName = Names.GENERATED_PACKAGE,
-        fileName = klass.contractedDotName + "${Names.Tracer}s",
+        fileName = getInterfaceNames(klass).first + "s",
         dependencies = Dependencies(false, klass.containingFile!!),
         content = content,
     )
