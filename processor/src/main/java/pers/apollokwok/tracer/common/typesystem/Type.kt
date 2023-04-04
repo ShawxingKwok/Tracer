@@ -17,7 +17,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             nullable = true,
             hasAlias = false,
             hasConvertibleStar = false,
-            isAnnotatedFullName = false,
         )
     }
 
@@ -223,7 +222,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         val genericNames: List<String> = emptyList(),
         val hasAlias: Boolean,
         val hasConvertibleStar: Boolean,
-        val isAnnotatedFullName: Boolean,
     ) :
         Type<Specific>(nullable)
     {
@@ -358,7 +356,6 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             genericNames: List<String> = this.genericNames,
             hasAlias: Boolean = this.hasAlias,
             hasConvertibleStar: Boolean = this.hasConvertibleStar,
-            isAnnotatedFullName: Boolean = this.isAnnotatedFullName,
         ): Specific =
             if (decl == this.decl
                 && args == this.args
@@ -369,7 +366,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             )
                 this
             else
-                Specific(decl, args, nullable, genericNames, hasAlias, hasConvertibleStar, isAnnotatedFullName)
+                Specific(decl, args, nullable, genericNames, hasAlias, hasConvertibleStar)
 
         override fun hashCode(): Int {
             var result = decl.hashCode()

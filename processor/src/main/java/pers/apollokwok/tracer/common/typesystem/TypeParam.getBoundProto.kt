@@ -20,7 +20,6 @@ internal fun KSTypeParameter.getBoundProto(): Type<*> =
                     nullable = boundType.isMarkedNullable,
                     hasAlias = false,
                     hasConvertibleStar = false,
-                    isAnnotatedFullName = false,
                 )
             else
                 bounds.first().toProto()

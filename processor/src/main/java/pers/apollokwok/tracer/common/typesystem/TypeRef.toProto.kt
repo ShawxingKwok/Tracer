@@ -1,10 +1,8 @@
 package pers.apollokwok.tracer.common.typesystem
 
-import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
-import pers.apollokwok.tracer.common.annotations.Tracer
 import pers.apollokwok.tracer.common.util.isDefNotNull
 
 // This can't be cached with KSType, because differently displayed ksTypes may equal.
@@ -59,7 +57,6 @@ internal fun KSTypeReference.toProto(): Type<*> {
                 genericNames = emptyList(),
                 hasAlias = true,
                 hasConvertibleStar = true,
-                isAnnotatedFullName = this.isAnnotationPresent(Tracer.FullName::class),
             )
 
         is KSTypeAlias ->
