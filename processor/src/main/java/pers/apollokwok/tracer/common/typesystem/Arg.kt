@@ -34,7 +34,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
                 val requireOut = !fromAlias && mappedArg !is Simple
 
                 val newArg = when (mappedArg) {
-                    // This condition would be removed after authority require typealias bounds.
+                    // This condition would be removed when typealias bounds are officially required.
                     is Star -> {
                         require(fromAlias)
                         Star(param)
