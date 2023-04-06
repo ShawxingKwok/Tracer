@@ -1,5 +1,6 @@
 # Tracer
-Generates extensional properties orienting to inner traceable elements, which realizes dependency injection with little configuration.
+Generates extensional properties oriented to interior traceable elements, which realizes 
+dependency injection with little configuration.
 
 ## Preview
 <img src="singleBedroomHouse.png" width=300></img>  
