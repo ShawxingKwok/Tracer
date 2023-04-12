@@ -6,6 +6,7 @@ import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
 import pers.apollokwok.tracer.common.shared.contractedDotName
+import pers.apollokwok.tracer.common.util.Imports
 
 internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type<*>>(){
     companion object{
@@ -69,7 +70,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         //region fixed part
         override val allInnerKlasses: List<KSClassDeclaration> get() = Bug()
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
+        override fun getContent(imports: Imports): String =
             buildString{
                 append(name)
                 when{
@@ -165,7 +166,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         //region fixed part
         override val allInnerKlasses: List<KSClassDeclaration> get() = Bug()
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = Bug()
+        override fun getContent(imports: Imports): String = Bug()
 
         override fun getName(isGross: Boolean): String =
             buildString {
@@ -269,9 +270,9 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             args.flatMap { it.allInnerKlasses } + decl
         }
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
+        override fun getContent(imports: Imports): String =
             buildString{
-                if (getPathImported(decl))
+                if (decl in imports)
                     append(decl.noPackageName())
                 else
                     append(decl.qualifiedName()!!)
@@ -280,7 +281,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                     append("<")
 
                     args.joinToString(", ") {
-                        it.getContent(getPathImported)
+                        it.getContent(imports)
                     }
                     .let(::append)
 
@@ -420,11 +421,9 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         //endregion
 
         //region fixed part
-        override val allInnerKlasses: List<KSClassDeclaration> by lazyFast {
-            types.flatMap { it.allInnerKlasses }
-        }
+        override val allInnerKlasses: List<KSClassDeclaration> = emptyList()
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = "*"
+        override fun getContent(imports: Imports): String = "*"
 
         override fun getName(isGross: Boolean): String =
             buildString {

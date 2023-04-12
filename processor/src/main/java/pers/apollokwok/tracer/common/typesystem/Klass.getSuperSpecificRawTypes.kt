@@ -24,10 +24,9 @@ internal fun KSClassDeclaration.getSuperSpecificRawTypes(isSrc: Boolean): List<T
                 typeRef.toProto().convertAlias().convertStar().updateNullability(false) as Type.Specific
             }
             .filterNot {
-                it.decl.moduleVisibility() == null
                 // for source root/nodes classes, super types of their super root/nodes classes
                 // were implemented.
-                || isSrc && it.decl.isAnnotatedRootOrNodes()
+                isSrc && it.decl.isAnnotatedRootOrNodes()
                 || it.decl.isAnnotationPresent(TracerInterface::class)
                 || it.decl == Type.`Any？`.decl
                 || it.decl in currentSuperKlasses

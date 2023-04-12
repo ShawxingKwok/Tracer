@@ -9,15 +9,17 @@ import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
 import pers.apollokwok.tracer.common.util.isFinal
+import pers.apollokwok.tracer.common.util.starType
 
 internal sealed class PropInfo(
     val type: Type<*>,
     private val mutable: Boolean,
     v: Visibility,
-    compoundTypeSupported: Boolean,
+    val compoundTypeSupported: Boolean,
     private val propsBuilder: PropsBuilder,
 ){
     private val srcKlass = propsBuilder.srcKlass
+    private val srcPropName = srcKlass.starType.getName(false)
     private val levelTag = "˚${srcKlass.contractedDotName}"
 
     // Here needn't consider about packageNameTag because it's owned only by other-module
@@ -39,11 +41,9 @@ internal sealed class PropInfo(
                     append("_$levelTag")
 
                 when(this@PropInfo){
-                    is FromSrcKlassSuper -> append("_${klass.contractedDotName}")
-                    is FromElement -> append("_${prop.parentDeclaration!!.contractedDotName}_$prop")
+                    is FromSrcKlassSuper -> append("_${srcKlass.contractedDotName}`")
+                    is FromElement -> append("_${prop.parentDeclaration!!.contractedDotName}_$prop`")
                 }
-
-                append("`")
             }
         }
     }
@@ -55,12 +55,11 @@ internal sealed class PropInfo(
                 if (isOuter) append("_")
 
                 when(this@PropInfo) {
-                    is FromSrcKlassSuper -> append("${klass.contractedDotName}`")
+                    is FromSrcKlassSuper -> append("$srcPropName`")
 
-                    is FromElement ->
+                    is FromElement -> {
                         // properties in sourceKlass
-                        if (parentProp == null)
-                            append("${srcKlass.contractedDotName}`.`$prop`")
+                        if (parentProp == null) append(srcPropName)
 
                         // below are properties in general classes
                         else {
@@ -70,17 +69,16 @@ internal sealed class PropInfo(
                                 append("_$levelTag")
 
                             append("_${parentProp.parentDeclaration!!.contractedDotName}_$parentProp")
-
-                            append("`.`$prop`")
                         }
+
+                        append("`.`$prop`")
+                    }
                 }
             }
         }
     }
 
-    private val typeContent: String by lazyFast {
-        type.getContent(getPathImported = { it.outermostDecl in propsBuilder.importedOutermostKlasses })
-    }
+    private val typeContent: String by lazyFast { type.getContent(propsBuilder.imports) }
 
     private val declContents: List<String> by lazyFast{
         (0..1).map { i ->

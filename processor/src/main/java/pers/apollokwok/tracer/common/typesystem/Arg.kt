@@ -5,6 +5,7 @@ import com.google.devtools.ksp.symbol.KSTypeParameter
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
 import pers.apollokwok.ktutil.updateIf
+import pers.apollokwok.tracer.common.util.Imports
 
 internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<Arg<*>>(){
     sealed class General<T: General<T>>(
@@ -103,15 +104,14 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
             return true
         }
 
-        final override val allInnerKlasses: List<KSClassDeclaration> by
-            lazyFast { type.allInnerKlasses }
+        final override val allInnerKlasses: List<KSClassDeclaration> by lazyFast { type.allInnerKlasses }
     }
 
     class Simple(type: Type<*>, param: KSTypeParameter) : General<Simple>(type, param) {
         override fun toString(): String = "$type"
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
-            type.getContent(getPathImported)
+        override fun getContent(imports: Imports): String =
+            type.getContent(imports)
 
         override fun getName(isGross: Boolean): String =
             type.getName(isGross)
@@ -120,8 +120,8 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
     class In(type: Type<*>, param: KSTypeParameter) : General<In>(type, param) {
         override fun toString(): String = "in $type"
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
-            type.getContent(getPathImported)
+        override fun getContent(imports: Imports): String =
+            type.getContent(imports)
                 .updateIf({ type !is Type.Compound }){
                     "in $it"
                 }
@@ -136,8 +136,8 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
     class Out(type: Type<*>, param: KSTypeParameter) : General<Out>(type, param) {
         override fun toString(): String = "out $type"
 
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String =
-            type.getContent(getPathImported)
+        override fun getContent(imports: Imports): String =
+            type.getContent(imports)
                 .updateIf({ type !is Type.Compound}){
                     "out $it"
                 }
@@ -190,7 +190,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
 
         //region fixed part
         override val allInnerKlasses: List<KSClassDeclaration> = emptyList()
-        override fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String = "*"
+        override fun getContent(imports: Imports): String = "*"
         override fun getName(isGross: Boolean): String = "✶"
         //endregion
 

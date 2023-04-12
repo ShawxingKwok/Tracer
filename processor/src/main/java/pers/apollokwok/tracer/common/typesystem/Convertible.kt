@@ -1,6 +1,7 @@
 package pers.apollokwok.tracer.common.typesystem
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import pers.apollokwok.tracer.common.util.Imports
 
 internal sealed class Convertible<T: Convertible<T>>{
     // The returned latter 'Boolean' means whether 'outer out' is required or not.
@@ -11,6 +12,6 @@ internal sealed class Convertible<T: Convertible<T>>{
     fun convertAll(map: Map<String, Arg<*>>): T = convertAlias().convertStar().convertGeneric(map).first
 
     abstract val allInnerKlasses: List<KSClassDeclaration>
-    abstract fun getContent(getPathImported: (KSClassDeclaration) -> Boolean): String
+    abstract fun getContent(imports: Imports): String
     abstract fun getName(isGross: Boolean): String
 }

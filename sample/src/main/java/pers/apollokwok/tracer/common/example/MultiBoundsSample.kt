@@ -13,5 +13,6 @@ class MultipleBoundsSample<T> : MultipleBoundsSampleTracer
 {
     lateinit var sub: Sub<T>
 
-    override val _MultipleBoundsSample: MultipleBoundsSample<*> = this
+    @Suppress("NonAsciiCharacters")
+    override val `_MultipleBoundsSample‹↓‹Serializable，CharSequence››`: MultipleBoundsSample<*> get() = this
 }

@@ -1,13 +1,14 @@
 package pers.apollokwok.tracer.common.prophandler
 
+import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
+import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.shared.Names
 import pers.apollokwok.tracer.common.shared.Names.GENERATED_PACKAGE
-import pers.apollokwok.tracer.common.shared.Tags.AllInternal
+import pers.apollokwok.tracer.common.shared.Tags
 import pers.apollokwok.tracer.common.shared.contractedName
-import pers.apollokwok.tracer.common.shared.outermostDecl
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getSrcKlassTraceableSuperTypes
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
@@ -24,16 +25,6 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
             "not omitted visible properties to trace."
     }
 
-    private fun getV(decl: KSDeclaration, type: Type<*>): Visibility?{
-        val limitedV = limitVisibility(decl, *type.allInnerKlasses.toTypedArray())
-
-        return when {
-            limitedV == null -> null
-            AllInternal -> Visibility.INTERNAL
-            else -> limitedV
-        }
-    }
-
     // collect sourceKlass superTypes in a mutable list
     private val newPropsInfo: MutableList<PropInfo> =
         getSrcKlassTraceableSuperTypes(srcKlass)
@@ -41,29 +32,21 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
             PropInfo.FromSrcKlassSuper(
                 klass = srcKlass,
                 type = type,
-                v = getV(srcKlass, type) ?: return@mapNotNull null,
+                v = limitVisibility(
+                    srcKlass.moduleVisibility(),
+                    *type.allInnerKlasses.map { it.moduleVisibility() }.toTypedArray(),
+                    if (Tags.AllInternal) Visibility.INTERNAL else Visibility.PUBLIC
+                ) ?: return@mapNotNull null,
                 propsBuilder = this
             )
         }
         .toMutableList()
 
-    private fun trace(klass: KSClassDeclaration, parentProp: KSPropertyDeclaration?){
+    private fun trace(klass: KSClassDeclaration, parentProp: KSPropertyDeclaration?, lastV: Visibility){
         klass.getPreNeededProperties()
             .asSequence()
-            // Omit Any and warn
-            .filterNot { prop->
-                val isAny = prop.type.resolve().declaration == Type.`Any？`.decl
-
-                if (isAny)
-                    Log.w(
-                        msg = "This property would be omitted because its type is Any. " +
-                            "You can annotate this property with ${Names.Omit} to make it look clear.",
-                        prop
-                    )
-
-                isAny
-            }
             .map { prop -> prop to prop.getTraceableTypes() }
+            // record
             .onEachIndexed{ i, _->
                 if (i != 0) return@onEachIndexed
 
@@ -81,7 +64,11 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
             .onEach { (prop, types)->
                 // the basic type must be visible, so the requirement in just 'onEachIndexed' must be valid.
                 types.forEachIndexed { i, type ->
-                    val v = getV(prop, type) ?: return@forEachIndexed
+                    val v = limitVisibility(
+                        prop.getVisibility(),
+                        *type.allInnerKlasses.map { it.moduleVisibility() }.toTypedArray(),
+                        lastV,
+                    ) ?: return@forEachIndexed
 
                     val mutable = prop.isMutable
                         && i == 0
@@ -127,33 +114,29 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
             .forEach { (prop, basicType)->
                 trace(
                     klass = basicType.decl,
-                    parentProp = prop
+                    parentProp = prop,
+                    lastV = limitVisibility(prop.moduleVisibility(), lastV)!!
                 )
             }
     }
 
     // start tracing inner property types in recurse in new props
     init {
-        trace(srcKlass, null)
+        trace(
+            klass = srcKlass,
+            parentProp = null,
+            lastV = srcKlass.moduleVisibility()!!.updateIf({ Tags.AllInternal }){ Visibility.INTERNAL }
+        )
     }
 
-    private val allInnerKlasses = newPropsInfo.flatMap { it.type.allInnerKlasses }.toSet()
-
-    val importedOutermostKlasses = allInnerKlasses
-        //region
-        .map { it.outermostDecl }
-        .groupBy { it.simpleName() }
-        .mapNotNull { (_, similarKlasses)->
-            similarKlasses.singleOrNull() ?: similarKlasses.firstOrNull { it.isNativeKt() }
+    val imports =
+        newPropsInfo.flatMap {
+            if(it.compoundTypeSupported)
+                emptyList()
+            else
+                it.type.allInnerKlasses
         }
-        .toSet()
-        //endregion
-
-    private val imports = importedOutermostKlasses
-        .filterNot { it.packageName() in AutoImportedPackageNames }
-        .map { it.outermostDecl.qualifiedName()!! }
-        .sorted()
-        .joinToString("\n") { "import $it" }
+        .let(::Imports)
 
     private val builtTimesComment: String =
         //region
@@ -196,9 +179,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                 |$SUPPRESSING
                 |
                 |package $GENERATED_PACKAGE
-                |
-                |$imports                 
-                |
+                |$imports
                 |$builtTimesComment
                 |
                 |${ newPropsInfo.joinToString("\n") { it.declContent } }

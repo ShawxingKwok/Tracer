@@ -42,29 +42,20 @@ private tailrec fun getSuperRootOrNodeKlass(klass: KSClassDeclaration): KSClassD
     }
 }
 
-private fun KSClassDeclaration.starTypeContent(imports: List<String>): String =
-    buildString {
-        if (imports.any() && outermostDecl.qualifiedName() in imports)
-            append(noPackageName())
-        else
-            append(qualifiedName())
-
-        if (typeParameters.any()){
-            append("<")
-            append(typeParameters.joinToString(", "){ "*" })
-            append(">")
-        }
-    }
-
 internal fun buildInterface(klass: KSClassDeclaration) {
+    val (interfaceName, outerInterfaceName) = getInterfaceNames(klass)
+
+    val visibilityPart =
+        if (AllInternal)
+            Visibility.INTERNAL.name.lowercase()
+        else
+            klass.moduleVisibility()!!.name.lowercase()
+
     // for passing the super context to child classes.
     val superRootOrNodeKlass: KSClassDeclaration? = getSuperRootOrNodeKlass(klass)
-
-    val superName = superRootOrNodeKlass?.contractedDotName
     val superTracerName = superRootOrNodeKlass?.contractedName?.plus(Names.Tracer)
 
     val context = klass.context
-    val contextName = context?.contractedDotName
     val contextTracerName = context?.contractedName?.let { "${Names.OUTER}${it}Tracer" }
 
     val (implementsPart, outerImplementsPart) =
@@ -84,81 +75,72 @@ internal fun buildInterface(klass: KSClassDeclaration) {
             else -> "" to ""
         }
 
-    val grandpaContext = context?.context
-
-    // each class may miss its import
-    val imports = listOfNotNull(klass, superRootOrNodeKlass, grandpaContext)
-        .map { it.outermostDecl.qualifiedName()!! }
-        .associateBy { it.substringAfterLast(".") }
-        .toMutableMap()
-        // TracerInterface must has its import.
-        .also { it[Names.TracerInterface] = TracerInterface::class.qualifiedName!! }
-        .values
-        .sorted()
-
-    val contractedDotName = klass.contractedDotName
-
-    val declPart = "val `_$contractedDotName`: ${klass.starTypeContent(imports)}"
-    val outerDeclPart = declPart.replaceFirst("`", "`_")
-
-    val superDeclPart =
-        when{
-            superRootOrNodeKlass == null
+    val (type, superType, contextType, grandpaContextType) =
+        listOf(
+            klass,
             // this being overridden property is already overridden.
-            || superRootOrNodeKlass.isMyOpen() -> null
+            superRootOrNodeKlass?.takeUnless { it.isMyOpen() },
+            context,
+            context?.context,
+        )
+        .map { it?.starType }
 
-            superRootOrNodeKlass.isMyAbstract() ->
-                "override val `_$superName`: ${superRootOrNodeKlass.starTypeContent(imports)} " +
-                    "get() = `_$contractedDotName`"
+    val (name, superName, contextName, grandpaContextName) =
+        listOf(type, superType, contextType, grandpaContextType)
+        .map { it?.getName(false) }
 
-            else -> Bug()
-        }
+    val imports = Imports(
+        listOfNotNull(type, superType, grandpaContextType).flatMap { it.allInnerKlasses },
+        TracerInterface::class,
+    )
 
-    val outerSuperDeclPart = superRootOrNodeKlass?.let {
-        "override val `__$superName`: ${it.starTypeContent(imports)} get() = `__$contractedDotName`"
-    }
-
-    val grandpaContextDeclPart = grandpaContext?.contractedDotName?.let { grandpaContextName ->
-        "override val `__$grandpaContextName`: ${grandpaContext.starTypeContent(imports)} " +
-            "get() = `__${contextName!!}`.`__$grandpaContextName`"
-    }
-
-    fun String?.onNewLineIfNotNull() =
-        if (this == null)
-            ""
-        else
-            "\n    $this"
-
-    val (interfaceName, outerInterfaceName) = getInterfaceNames(klass)
-
-    val visibilityPart =
-        if (AllInternal)
-            Visibility.INTERNAL.name.lowercase()
-        else
-            klass.moduleVisibility()!!.name.lowercase()
+    val (typeContent, superTypeContent, grandpaContextTypeContent) =
+        listOf(type, superType, grandpaContextType).map { it?.getContent(imports) }
 
     val content =
         """
         |$SUPPRESSING
         |
         |package ${Names.GENERATED_PACKAGE}
-        |
-        |${imports.joinToString("\n") { "import $it" }}
-        |
+        |$imports
         |@${Names.TracerInterface}
         |$visibilityPart interface $interfaceName$implementsPart{
-        |    $declPart ${superDeclPart.onNewLineIfNotNull()} ${grandpaContextDeclPart.onNewLineIfNotNull()}
+        |    val `_$name`: $typeContent
+        |    override val `_$superName`: $superTypeContent get() = `_$name`
+        |    override val `__$grandpaContextName`: $grandpaContextTypeContent get() = `__$contextName`.`__$grandpaContextName` 
         |}
         |
         |@${Names.TracerInterface}
         |$visibilityPart interface $outerInterfaceName$outerImplementsPart{
-        |    $outerDeclPart ${outerSuperDeclPart.onNewLineIfNotNull()} ${grandpaContextDeclPart.onNewLineIfNotNull()}
+        |    val `__$name`: $typeContent
+        |    override val `__$superName`: $superTypeContent get() = `__$name`
+        |    override val `__$grandpaContextName`: $grandpaContextTypeContent get() = `__$contextName`.`__$grandpaContextName` 
         |}
-        """.trimMargin()
+        |
+        |$visibilityPart val $interfaceName.`_$outerInterfaceName` inline get() = 
+        |   object : $outerInterfaceName{
+        |       override val `__$name` = `_$name`
+        |       override val `__$contextName` = this@$interfaceName.`__$contextName`  
+        |   }
+        |   
+        |$visibilityPart val $outerInterfaceName.`__$interfaceName` inline get() = 
+        |   object : $interfaceName{
+        |       override val `_$name` = `__$name`
+        |       override val `__$contextName` = this@$outerInterfaceName.`__$contextName`  
+        |   }
+        """
+        .trimMargin()
+        .lines()
+        .filterNot {
+            val text = it.trimStart()
+            text.startsWith("override val `_null`")
+            || text.startsWith("override val `__null`")
+        }
+        .joinToString("\n")
 
     Environment.codeGenerator.createFile(
         packageName = Names.GENERATED_PACKAGE,
-        fileName = getInterfaceNames(klass).first + "s",
+        fileName = interfaceName + "s",
         dependencies = Dependencies(false, klass.containingFile!!),
         content = content,
     )

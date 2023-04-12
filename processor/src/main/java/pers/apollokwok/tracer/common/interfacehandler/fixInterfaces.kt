@@ -29,6 +29,7 @@ internal fun fixInterfaces(){
     cache.clear()
 }
 
+// TODO: comment
 private fun fixInterface(klass: KSClassDeclaration) {
     if (klass in cache) return
 
