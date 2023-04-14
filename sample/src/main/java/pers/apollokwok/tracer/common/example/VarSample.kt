@@ -1,11 +1,11 @@
 package pers.apollokwok.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.VarSampleTracer
-import pers.apollokwok.tracer.common.generated._Int_VarSample_x
+import pers.apollokwok.tracer.common.example.trace.VarSampleTracer
+import pers.apollokwok.tracer.common.example.trace._Int_VarSample_x
 
 @Tracer.Root
-class VarSample : VarSampleTracer{
+class VarSample : VarSampleTracer {
     var x = 1
 
     val foo = Foo()

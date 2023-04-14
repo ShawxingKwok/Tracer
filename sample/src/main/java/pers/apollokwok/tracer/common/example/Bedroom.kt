@@ -1,11 +1,12 @@
 package pers.apollokwok.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.*
-import pers.apollokwok.tracer.common.generated.BedroomTracer
+import pers.apollokwok.tracer.common.example.trace.*
+import pers.apollokwok.tracer.common.example.trace.BedroomTracer
+import pers.apollokwok.tracer.common.example.trace.PillowTracer
 
 @Tracer.Nodes(House::class)
-class Bedroom(override val __House: House) : BedroomTracer{
+class Bedroom(override val __House: House) : BedroomTracer {
     val window = Window()
     val bed = Bed()
 
@@ -31,11 +32,11 @@ class Quilt{
 }
 
 @Tracer.Nodes(Bedroom::class)
-class Pillow(override val __Bedroom: Bedroom) : PillowTracer{
+class Pillow(override val __Bedroom: Bedroom) : PillowTracer {
     val case = Case()
     val cotton = Cotton()
 
-    override val _Pillow: Pillow = this
+    override val _Pillow: Pillow get() = this
 }
 
 context (PillowTracer)
@@ -46,14 +47,3 @@ class Cotton{
     private val quilt get() = `__Quilt_˚Bedroom_Bed_quilt`
     private val wifiRouter get() = `__WifiRouter_˚House_LivingRoom_wifiRouter`
 }
-
-// converter
-//public val BedroomTracer._OuterBedroomTracer: OuterBedroomTracer inline get() =
-//    object : OuterBedroomTracer by this@BedroomTracer{
-//        override val __Bedroom: Bedroom = _Bedroom
-//    }
-
-//public val OuterBedroomTracer.__BedroomTracer: BedroomTracer inline get() =
-//    object : BedroomTracer, OuterHouseTracer by this@OuterBedroomTracer{
-//        override val _Bedroom: Bedroom = __Bedroom
-//    }

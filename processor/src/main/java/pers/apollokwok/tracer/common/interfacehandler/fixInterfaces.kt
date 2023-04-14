@@ -1,14 +1,10 @@
 package pers.apollokwok.tracer.common.interfacehandler
 
-import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import pers.apollokwok.ksputil.noPackageName
-import pers.apollokwok.ksputil.resolver
 import pers.apollokwok.ksputil.simpleName
-import pers.apollokwok.tracer.common.shared.getInterfaceNames
-import pers.apollokwok.tracer.common.shared.getRootNodesKlasses
-import pers.apollokwok.tracer.common.shared.Names
+import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.util.isMyOpen
 import java.io.File
 
@@ -22,14 +18,14 @@ internal fun fixInterfaces(){
     called = true
 
     getRootNodesKlasses()
-        .flatMap { getInterfaceNames(it).toList() }
-        .map { resolver.getClassDeclarationByName("${Names.GENERATED_PACKAGE}.$it")!! }
+        .flatMap { it.tracerInterfaces.toList() }
         .forEach(::fixInterface)
 
     cache.clear()
 }
 
 // TODO: comment
+// `klass` is the tracer interface
 private fun fixInterface(klass: KSClassDeclaration) {
     if (klass in cache) return
 

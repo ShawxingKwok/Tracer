@@ -32,9 +32,10 @@ private tailrec fun getSuperRootOrNodeKlass(klass: KSClassDeclaration): KSClassD
         // is Root/Nodes and its tracer interface is visible
         superKlass.isAnnotatedRootOrNodes()
         &&(superKlass.isNativeKt()
-            || "${Names.GENERATED_PACKAGE}.${getInterfaceNames(superKlass).first}"
-            .let(resolver::getClassDeclarationByName)!!
-            .isPublic()
+            || resolver.getClassDeclarationByName(
+                name = "${superKlass.tracePackageName}.${getInterfaceNames(superKlass).first}"
+            )!!
+           .isPublic()
         ) ->
             superKlass
 
@@ -42,7 +43,11 @@ private tailrec fun getSuperRootOrNodeKlass(klass: KSClassDeclaration): KSClassD
     }
 }
 
-internal fun buildInterface(klass: KSClassDeclaration) {
+internal fun buildInterfaces(){
+    getRootNodesKlasses().forEach(::buildInterface)
+}
+
+private fun buildInterface(klass: KSClassDeclaration) {
     val (interfaceName, outerInterfaceName) = getInterfaceNames(klass)
 
     val visibilityPart =
@@ -53,24 +58,24 @@ internal fun buildInterface(klass: KSClassDeclaration) {
 
     // for passing the super context to child classes.
     val superRootOrNodeKlass: KSClassDeclaration? = getSuperRootOrNodeKlass(klass)
-    val superTracerName = superRootOrNodeKlass?.contractedName?.plus(Names.Tracer)
+    val superTracerNames = superRootOrNodeKlass?.let(::getInterfaceNames)
 
     val context = klass.context
-    val contextTracerName = context?.contractedName?.let { "${Names.OUTER}${it}Tracer" }
+    val outerContextTracerName = context?.let(::getInterfaceNames)?.second
 
     val (implementsPart, outerImplementsPart) =
         when{
-            superTracerName != null && contextTracerName != null ->
-                " : $superTracerName, $contextTracerName" to
-                " : ${Names.OUTER}$superTracerName, $contextTracerName"
+            superTracerNames != null && outerContextTracerName != null ->
+                " : ${superTracerNames.first}, $outerContextTracerName" to
+                " : ${superTracerNames.second}, $outerContextTracerName"
 
-            superTracerName != null ->
-                " : $superTracerName" to
-                " : ${Names.OUTER}$superTracerName"
+            superTracerNames != null ->
+                " : ${superTracerNames.first}" to
+                " : ${superTracerNames.second}"
 
-            contextTracerName != null ->
-                " : $contextTracerName" to
-                " : $contextTracerName"
+            outerContextTracerName != null ->
+                " : $outerContextTracerName" to
+                " : $outerContextTracerName"
 
             else -> "" to ""
         }
@@ -89,20 +94,41 @@ internal fun buildInterface(klass: KSClassDeclaration) {
         listOf(type, superType, contextType, grandpaContextType)
         .map { it?.getName(false) }
 
-    val imports = Imports(
-        listOfNotNull(type, superType, grandpaContextType).flatMap { it.allInnerKlasses },
+    val partialImports = Imports(
+        srcDecl = klass,
+        postfix = "trace",
+        klasses = listOfNotNull(type, superType, grandpaContextType).flatMap { it.allInnerKlasses },
         TracerInterface::class,
     )
 
+    val tracerInterfaceImports =
+        listOfNotNull(
+            if (superRootOrNodeKlass != null && superRootOrNodeKlass.packageName() != klass.packageName())
+                superRootOrNodeKlass.tracePackageName + "." + superTracerNames!!.first
+            else
+                null,
+
+            if (superRootOrNodeKlass != null && superRootOrNodeKlass.packageName() != klass.packageName())
+                superRootOrNodeKlass.tracePackageName + "." + superTracerNames!!.second
+            else
+                null,
+
+            context?.let { it.tracePackageName + "." + outerContextTracerName }
+        )
+        .joinToString("\n"){ "import $it" }
+
     val (typeContent, superTypeContent, grandpaContextTypeContent) =
-        listOf(type, superType, grandpaContextType).map { it?.getContent(imports) }
+        listOf(type, superType, grandpaContextType).map { it?.getContent(partialImports) }
 
     val content =
         """
         |$SUPPRESSING
         |
-        |package ${Names.GENERATED_PACKAGE}
-        |$imports
+        |package ${klass.tracePackageName}
+        |
+        |$tracerInterfaceImports
+        |$partialImports
+        |
         |@${Names.TracerInterface}
         |$visibilityPart interface $interfaceName$implementsPart{
         |    val `_$name`: $typeContent
@@ -116,32 +142,21 @@ internal fun buildInterface(klass: KSClassDeclaration) {
         |    override val `__$superName`: $superTypeContent get() = `__$name`
         |    override val `__$grandpaContextName`: $grandpaContextTypeContent get() = `__$contextName`.`__$grandpaContextName` 
         |}
-        |
-        |$visibilityPart val $interfaceName.`_$outerInterfaceName` inline get() = 
-        |   object : $outerInterfaceName{
-        |       override val `__$name` = `_$name`
-        |       override val `__$contextName` = this@$interfaceName.`__$contextName`  
-        |   }
-        |   
-        |$visibilityPart val $outerInterfaceName.`__$interfaceName` inline get() = 
-        |   object : $interfaceName{
-        |       override val `_$name` = `__$name`
-        |       override val `__$contextName` = this@$outerInterfaceName.`__$contextName`  
-        |   }
         """
-        .trimMargin()
+        .trimMarginAndRepeatedBlankLines()
         .lines()
-        .filterNot {
-            val text = it.trimStart()
-            text.startsWith("override val `_null`")
-            || text.startsWith("override val `__null`")
+        .filterNot { line ->
+            line.startsWith("    override val `_null`")
+            || line.startsWith("    override val `__null`")
         }
         .joinToString("\n")
 
     Environment.codeGenerator.createFile(
-        packageName = Names.GENERATED_PACKAGE,
-        fileName = interfaceName + "s",
-        dependencies = Dependencies(false, klass.containingFile!!),
+        packageName = klass.tracePackageName,
+        fileName = klass.noPackageName() + "Tracers",
+        // todo: change when old generations can be oriented when it is supported.
+        dependencies = Dependencies.ALL_FILES,
+//        dependencies = Dependencies(false, klass.containingFile!!),
         content = content,
     )
 }

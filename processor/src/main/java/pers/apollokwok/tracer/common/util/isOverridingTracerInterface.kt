@@ -1,39 +1,33 @@
 package pers.apollokwok.tracer.common.util
 
 import com.google.devtools.ksp.getAllSuperTypes
+import com.google.devtools.ksp.getDeclaredProperties
+import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import pers.apollokwok.ksputil.qualifiedName
 import pers.apollokwok.ksputil.simpleName
 import pers.apollokwok.tracer.common.MyProcessor
-import pers.apollokwok.tracer.common.shared.Names
-import pers.apollokwok.tracer.common.shared.contractedDotName
-import pers.apollokwok.tracer.common.shared.getInterfaceNames
-import pers.apollokwok.tracer.common.typesystem.Type
-import pers.apollokwok.tracer.common.typesystem.toProto
+import pers.apollokwok.tracer.common.annotations.TracerInterface
 
 private val cache = mutableMapOf<String, Boolean>()
 
 // can't be used in 1st round to ensure all tracer interfaces have been built.
+// findOverridee has bug in ksp 1.7.20-1.0.8
 internal fun KSPropertyDeclaration.isOverridingTracerInterface(): Boolean =
     cache.getOrPut(qualifiedName()!!) {
         require(MyProcessor.times >= 2)
-        if (Modifier.OVERRIDE !in modifiers) return false
-        if (type.myValidate() != true) return false
-        val typeKlass = (type.toProto().convertAlias() as? Type.Specific)?.decl ?: return false
-        if (!typeKlass.isAnnotatedRootOrNodes()) return false
 
-        val (interfaceName, outerInterfaceName) = getInterfaceNames(typeKlass)
+        val parentKlass = parentDeclaration as KSClassDeclaration? ?: return@getOrPut false
+        if (Modifier.OVERRIDE !in modifiers) return@getOrPut false
+        if (type.myValidate() != true) return@getOrPut false
 
-        return arrayOf("__" to outerInterfaceName, "_" to interfaceName)
-            .any { (prefix, tracerInterfaceName) ->
-                simpleName().startsWith(prefix)
-                && typeKlass.contractedDotName == simpleName().substringAfter(prefix)
-                // starProjectedType.isAssignableFrom() can't be used here because some type parameters may be
-                // invalid then.
-                && (parentDeclaration!! as KSClassDeclaration).getAllSuperTypes().any {
-                    it.declaration.qualifiedName() == "${Names.GENERATED_PACKAGE}.$tracerInterfaceName"
-                }
-            }
+        if (!simpleName().startsWith("_")) return@getOrPut false
+
+        parentKlass.getAllSuperTypes()
+            .filter { it.declaration.isAnnotationPresent(TracerInterface::class) }
+            .map { it.declaration as KSClassDeclaration }
+            .flatMap { it.getDeclaredProperties() }
+            .any { it.simpleName() == simpleName() }
     }

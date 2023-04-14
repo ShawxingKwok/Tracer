@@ -1,19 +1,38 @@
 package pers.apollokwok.tracer.common.util
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Unreachable
-import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.shared.outermostDecl
 import kotlin.reflect.KClass
 
 // TODO: Test
 // TODO: move this to ksp util, comment
 internal class Imports(
+    private val packageName: String,
     klasses: Collection<KSClassDeclaration>,
     vararg annotations: KClass<out Annotation>,
 ){
+    constructor(
+        srcDecl: KSDeclaration,
+        postfix: String?,
+        klasses: Collection<KSClassDeclaration>,
+        vararg annotations: KClass<out Annotation>,
+    ) :
+        this(
+            packageName =
+                listOfNotNull(
+                    srcDecl.packageName().takeIf { it.any() },
+                    postfix
+                )
+                .joinToString("."),
+            klasses = klasses,
+            annotations = annotations
+        )
+
     private val imported: Collection<Any> = kotlin.run {
+        // associate by their simple names
         val klassMap = klasses.associate { it.outermostDecl.simpleName() to it.outermostDecl }
 
         val annotationMap = annotations.associateBy { annot ->
@@ -21,8 +40,7 @@ internal class Imports(
                 .substringAfter(annot.java.`package`.name + ".")
                 .substringBefore(".")
         }
-        if ((klassMap + annotationMap).size == 2)
-                Log.w(klassMap + annotationMap)
+
         (klassMap + annotationMap).values
     }
 
@@ -46,11 +64,13 @@ internal class Imports(
                 is KSClassDeclaration -> it.outermostDecl.qualifiedName()!!
                     .takeUnless { _->
                         it.packageName() in AutoImportedPackageNames
+                        || it.packageName() == packageName
                     }
 
                 is KClass<*> -> it.qualifiedName!!
                     .takeUnless { _->
                         it.java.`package`.name in AutoImportedPackageNames
+                        || it.java.`package`.name == packageName
                     }
 
                 else -> Unreachable()
@@ -58,5 +78,4 @@ internal class Imports(
         }
         .sorted()
         .joinToString("\n"){ "import $it" }
-        .updateIf({ it.any() }){ "\n$it\n" }
 }

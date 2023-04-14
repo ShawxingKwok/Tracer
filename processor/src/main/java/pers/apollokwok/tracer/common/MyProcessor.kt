@@ -7,7 +7,8 @@ import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Unreachable
 import pers.apollokwok.tracer.common.annotations.Tracer
 import pers.apollokwok.tracer.common.annotations.TracerInterface
-import pers.apollokwok.tracer.common.interfacehandler.buildInterface
+import pers.apollokwok.tracer.common.interfacehandler.buildConverters
+import pers.apollokwok.tracer.common.interfacehandler.buildInterfaces
 import pers.apollokwok.tracer.common.interfacehandler.fixInterfaces
 import pers.apollokwok.tracer.common.prophandler.PropsBuilder
 import pers.apollokwok.tracer.common.shared.Names
@@ -37,7 +38,7 @@ internal object MyProcessor : KspProcessor {
                 if (!valid)
                     // already logger.errorLater in 'checkUsages`
                     return emptyList()
-                getRootNodesKlasses().forEach(::buildInterface)
+                buildInterfaces()
                 Tags.interfacesBuilt = true
                 getRootNodesKlasses()
             }
@@ -46,6 +47,7 @@ internal object MyProcessor : KspProcessor {
                 // fix interfaces for conflict of cognominal properties from different super interfaces.
                 // and warn if some classes with @Root/Nodes don't implement their tracer interfaces.
                 if (times == 2) {
+                    buildConverters()
                     fixInterfaces()
 
                     val notImplementedKlasses = getRootNodesKlasses().filter { klass ->

@@ -6,9 +6,8 @@ import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.shared.Names
-import pers.apollokwok.tracer.common.shared.Names.GENERATED_PACKAGE
 import pers.apollokwok.tracer.common.shared.Tags
-import pers.apollokwok.tracer.common.shared.contractedName
+import pers.apollokwok.tracer.common.shared.tracePackageName
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getSrcKlassTraceableSuperTypes
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
@@ -129,14 +128,16 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
         )
     }
 
-    val imports =
-        newPropsInfo.flatMap {
+    val imports = Imports(
+        srcDecl = srcKlass,
+        postfix = "trace",
+        klasses = newPropsInfo.flatMap {
             if(it.compoundTypeSupported)
                 emptyList()
             else
                 it.type.allInnerKlasses
         }
-        .let(::Imports)
+    )
 
     private val builtTimesComment: String =
         //region
@@ -172,14 +173,16 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
     // create file
     init{
         Environment.codeGenerator.createFile(
-            packageName = GENERATED_PACKAGE,
-            fileName = "${srcKlass.contractedName}Elements",
+            packageName = srcKlass.tracePackageName,
+            fileName = "${srcKlass.noPackageName()}Elements",
             dependencies = Dependencies(false, srcKlass.containingFile!!),
             content = """
                 |$SUPPRESSING
                 |
-                |package $GENERATED_PACKAGE
+                |package ${srcKlass.tracePackageName}
+                |
                 |$imports
+                |
                 |$builtTimesComment
                 |
                 |${ newPropsInfo.joinToString("\n") { it.declContent } }
@@ -187,7 +190,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                 |// outer part
                 |${ newPropsInfo.joinToString("\n") { it.outerDeclContent } }
                 """
-                .trimMargin()
+                .trimMarginAndRepeatedBlankLines()
         )
     }
 }

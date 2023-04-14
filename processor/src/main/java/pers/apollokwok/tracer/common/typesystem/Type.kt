@@ -5,7 +5,7 @@ import com.google.devtools.ksp.symbol.KSTypeAlias
 import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
-import pers.apollokwok.tracer.common.shared.contractedDotName
+import pers.apollokwok.tracer.common.shared.contractedFakeDotName
 import pers.apollokwok.tracer.common.util.Imports
 
 internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type<*>>(){
@@ -330,7 +330,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                     else
                         append(body)
                 } else {
-                    append(decl.contractedDotName)
+                    append(decl.contractedFakeDotName)
 
                     if (`need？` && args.none()) append("？")
 

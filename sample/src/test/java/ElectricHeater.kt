@@ -1,8 +1,6 @@
 package org.koin.example
 
-import pers.apollokwok.tracer.common.generated.CoffeeShopTracer
-
-context (CoffeeShopTracer)
+context (org.koin.example.trace.CoffeeShopTracer)
 class ElectricHeater : Heater {
     override var isHot: Boolean = false
         private set

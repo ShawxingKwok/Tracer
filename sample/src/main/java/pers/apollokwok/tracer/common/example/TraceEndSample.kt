@@ -3,6 +3,7 @@
 package pers.apollokwok.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.apollokwok.tracer.common.example.MyJava
 
 @Tracer.Root
 class TraceEndSample {

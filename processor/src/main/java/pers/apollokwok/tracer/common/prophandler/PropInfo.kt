@@ -20,7 +20,7 @@ internal sealed class PropInfo(
 ){
     private val srcKlass = propsBuilder.srcKlass
     private val srcPropName = srcKlass.starType.getName(false)
-    private val levelTag = "˚${srcKlass.contractedDotName}"
+    private val levelTag = "˚${srcKlass.contractedFakeDotName}"
 
     // Here needn't consider about packageNameTag because it's owned only by other-module
     // declarations.
@@ -41,8 +41,8 @@ internal sealed class PropInfo(
                     append("_$levelTag")
 
                 when(this@PropInfo){
-                    is FromSrcKlassSuper -> append("_${srcKlass.contractedDotName}`")
-                    is FromElement -> append("_${prop.parentDeclaration!!.contractedDotName}_$prop`")
+                    is FromSrcKlassSuper -> append("_${srcKlass.contractedFakeDotName}`")
+                    is FromElement -> append("_${prop.parentDeclaration!!.contractedFakeDotName}_$prop`")
                 }
             }
         }
@@ -63,12 +63,12 @@ internal sealed class PropInfo(
 
                         // below are properties in general classes
                         else {
-                            append(prop.parentDeclaration!!.contractedDotName)
+                            append(prop.parentDeclaration!!.contractedFakeDotName)
 
                             if (!srcKlass.isFinal() || isOuter)
                                 append("_$levelTag")
 
-                            append("_${parentProp.parentDeclaration!!.contractedDotName}_$parentProp")
+                            append("_${parentProp.parentDeclaration!!.contractedFakeDotName}_$parentProp")
                         }
 
                         append("`.`$prop`")

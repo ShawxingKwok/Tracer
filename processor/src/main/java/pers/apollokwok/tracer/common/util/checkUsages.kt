@@ -20,17 +20,6 @@ private inline fun requireNone(symbols: List<KSNode>, getMsg: ()->String){
     }
 }
 
-// todo: remove when old generations can be oriented when it is supported.
-private fun requireWholeRebuildingEveryTime(){
-    Environment.codeGenerator.createFile(
-        packageName = Names.GENERATED_PACKAGE,
-        fileName = "WholeRebuildingRequirement",
-        dependencies = Dependencies.ALL_FILES,
-        content = "",
-        extensionName = ""
-    )
-}
-
 private fun requireRootNodesUsedOnClasses(){
     requireNone(getRootNodesKlasses().filterNot { it.classKind == ClassKind.CLASS }){
         "Symbols below annotated with ${Names.Root} or ${Names.Nodes} are not classes."
@@ -72,10 +61,8 @@ private fun checkNodesContexts() {
             val context = it.context!!
             if (context.isNativeKt())
                 context.moduleVisibility() == Visibility.INTERNAL
-            else {
-                val contextTracerInterfacePath = "${Names.GENERATED_PACKAGE}.${getInterfaceNames(context).first}"
-                resolver.getClassDeclarationByName(contextTracerInterfacePath)!!.isInternal()
-            }
+            else
+                context.tracerInterfaces.first.isInternal()
         }
         .let {
             requireNone(it){
@@ -117,7 +104,6 @@ private var called = AtomicBoolean(false)
 internal fun checkUsages(): Boolean {
     require(!called.getAndSet(true))
 
-    requireWholeRebuildingEveryTime()
     requireRootNodesUsedOnClasses()
 //    forbidRepeatedNativeContractedNames()
 //    forbidSameFileNames()

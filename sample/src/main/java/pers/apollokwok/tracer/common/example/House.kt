@@ -1,10 +1,10 @@
 package pers.apollokwok.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.HouseTracer
+import pers.apollokwok.tracer.common.example.trace.HouseTracer
 
 @Tracer.Root
-class House : HouseTracer{
+class House : HouseTracer {
     val masterBedroom = Bedroom(_House)
     val secondaryBedroom = Bedroom(_House)
     val door = Door()
@@ -13,7 +13,7 @@ class House : HouseTracer{
     override val _House: House get() = this
 }
 
-context (HouseTracer)
+context (pers.apollokwok.tracer.common.example.trace.HouseTracer)
 class Door
 
 context (HouseTracer)

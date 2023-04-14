@@ -1,7 +1,7 @@
 package pers.apollokwok.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.MultipleBoundsSampleTracer
+import pers.apollokwok.tracer.common.example.trace.MultipleBoundsSampleTracer
 import java.io.Serializable
 
 interface Sub<T> : Super<T>
