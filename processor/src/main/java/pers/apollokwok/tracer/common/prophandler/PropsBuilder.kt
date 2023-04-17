@@ -7,7 +7,6 @@ import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.updateIf
 import pers.apollokwok.tracer.common.shared.Names
 import pers.apollokwok.tracer.common.shared.Tags
-import pers.apollokwok.tracer.common.shared.tracePackageName
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getSrcKlassTraceableSuperTypes
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
@@ -69,7 +68,9 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                         lastV,
                     ) ?: return@forEachIndexed
 
+                    // TODO: handle `private set`
                     val mutable = prop.isMutable
+//                                  && prop.setter?.
                         && i == 0
                         && !(klass == srcKlass
                             && srcKlass.typeParameters.any()
@@ -84,7 +85,8 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                     newPropsInfo += PropInfo.FromElement(
                         prop = prop,
                         parentProp = parentProp,
-                        mutable = mutable,
+                        // TODO
+                        mutable = false,
                         type = type,
                         v = v,
                         propsBuilder = this
@@ -173,13 +175,13 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
     // create file
     init{
         Environment.codeGenerator.createFile(
-            packageName = srcKlass.tracePackageName,
+            packageName = srcKlass.packageName(),
             fileName = "${srcKlass.noPackageName()}Elements",
             dependencies = Dependencies(false, srcKlass.containingFile!!),
             content = """
                 |$SUPPRESSING
                 |
-                |package ${srcKlass.tracePackageName}
+                |package ${srcKlass.packageName()}
                 |
                 |$imports
                 |

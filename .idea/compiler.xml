@@ -6,6 +6,18 @@
       <module name="Tracer.syntaxTest" target="11" />
       <module name="Tracer.syntaxTest.main" target="11" />
       <module name="Tracer.syntaxTest.test" target="11" />
+      <module name="TracerCommon.contrast.dagger" target="1.8" />
+      <module name="TracerCommon.contrast.dagger.main" target="1.8" />
+      <module name="TracerCommon.contrast.dagger.test" target="1.8" />
+      <module name="TracerCommon.contrast.koin" target="1.8" />
+      <module name="TracerCommon.contrast.koin.main" target="1.8" />
+      <module name="TracerCommon.contrast.koin.test" target="1.8" />
+      <module name="TracerCommon.contrast.lib" target="1.8" />
+      <module name="TracerCommon.contrast.lib.main" target="1.8" />
+      <module name="TracerCommon.contrast.lib.test" target="1.8" />
+      <module name="TracerCommon.contrast.tracer" target="1.8" />
+      <module name="TracerCommon.contrast.tracer.main" target="8" />
+      <module name="TracerCommon.contrast.tracer.test" target="8" />
       <module name="TracerCommon.syntax" target="11" />
       <module name="TracerCommon.syntaxTest.main" target="11" />
       <module name="TracerCommon.syntaxTest.test" target="11" />

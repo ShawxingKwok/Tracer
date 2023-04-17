@@ -1,9 +1,6 @@
 package pers.apollokwok.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.example.trace.XTracer
-import pers.apollokwok.tracer.common.example.trace.YIMplTracer
-import pers.apollokwok.tracer.common.example.trace.YTracer
 
 @Tracer.Root
 class X : XTracer {

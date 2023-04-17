@@ -1,9 +1,6 @@
 package pers.apollokwok.tracer.common.example
 
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.example.trace.*
-import pers.apollokwok.tracer.common.example.trace.BedroomTracer
-import pers.apollokwok.tracer.common.example.trace.PillowTracer
 
 @Tracer.Nodes(House::class)
 class Bedroom(override val __House: House) : BedroomTracer {

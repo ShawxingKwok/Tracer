@@ -3,6 +3,7 @@ package pers.apollokwok.tracer.common.interfacehandler
 import com.google.devtools.ksp.findActualType
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.isPublic
+import pers.apollokwok.tracer.common.util.Path
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
@@ -33,7 +34,7 @@ private tailrec fun getSuperRootOrNodeKlass(klass: KSClassDeclaration): KSClassD
         superKlass.isAnnotatedRootOrNodes()
         &&(superKlass.isNativeKt()
             || resolver.getClassDeclarationByName(
-                name = "${superKlass.tracePackageName}.${getInterfaceNames(superKlass).first}"
+                name = Path(superKlass, getInterfaceNames(superKlass).first).toString()
             )!!
            .isPublic()
         ) ->
@@ -104,16 +105,16 @@ private fun buildInterface(klass: KSClassDeclaration) {
     val tracerInterfaceImports =
         listOfNotNull(
             if (superRootOrNodeKlass != null && superRootOrNodeKlass.packageName() != klass.packageName())
-                superRootOrNodeKlass.tracePackageName + "." + superTracerNames!!.first
+                Path(superRootOrNodeKlass, superTracerNames!!.first)
             else
                 null,
 
             if (superRootOrNodeKlass != null && superRootOrNodeKlass.packageName() != klass.packageName())
-                superRootOrNodeKlass.tracePackageName + "." + superTracerNames!!.second
+                Path(superRootOrNodeKlass, superTracerNames!!.second)
             else
                 null,
 
-            context?.let { it.tracePackageName + "." + outerContextTracerName }
+            context?.let { Path(it, outerContextTracerName!!) }
         )
         .joinToString("\n"){ "import $it" }
 
@@ -124,7 +125,7 @@ private fun buildInterface(klass: KSClassDeclaration) {
         """
         |$SUPPRESSING
         |
-        |package ${klass.tracePackageName}
+        |package ${klass.packageName()}
         |
         |$tracerInterfaceImports
         |$partialImports
@@ -152,7 +153,7 @@ private fun buildInterface(klass: KSClassDeclaration) {
         .joinToString("\n")
 
     Environment.codeGenerator.createFile(
-        packageName = klass.tracePackageName,
+        packageName = klass.packageName(),
         fileName = klass.noPackageName() + "Tracers",
         // todo: change when old generations can be oriented when it is supported.
         dependencies = Dependencies.ALL_FILES,

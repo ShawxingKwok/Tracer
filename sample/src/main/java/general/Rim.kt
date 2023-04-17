@@ -1,0 +1,3 @@
+package general
+
+class Rim

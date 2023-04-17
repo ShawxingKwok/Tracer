@@ -1,9 +1,7 @@
 package pers.apollokwok.tracer.common.util
 
-import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.isInternal
-import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
 import pers.apollokwok.tracer.common.annotations.Tracer
@@ -105,8 +103,6 @@ internal fun checkUsages(): Boolean {
     require(!called.getAndSet(true))
 
     requireRootNodesUsedOnClasses()
-//    forbidRepeatedNativeContractedNames()
-//    forbidSameFileNames()
     forbidJavaFileUsingTracerAnnot()
     requireAllRootNodesTipVisible()
     requireRootNodesTipSinglyUsed()

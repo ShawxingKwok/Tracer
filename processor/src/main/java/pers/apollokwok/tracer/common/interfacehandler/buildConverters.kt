@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import pers.apollokwok.ksputil.Environment
 import pers.apollokwok.ksputil.createFile
 import pers.apollokwok.ksputil.noPackageName
+import pers.apollokwok.ksputil.packageName
 import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.util.SUPPRESSING
 import pers.apollokwok.tracer.common.util.isAnnotatedRootOrNodes
@@ -40,7 +41,7 @@ private fun buildConverter(klass: KSClassDeclaration){
         """
         |$SUPPRESSING
         |
-        |package ${klass.tracePackageName}
+        |package ${klass.packageName()}
         |
         |$v val $interfaceName.`_$outerInterfaceName`: $outerInterfaceName inline get() = 
         |    object : $outerInterfaceName{
@@ -54,7 +55,7 @@ private fun buildConverter(klass: KSClassDeclaration){
         """.trimMargin()
 
     Environment.codeGenerator.createFile(
-        packageName = klass.tracePackageName,
+        packageName = klass.packageName(),
         fileName = klass.noPackageName() + "Converters",
         dependencies = Dependencies(
             aggregating = false,
