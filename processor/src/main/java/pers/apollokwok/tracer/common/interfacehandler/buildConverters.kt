@@ -41,7 +41,7 @@ private fun buildConverter(klass: KSClassDeclaration){
         """
         |$SUPPRESSING
         |
-        |package ${klass.packageName()}
+        |${if (klass.packageName().any()) "package ${klass.packageName()}" else "" }
         |
         |$v val $interfaceName.`_$outerInterfaceName`: $outerInterfaceName inline get() = 
         |    object : $outerInterfaceName{

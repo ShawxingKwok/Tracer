@@ -1,8 +1,6 @@
 package general
 
-class Tire {
-    val radius = 35 //cm
-
+class Tire(val radius: Int) {
     fun inflate() {
         println("Tire inflated")
     }

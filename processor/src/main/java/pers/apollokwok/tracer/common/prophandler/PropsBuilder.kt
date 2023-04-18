@@ -130,9 +130,9 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
         )
     }
 
+    // type is omitted when compoundTypeSupported
     val imports = Imports(
         srcDecl = srcKlass,
-        postfix = "trace",
         klasses = newPropsInfo.flatMap {
             if(it.compoundTypeSupported)
                 emptyList()
@@ -181,7 +181,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
             content = """
                 |$SUPPRESSING
                 |
-                |package ${srcKlass.packageName()}
+                |${if (srcKlass.packageName().any()) "package ${srcKlass.packageName()}" else "" }
                 |
                 |$imports
                 |

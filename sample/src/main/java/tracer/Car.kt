@@ -6,6 +6,7 @@ import pers.apollokwok.tracer.common.annotations.Tracer
 class Car(
     val horsePower: Int,
     val engineCapacity: Int,
+    val tireRadius: Int,
 ) : CarTracer{
     val wheels: List<Wheel> = List(4){ WheelImpl() }
     val engine = Engine()

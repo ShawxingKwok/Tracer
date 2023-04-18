@@ -2,8 +2,8 @@ package tracer
 
 context (CarTracer)
 class Engine {
-    private val horsePower: Int = _Int_Car_horsePower
-    private val engineCapacity: Int = _Int_Car_engineCapacity
+    val horsePower: Int = _Int_Car_horsePower
+    val engineCapacity: Int = _Int_Car_engineCapacity
     var revolvingSpeed = 0
         private set
 

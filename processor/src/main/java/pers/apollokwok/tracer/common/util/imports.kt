@@ -16,19 +16,13 @@ internal class Imports(
 ){
     constructor(
         srcDecl: KSDeclaration,
-        postfix: String?,
         klasses: Collection<KSClassDeclaration>,
         vararg annotations: KClass<out Annotation>,
     ) :
         this(
-            packageName =
-                listOfNotNull(
-                    srcDecl.packageName().takeIf { it.any() },
-                    postfix
-                )
-                .joinToString("."),
+            packageName = srcDecl.packageName(),
             klasses = klasses,
-            annotations = annotations
+            annotations = annotations,
         )
 
     private val imported: Collection<Any> = kotlin.run {

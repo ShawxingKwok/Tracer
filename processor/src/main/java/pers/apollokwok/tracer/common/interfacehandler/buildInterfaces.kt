@@ -97,7 +97,6 @@ private fun buildInterface(klass: KSClassDeclaration) {
 
     val partialImports = Imports(
         srcDecl = klass,
-        postfix = "trace",
         klasses = listOfNotNull(type, superType, grandpaContextType).flatMap { it.allInnerKlasses },
         TracerInterface::class,
     )
@@ -125,7 +124,7 @@ private fun buildInterface(klass: KSClassDeclaration) {
         """
         |$SUPPRESSING
         |
-        |package ${klass.packageName()}
+        |${if (klass.packageName().any()) "package ${klass.packageName()}" else "" }
         |
         |$tracerInterfaceImports
         |$partialImports

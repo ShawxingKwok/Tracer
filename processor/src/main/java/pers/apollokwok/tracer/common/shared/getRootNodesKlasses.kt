@@ -1,7 +1,6 @@
 package pers.apollokwok.tracer.common.shared
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import pers.apollokwok.ksputil.getAnnotatedKlasses
 import pers.apollokwok.ksputil.getAnnotatedSymbols
 import pers.apollokwok.ksputil.resolver
 import pers.apollokwok.tracer.common.annotations.Tracer

@@ -3,11 +3,12 @@ package general
 class Car(
     horsePower: Int,
     engineCapacity: Int,
+    tireRadius: Int,
 ) {
     //region initialization requires the right order which is quite long and error-prone in a big project)
     private val wheels: List<Wheel> = List(4){
         val rim = Rim()
-        val tire = Tire()
+        val tire = Tire(tireRadius)
         tire.inflate()
         WheelImpl(rim, tire)
     }
