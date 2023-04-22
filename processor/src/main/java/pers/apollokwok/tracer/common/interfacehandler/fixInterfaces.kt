@@ -8,7 +8,13 @@ import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.util.isMyOpen
 import java.io.File
 
-private val cache = mutableMapOf<KSClassDeclaration, Map<String, Pair<KSClassDeclaration, Boolean>>>()
+private val cache =
+    mutableMapOf<
+//      interface klass,
+        KSClassDeclaration,
+//      All (prop name,   parent klass,       is open)
+        Map<String, Pair<KSClassDeclaration, Boolean>>
+    >()
 
 private var called = false
 
@@ -24,7 +30,6 @@ internal fun fixInterfaces(){
     cache.clear()
 }
 
-// TODO: comment
 // `klass` is the tracer interface
 private fun fixInterface(klass: KSClassDeclaration) {
     if (klass in cache) return
@@ -35,9 +40,9 @@ private fun fixInterface(klass: KSClassDeclaration) {
     val map = mutableMapOf<String, Pair<KSClassDeclaration, Boolean>>()
     cache[klass] = map
     superInterfaceKlasses.forEach { map += cache[it]!! }
-    klass.getDeclaredProperties().forEach {
-        val parent = it.parentDeclaration as KSClassDeclaration
-        map[it.simpleName()] = parent to it.isMyOpen()
+
+    map += klass.getDeclaredProperties().associate {
+        it.simpleName() to (klass to it.isMyOpen())
     }
 
     if (superInterfaceKlasses.count() != 2) return
@@ -60,6 +65,7 @@ private fun fixInterface(klass: KSClassDeclaration) {
         }
         .mapNotNull { propName ->
             when{
+                // is open
                 firstCache[propName]!!.second  -> propName to first
                 secondCache[propName]!!.second -> propName to second
                 else -> null

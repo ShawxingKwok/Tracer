@@ -6,10 +6,10 @@ import pers.apollokwok.ktutil.updateIf
 
 public class Path(
     private val packageName: String,
-    private val klassName: String,
+    private val name: String,
 ) {
-    public constructor(srcKlass: KSClassDeclaration, newKlassName: String) :
-            this(srcKlass.packageName(), newKlassName)
+    public constructor(srcKlass: KSClassDeclaration, name: String) :
+            this(srcKlass.packageName(), name)
 
-    override fun toString(): String = packageName.updateIf({ it.any() }){ "$it." } + klassName
+    override fun toString(): String = packageName.updateIf({ it.any() }){ "$it." } + name
 }

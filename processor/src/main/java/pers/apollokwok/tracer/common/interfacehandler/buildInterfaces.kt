@@ -153,7 +153,7 @@ private fun buildInterface(klass: KSClassDeclaration) {
 
     Environment.codeGenerator.createFile(
         packageName = klass.packageName(),
-        fileName = klass.noPackageName() + "Tracers",
+        fileName = klass.noPackageName() + Names.Tracer + "s",
         // todo: change when old generations can be oriented when it is supported.
         dependencies = Dependencies.ALL_FILES,
 //        dependencies = Dependencies(false, klass.containingFile!!),
