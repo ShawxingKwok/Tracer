@@ -11,6 +11,7 @@ import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.util.SUPPRESSING
 import pers.apollokwok.tracer.common.util.isAnnotatedRootOrNodes
 import pers.apollokwok.tracer.common.util.moduleVisibility
+import pers.apollokwok.tracer.common.util.trimMarginAndRepeatedBlankLines
 
 internal fun buildConverters(){
     getRootNodesKlasses().forEach(::buildConverter)
@@ -48,11 +49,11 @@ private fun buildConverter(klass: KSClassDeclaration){
         |        $decls
         |    }
         |   
-        |$v val $outerInterfaceName.`_$interfaceName`: $interfaceName inline get() = 
+        |$v val $outerInterfaceName.`__$interfaceName`: $interfaceName inline get() = 
         |    object : $interfaceName{
         |        $outerDecls
         |    }
-        """.trimMargin()
+        """.trimMarginAndRepeatedBlankLines()
 
     Environment.codeGenerator.createFile(
         packageName = klass.packageName(),

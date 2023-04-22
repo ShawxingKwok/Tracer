@@ -40,48 +40,48 @@ private fun fixInterface(klass: KSClassDeclaration) {
         map[it.simpleName()] = parent to it.isMyOpen()
     }
 
-    if (superInterfaceKlasses.count() == 2){
-        val (first, second) = superInterfaceKlasses
-        val (firstCache, secondCache) = superInterfaceKlasses.map { cache[it]!! }
+    if (superInterfaceKlasses.count() != 2) return
 
-        val selfPropNames = klass.getDeclaredProperties().map { it.simpleName() }.toList()
-        val insertedLines = firstCache.keys
-            .intersect(secondCache.keys)
-            .asSequence()
-            .filterNot { it in selfPropNames }
-            .filterNot { propName ->
-                val firstKlass = firstCache[propName]!!.first
-                val secondKlass = secondCache[propName]!!.first
-                if (firstKlass == secondKlass) return@filterNot true
-                val firstType = firstKlass.asStarProjectedType()
-                val secondType = secondKlass.asStarProjectedType()
-                firstType.isAssignableFrom(secondType) || secondType.isAssignableFrom(firstType)
+    val (first, second) = superInterfaceKlasses
+    val (firstCache, secondCache) = superInterfaceKlasses.map { cache[it]!! }
+
+    val selfPropNames = klass.getDeclaredProperties().map { it.simpleName() }.toList()
+    val insertedLines = firstCache.keys
+        .intersect(secondCache.keys)
+        .asSequence()
+        .filterNot { it in selfPropNames }
+        .filterNot { propName ->
+            val firstKlass = firstCache[propName]!!.first
+            val secondKlass = secondCache[propName]!!.first
+            if (firstKlass == secondKlass) return@filterNot true
+            val firstType = firstKlass.asStarProjectedType()
+            val secondType = secondKlass.asStarProjectedType()
+            firstType.isAssignableFrom(secondType) || secondType.isAssignableFrom(firstType)
+        }
+        .mapNotNull { propName ->
+            when{
+                firstCache[propName]!!.second  -> propName to first
+                secondCache[propName]!!.second -> propName to second
+                else -> null
             }
-            .mapNotNull { propName ->
-                when{
-                    firstCache[propName]!!.second  -> propName to first
-                    secondCache[propName]!!.second -> propName to second
-                    else -> null
-                }
-            }
-            // Add these new property info to cache.
-            .onEach { (propName, _) -> map[propName] = klass to true }
-            .map { (propName, superKlass) ->
-                "    override val `$propName` get() = super<${superKlass.noPackageName()}>.`$propName`"
-            }
-            .toList()
+        }
+        // Add these new property info to cache.
+        .onEach { (propName, _) -> map[propName] = klass to true }
+        .map { (propName, superKlass) ->
+            "    override val `$propName` get() = super<${superKlass.noPackageName()}>.`$propName`"
+        }
+        .toList()
 
-        if (insertedLines.none()) return
+    if (insertedLines.none()) return
 
-        val file = klass.containingFile!!.filePath.let(::File)
-        val lines = file.readLines().toMutableList()
-        val i =
-            if (klass == klass.containingFile!!.declarations.first())
-                lines.indexOf("}")
-            else
-                lines.lastIndexOf("}")
+    val file = klass.containingFile!!.filePath.let(::File)
+    val lines = file.readLines().toMutableList()
+    val i =
+        if (klass == klass.containingFile!!.declarations.first())
+            lines.indexOf("}")
+        else
+            lines.lastIndexOf("}")
 
-        lines.addAll(i, insertedLines)
-        file.writeText(lines.joinToString("\n"))
-    }
+    lines.addAll(i, insertedLines)
+    file.writeText(lines.joinToString("\n"))
 }

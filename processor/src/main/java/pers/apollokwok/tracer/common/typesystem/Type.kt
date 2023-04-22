@@ -6,7 +6,6 @@ import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
 import pers.apollokwok.tracer.common.shared.contractedFakeDotName
-import pers.apollokwok.tracer.common.util.Imports
 
 internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type<*>>(){
     companion object{

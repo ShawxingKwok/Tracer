@@ -1,7 +1,7 @@
 package pers.apollokwok.tracer.common.typesystem
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import pers.apollokwok.tracer.common.util.Imports
+import pers.apollokwok.ksputil.Imports
 
 internal sealed class Convertible<T: Convertible<T>>{
     // The returned latter 'Boolean' means whether 'outer out' is required or not.

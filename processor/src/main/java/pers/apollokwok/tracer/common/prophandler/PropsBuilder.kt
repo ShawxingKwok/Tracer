@@ -69,24 +69,25 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                     ) ?: return@forEachIndexed
 
                     // TODO: handle `private set`
-                    val mutable = prop.isMutable
-//                                  && prop.setter?.
-                        && i == 0
-                        && !(klass == srcKlass
-                            && srcKlass.typeParameters.any()
-                            && kotlin.run {
-                                fun KSTypeReference.containT(): Boolean =
-                                    resolve().declaration is KSTypeParameter
-                                    || element?.typeArguments?.any { it.type?.containT() == true } == true
+                    val mutable = false
 
-                                prop.type.containT()
-                            })
+//                        prop.isMutable
+//                                  && prop.setter?.
+//                        && i == 0
+//                        && !(klass == srcKlass
+//                            && srcKlass.typeParameters.any()
+//                            && kotlin.run {
+//                                fun KSTypeReference.containT(): Boolean =
+//                                    resolve().declaration is KSTypeParameter
+//                                    || element?.typeArguments?.any { it.type?.containT() == true } == true
+//
+//                                prop.type.containT()
+//                            })
 
                     newPropsInfo += PropInfo.FromElement(
                         prop = prop,
                         parentProp = parentProp,
-                        // TODO
-                        mutable = false,
+                        mutable = mutable,
                         type = type,
                         v = v,
                         propsBuilder = this
@@ -166,7 +167,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
         .toSortedMap()
         .values
         .joinToString(
-            prefix = "//region Below are simplified types with its built times inside ${srcKlass.noPackageName()!!}.\n/*\n",
+            prefix = "//region Below are simplified types with its built times inside `${srcKlass.noPackageName()!!}`.\n/*\n",
             separator = "\n\n",
             postfix = "\n*/\n//endregion",
         )

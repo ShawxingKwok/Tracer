@@ -2,10 +2,10 @@ package pers.apollokwok.tracer.common.typesystem
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
+import pers.apollokwok.ksputil.Imports
 import pers.apollokwok.ktutil.Bug
 import pers.apollokwok.ktutil.lazyFast
 import pers.apollokwok.ktutil.updateIf
-import pers.apollokwok.tracer.common.util.Imports
 
 internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<Arg<*>>(){
     sealed class General<T: General<T>>(

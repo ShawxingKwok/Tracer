@@ -3,7 +3,7 @@ package pers.apollokwok.tracer.common.interfacehandler
 import com.google.devtools.ksp.findActualType
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.isPublic
-import pers.apollokwok.tracer.common.util.Path
+import pers.apollokwok.tracer.common.shared.Path
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
 import pers.apollokwok.ksputil.*
