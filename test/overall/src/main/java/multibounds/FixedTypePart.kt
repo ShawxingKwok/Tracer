@@ -2,30 +2,21 @@ package multibounds
 
 import kotlinx.coroutines.Job
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.FixedTypePartTracer
 
 @Tracer.Root
 class FixedTypePart<T> : List<T>, FixedTypePartTracer
-    where T: CharSequence, T: Organ
+    where T: CharSequence, T: Organ<*>
 {
     var list: MutableMap<List<String?>, kotlin.String?>? = null
     var _list: MutableMap<List<T>, T?>? = null
 
-    lateinit var gs: GS<*, T>
-    lateinit var _gs: GS<*,*>
-    var t: T = TODO()
 
     lateinit var kjob: Job
     lateinit var libJob: com.example.testlib.Job
 
-    var func: ((multibounds.String, Long)->Unit)? = TODO()
-    val suspendFunc: suspend (multibounds.String, Long)->Unit = TODO()
-
     var str = String()
 
     val ts: List<T> = TODO()
-
-    lateinit var organ: Organ
 
     //region
     override val size: Int
@@ -72,20 +63,6 @@ class FixedTypePart<T> : List<T>, FixedTypePartTracer
     }
     //endregion
 
-    override val _FixedTypePart: FixedTypePart<*> get() = this
+    override val `_FixedTypePart‹↓T-‹CharSequence，Organ‹↓Any？›››`: FixedTypePart<*>
+        get() = this
 }
-
-class String{
-    val i = 1
-    val gsg = GSGAlias()
-    lateinit var organ: Organ
-}
-
-public typealias GSGAlias = GSG
-
-class GSG{
-    internal val gs: GS<*,*> = TODO()
-}
-
-interface GS<T, V> : Iterable<T>
-    where T: List<*>, T: CharSequence

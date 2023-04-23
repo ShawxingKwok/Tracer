@@ -271,10 +271,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
 
         override fun getContent(imports: Imports): String =
             buildString{
-                if (decl in imports)
-                    append(decl.noPackageName())
-                else
-                    append(decl.qualifiedName()!!)
+                append(imports.getName(decl))
 
                 if (args.any()){
                     append("<")

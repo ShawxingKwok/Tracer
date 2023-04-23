@@ -8,8 +8,8 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import pers.apollokwok.ksputil.qualifiedName
 import pers.apollokwok.ksputil.simpleName
-import pers.apollokwok.tracer.common.MyProcessor
 import pers.apollokwok.tracer.common.annotations.TracerInterface
+import pers.apollokwok.tracer.common.shared.Tags
 
 private val cache = mutableMapOf<String, Boolean>()
 
@@ -17,7 +17,7 @@ private val cache = mutableMapOf<String, Boolean>()
 // findOverridee has bug in ksp 1.7.20-1.0.8
 internal fun KSPropertyDeclaration.isOverridingTracerInterface(): Boolean =
     cache.getOrPut(qualifiedName()!!) {
-        require(MyProcessor.times >= 2)
+        require(Tags.interfacesBuilt)
 
         val parentKlass = parentDeclaration as KSClassDeclaration? ?: return@getOrPut false
         if (Modifier.OVERRIDE !in modifiers) return@getOrPut false

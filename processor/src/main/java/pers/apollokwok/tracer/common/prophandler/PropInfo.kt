@@ -9,7 +9,7 @@ import pers.apollokwok.tracer.common.shared.*
 import pers.apollokwok.tracer.common.typesystem.Type
 import pers.apollokwok.tracer.common.typesystem.getTraceableTypes
 import pers.apollokwok.tracer.common.util.isFinal
-import pers.apollokwok.tracer.common.util.starType
+import pers.apollokwok.tracer.common.shared.getRootNodesName
 
 internal sealed class PropInfo(
     val type: Type<*>,
@@ -19,7 +19,7 @@ internal sealed class PropInfo(
     private val propsBuilder: PropsBuilder,
 ){
     private val srcKlass = propsBuilder.srcKlass
-    private val srcPropName = srcKlass.starType.getName(false)
+    private val srcPropName = getRootNodesName(srcKlass)
     private val levelTag = "˚${srcKlass.contractedFakeDotName}"
 
     // Here needn't consider about packageNameTag because it's owned only by other-module

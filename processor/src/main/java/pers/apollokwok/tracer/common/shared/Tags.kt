@@ -8,6 +8,9 @@ public object Tags {
     public var interfacesBuilt: Boolean = false
         internal set
 
+    public var interfacesFixed: Boolean = false
+        internal set
+
     public var propsBuilt: Boolean = false
         internal set
 }

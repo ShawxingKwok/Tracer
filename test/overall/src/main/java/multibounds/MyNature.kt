@@ -1,15 +1,14 @@
 package multibounds
 
+import com.example.testlib.Earth
 import com.example.testlib.Nature
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.MyNatureTracer
 
 @Tracer.Root
 open class MyNature : Nature(), MyNatureTracer {
     override val _MyNature: MyNature get() = this
+    override val earth: Earth get() = TODO("Not yet implemented")
     override val _Nature: Nature get() = this
-
-    override val earth: MyEarth = MyEarth(this)
 
     //    abstract val abstractX: Int
     open val openSWithField = "D"

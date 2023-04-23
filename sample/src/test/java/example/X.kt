@@ -19,6 +19,7 @@ class YIMpl : Y(), YIMplTracer {
         get() = TODO("Not yet implemented")
     override val __X: X
         get() = TODO("Not yet implemented")
+
     override val _Y: Y
         get() = super._Y
 }

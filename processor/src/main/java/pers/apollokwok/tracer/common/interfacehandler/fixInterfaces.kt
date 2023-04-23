@@ -28,6 +28,7 @@ internal fun fixInterfaces(){
         .forEach(::fixInterface)
 
     cache.clear()
+    Tags.interfacesFixed = true
 }
 
 // `klass` is the tracer interface

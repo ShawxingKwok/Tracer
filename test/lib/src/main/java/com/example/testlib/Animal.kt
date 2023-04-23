@@ -1,7 +1,6 @@
 package com.example.testlib
 
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.AnimalTracer
 
 @Tracer.Root
 abstract class Animal : AnimalTracer {

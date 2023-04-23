@@ -9,5 +9,6 @@ class GenericSample<K: CharSequence, V> : GenericSampleTracer {
     val kv: Map<K, V> = TODO()
 
     @Suppress("NonAsciiCharacters")
-    override val `_GenericSample‹↓CharSequence，↓Any？›`: GenericSample<out CharSequence, out Any?> get() = this
+    override val `_GenericSample‹↓K-CharSequence，↓V-Any？›`: GenericSample<out CharSequence, out Any?>
+        get() = TODO("Not yet implemented")
 }

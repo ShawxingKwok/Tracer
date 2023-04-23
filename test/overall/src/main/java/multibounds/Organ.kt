@@ -1,9 +1,8 @@
 package multibounds
 
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.OrganTracer
 
 @Tracer.Root
-abstract class Organ : OrganTracer{
+abstract class Organ<T> : OrganTracer{
     val s = 12
 }

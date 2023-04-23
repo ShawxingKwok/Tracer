@@ -1,11 +1,10 @@
 package multibounds
 
+import com.example.testlib.Earth
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.HumanTracer
 
 @Tracer.Nodes(MyEarth::class)
-class Human(override val __MyEarth: MyEarth) : HumanTracer {
-    override val _Human get() = this
-
-    val legs = listOf(Leg(this), Leg(this))
+class Human(override val `__MyEarth‹↓T-Any？›`: MyEarth<*>) : HumanTracer {
+    override val __Earth: Earth get() = `__MyEarth‹↓T-Any？›`
+    override val _Human: Human get() = this
 }

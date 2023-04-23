@@ -46,6 +46,7 @@ private tailrec fun getSuperRootOrNodeKlass(klass: KSClassDeclaration): KSClassD
 
 internal fun buildInterfaces(){
     getRootNodesKlasses().forEach(::buildInterface)
+    Tags.interfacesBuilt = true
 }
 
 private fun buildInterface(klass: KSClassDeclaration) {
@@ -81,44 +82,51 @@ private fun buildInterface(klass: KSClassDeclaration) {
             else -> "" to ""
         }
 
-    val (type, superType, contextType, grandpaContextType) =
+    val (name, superName, contextName, grandpaContextName) =
         listOf(
             klass,
-            // this being overridden property is already overridden.
+            // this property is already overridden.
             superRootOrNodeKlass?.takeUnless { it.isMyOpen() },
             context,
             context?.context,
         )
-        .map { it?.starType }
+        .map { it?.let(::getRootNodesName) }
 
-    val (name, superName, contextName, grandpaContextName) =
-        listOf(type, superType, contextType, grandpaContextType)
-        .map { it?.getName(false) }
-
-    val partialImports = Imports(
+    val imports = Imports(
         srcDecl = klass,
-        klasses = listOfNotNull(type, superType, grandpaContextType).flatMap { it.allInnerKlasses },
-        TracerInterface::class,
+        klasses = listOfNotNull(
+            klass,
+            superRootOrNodeKlass?.takeUnless { it.isMyOpen() },
+            context?.context
+        ),
+        TracerInterface::class
     )
 
-    val tracerInterfaceImports =
-        listOfNotNull(
-            if (superRootOrNodeKlass != null && superRootOrNodeKlass.packageName() != klass.packageName())
-                Path(superRootOrNodeKlass, superTracerNames!!.first)
-            else
-                null,
+    val (type, superType, grandpaContextType) =
+        listOf(klass, superRootOrNodeKlass?.takeUnless { it.isMyOpen() }, context?.context)
+        .map {
+            it ?: return@map null
+            buildString {
+                imports.getName(it).let(::append)
+                if (it.typeParameters.any()){
+                    append("<")
+                    append(it.typeParameters.joinToString(", ") { "*" })
+                    append(">")
+                }
+            }
+        }
 
-            if (superRootOrNodeKlass != null && superRootOrNodeKlass.packageName() != klass.packageName())
-                Path(superRootOrNodeKlass, superTracerNames!!.second)
-            else
-                null,
+    val interfacePaths = mutableListOf<Path>()
 
-            context?.let { Path(it, outerContextTracerName!!) }
-        )
-        .joinToString("\n"){ "import $it" }
+    if (superRootOrNodeKlass != null
+        && superRootOrNodeKlass.packageName() != klass.packageName()
+    )
+        interfacePaths += getInterfaceNames(superRootOrNodeKlass)
+            .toList()
+            .map { Path(superRootOrNodeKlass, it) }
 
-    val (typeContent, superTypeContent, grandpaContextTypeContent) =
-        listOf(type, superType, grandpaContextType).map { it?.getContent(partialImports) }
+    if (context != null && context.packageName() != klass.packageName())
+        interfacePaths += Path(context, getInterfaceNames(context).second)
 
     val content =
         """
@@ -126,21 +134,21 @@ private fun buildInterface(klass: KSClassDeclaration) {
         |
         |${if (klass.packageName().any()) "package ${klass.packageName()}" else "" }
         |
-        |$tracerInterfaceImports
-        |$partialImports
+        |$imports
+        |${interfacePaths.joinToString("\n"){ "import $it" }}
         |
         |@${Names.TracerInterface}
         |$visibilityPart interface $interfaceName$implementsPart{
-        |    val `_$name`: $typeContent
-        |    override val `_$superName`: $superTypeContent get() = `_$name`
-        |    override val `__$grandpaContextName`: $grandpaContextTypeContent get() = `__$contextName`.`__$grandpaContextName` 
+        |    val `_$name`: $type 
+        |    override val `_$superName`: $superType get() = `_$name`
+        |    override val `__$grandpaContextName`: $grandpaContextType get() = `__$contextName`.`__$grandpaContextName` 
         |}
         |
         |@${Names.TracerInterface}
         |$visibilityPart interface $outerInterfaceName$outerImplementsPart{
-        |    val `__$name`: $typeContent
-        |    override val `__$superName`: $superTypeContent get() = `__$name`
-        |    override val `__$grandpaContextName`: $grandpaContextTypeContent get() = `__$contextName`.`__$grandpaContextName` 
+        |    val `__$name`: $type
+        |    override val `__$superName`: $superType get() = `__$name`
+        |    override val `__$grandpaContextName`: $grandpaContextType get() = `__$contextName`.`__$grandpaContextName` 
         |}
         """
         .trimMarginAndRepeatedBlankLines()

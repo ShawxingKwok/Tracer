@@ -2,7 +2,6 @@ package com.example.testlib
 
 import com.example.supertestlib.Sphere
 import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.generated.EarthTracer
 
 @Tracer.Nodes(Nature::class)
 open class Earth(override val __Nature: Nature) : Sphere(), EarthTracer {
