@@ -82,11 +82,13 @@ private fun buildInterface(klass: KSClassDeclaration) {
             else -> "" to ""
         }
 
+    // the property is already overridden in that open class
+    val mayTakenSuperRootNodesKlass = superRootOrNodeKlass?.takeUnless { it.isMyOpen() }
+
     val (name, superName, contextName, grandpaContextName) =
         listOf(
             klass,
-            // this property is already overridden.
-            superRootOrNodeKlass?.takeUnless { it.isMyOpen() },
+            mayTakenSuperRootNodesKlass,
             context,
             context?.context,
         )
@@ -96,14 +98,14 @@ private fun buildInterface(klass: KSClassDeclaration) {
         srcDecl = klass,
         klasses = listOfNotNull(
             klass,
-            superRootOrNodeKlass?.takeUnless { it.isMyOpen() },
+            mayTakenSuperRootNodesKlass,
             context?.context
         ),
         TracerInterface::class
     )
 
     val (type, superType, grandpaContextType) =
-        listOf(klass, superRootOrNodeKlass?.takeUnless { it.isMyOpen() }, context?.context)
+        listOf(klass, mayTakenSuperRootNodesKlass, context?.context)
         .map {
             it ?: return@map null
             buildString {

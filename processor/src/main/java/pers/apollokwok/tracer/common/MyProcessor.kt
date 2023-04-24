@@ -24,25 +24,28 @@ import java.util.Collections.emptyList
 internal object MyProcessor : KspProcessor {
     init { checkUsages() }
 
+    private lateinit var invalidRootNodesTypeParameterInfo: List<Pair<String, KSTypeParameter>>
     private lateinit var invalidSymbolsInfo: List<Pair<KSClassDeclaration, List<Int>>>
 
     private fun KSClassDeclaration.getBeingCheckedSymbols() =
         typeParameters + superTypes + getDeclaredProperties()
 
-    private var invalidRootNodesTypeParameterInfo: List<Pair<String, KSTypeParameter>> =
-        getRootNodesKlasses().flatMap { klass ->
-            klass.typeParameters.map { klass.qualifiedName()!! to it }
-        }
-
     override fun process(times: Int): List<KSAnnotated> = when {
         !Tags.interfacesBuilt -> {
             invalidRootNodesTypeParameterInfo =
-                invalidRootNodesTypeParameterInfo.filterNot{ (klassName, param) ->
-                    resolver.getClassDeclarationByName(klassName)!!
-                        .typeParameters
-                        .first { it.simpleName() == "$param" }
-                        .myValidate() == true
-                }
+                if (!::invalidRootNodesTypeParameterInfo.isInitialized)
+                    getRootNodesKlasses().flatMap { klass ->
+                        klass.typeParameters
+                            .filterNot { it.myValidate() == true }
+                            .map { klass.qualifiedName()!! to it }
+                    }
+                else
+                    invalidRootNodesTypeParameterInfo.filterNot{ (klassName, param) ->
+                        resolver.getClassDeclarationByName(klassName)!!
+                            .typeParameters
+                            .first { it.simpleName() == "$param" }
+                            .myValidate() == true
+                    }
 
             if (invalidRootNodesTypeParameterInfo.none()) buildInterfaces()
             getRootNodesKlasses()
