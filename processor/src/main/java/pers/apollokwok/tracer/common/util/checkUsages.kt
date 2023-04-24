@@ -54,11 +54,11 @@ private fun checkNodesContexts() {
         .partition { it.context!!.isAnnotatedRootOrNodes() }
 
     withRightContext
-        .filter { it.moduleVisibility() == Visibility.PUBLIC }
         .filter {
             val context = it.context!!
             if (context.isNativeKt())
-                context.moduleVisibility() == Visibility.INTERNAL
+                it.moduleVisibility() == Visibility.PUBLIC
+                && context.moduleVisibility() == Visibility.INTERNAL
             else
                 context.tracerInterfaces.first.isInternal()
         }
