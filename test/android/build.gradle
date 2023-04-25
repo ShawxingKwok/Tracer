@@ -37,7 +37,7 @@ kotlin.sourceSets.configureEach {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     testImplementation 'junit:junit:4.13.2'
@@ -58,8 +58,8 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 
 dependencies {
     // Keep this version latest with the prefix lower than your kotlin version(inclusive).
-    ksp 'io.github.apollokwok:tracer-common-compiler:1.7.20-1.2.0'
+    implementation project(":annotations")
     // Keep this version latest but lower than the version above(inclusive).
-    implementation 'io.github.apollokwok:tracer-common-annotations:1.7.20-1.2.0'
+    ksp project(":compiler:overalltest")
 }
 //endregion
