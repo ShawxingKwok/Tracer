@@ -64,10 +64,10 @@ publishing {
 
     repositories {
         maven {
-            if (publishMode == "release")
-                url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            if (version_common_processor.endsWith("SNAPSHOT"))
+                url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
             else
-                url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                url 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
 
             credentials {
                 username = USERNAME
