@@ -1,7 +1,7 @@
 buildscript {
     ext {
-        publishMode = 'snapshot'
-//        publishMode = 'release'
+//        publishMode = 'snapshot'
+        publishMode = 'release'
 
         version_kt = '1.7.20'
         version_ksp = "$version_kt-1.0.8"

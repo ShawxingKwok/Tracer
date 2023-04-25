@@ -6,6 +6,7 @@
       <module name="Tracer.syntaxTest" target="11" />
       <module name="Tracer.syntaxTest.main" target="11" />
       <module name="Tracer.syntaxTest.test" target="11" />
+      <module name="TracerCommon.android" target="11" />
       <module name="TracerCommon.contrast.dagger" target="1.8" />
       <module name="TracerCommon.contrast.dagger.main" target="1.8" />
       <module name="TracerCommon.contrast.dagger.test" target="1.8" />

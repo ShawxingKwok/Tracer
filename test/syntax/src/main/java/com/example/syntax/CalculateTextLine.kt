@@ -4,7 +4,7 @@ import java.io.File
 
 fun main() {
     arrayOf(
-        "processor/src/main/java",
+        "processor/src/main/java/pers/apollokwok/tracer/common",
     )
     .sumOf { path ->
         File(path).codeLinesSize().also { println("$path: $it") }

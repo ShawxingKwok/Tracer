@@ -3,13 +3,18 @@
 package general
 
 class House {
-    // this part is long, changeable, and error-prone in a big project
-    private val wifiRouter = WifiRouter()
-    val bedroom = Bedroom(wifiRouter)
-    val door = Door()
-    val livingRoom = LivingRoom(wifiRouter, door, bedroom)
-    // solves dependency recycle(LivingRoom and WifiRouter need each other)
+    val bedroom: Bedroom
+    val door: Door
+    val livingRoom: LivingRoom
+
     init {
+        // this part is long, changeable, and error-prone in a big project
+        val wifiRouter = WifiRouter()
+        bedroom = Bedroom(wifiRouter)
+        door = Door()
+        livingRoom = LivingRoom(wifiRouter, door, bedroom)
+
+        // solves dependency recycle(LivingRoom and WifiRouter need each other)
         wifiRouter.livingRoom = livingRoom
     }
 }

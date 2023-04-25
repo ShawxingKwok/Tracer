@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.devtools.ksp'
 }
 
 android {
@@ -30,6 +31,10 @@ android {
     }
 }
 
+kotlin.sourceSets.configureEach {
+    kotlin.srcDir("$buildDir/generated/ksp/$name/kotlin/")
+}
+
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -38,4 +43,23 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
 }
+
+//region tracer
+// options
+ksp{
+//    arg("tracer.internal", "")
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions.freeCompilerArgs += '-Xcontext-receivers'
+}
+
+dependencies {
+    // Keep this version latest with the prefix lower than your kotlin version(inclusive).
+    ksp 'io.github.apollokwok:tracer-common-compiler:1.7.20-1.2.0'
+    // Keep this version latest but lower than the version above(inclusive).
+    implementation 'io.github.apollokwok:tracer-common-annotations:1.7.20-1.2.0'
+}
+//endregion
