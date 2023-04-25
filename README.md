@@ -1,6 +1,6 @@
 # Tracer
-Generates extensional properties oriented to interior traceable elements, which realizes 
-dependency injection with little configuration.
+With Kotlin-JVM, KSP and little configuration, Tracer generates extensional properties oriented to 
+interior traceable elements, which realizes dependency injection.
 
 ## Preview
 <img src="singleBedroomHouse.png" width=300></img>  
