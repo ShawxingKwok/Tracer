@@ -7,10 +7,6 @@ kotlin {
     jvmToolchain(8)
 }
 // Makes generated code visible to IDE
-//kotlin.sourceSets {
-//    main.kotlin.srcDirs += "$buildDir/generated/ksp/main/kotlin"
-//    test.kotlin.srcDirs += "$buildDir/generated/ksp/test/kotlin"
-//}
 kotlin.sourceSets.configureEach {
     kotlin.srcDir("$buildDir/generated/ksp/$name/kotlin/")
 }

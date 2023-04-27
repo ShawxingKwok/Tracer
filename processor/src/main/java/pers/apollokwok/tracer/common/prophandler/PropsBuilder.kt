@@ -68,7 +68,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                         lastV,
                     ) ?: return@forEachIndexed
 
-                    // TODO: handle `private set`
+                    // todo: handle `private set`
                     val mutable = false
 
 //                        prop.isMutable
