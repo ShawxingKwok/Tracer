@@ -35,6 +35,10 @@ kotlin.sourceSets.configureEach {
     kotlin.srcDir("$buildDir/generated/ksp/$name/kotlin/")
 }
 
+kotlin.sourceSets.configureEach {
+    kotlin.srcDir("$buildDir/generated/ksp/$name/kotlin/")
+}
+
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.10.0'

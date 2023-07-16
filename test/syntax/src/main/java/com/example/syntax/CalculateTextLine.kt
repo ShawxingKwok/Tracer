@@ -4,6 +4,7 @@ import java.io.File
 
 fun main() {
     arrayOf(
+        // "/Users/william/IdeaProjects/library/KDataStore/api/src/main/java/pers/shawxingkwok/kdatastore"
         "processor/src/main/java/pers/apollokwok/tracer/common",
     )
     .sumOf { path ->

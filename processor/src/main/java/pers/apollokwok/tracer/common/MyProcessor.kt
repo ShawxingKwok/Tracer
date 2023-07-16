@@ -3,7 +3,9 @@ package pers.apollokwok.tracer.common
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAnnotationPresent
+import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
+import jdk.nashorn.internal.objects.NativeUint16Array
 import pers.apollokwok.ksputil.*
 import pers.apollokwok.ktutil.Unreachable
 import pers.apollokwok.tracer.common.annotations.Tracer
