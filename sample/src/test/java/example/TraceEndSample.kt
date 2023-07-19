@@ -2,8 +2,7 @@
 
 package example
 
-import pers.apollokwok.tracer.common.annotations.Tracer
-import example.MyJava
+import pers.shawxingkwok.tracer.Tracer
 
 @Tracer.Root
 class TraceEndSample {

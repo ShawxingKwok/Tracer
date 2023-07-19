@@ -1,0 +1,1 @@
+/Users/william/IdeaProjects/library/Tracer/buildSrc/build/classes/kotlin/main/libs.class:/Users/william/IdeaProjects/library/Tracer/buildSrc/build/classes/kotlin/main/plugins.class:/Users/william/IdeaProjects/library/Tracer/buildSrc/build/classes/kotlin/main/versions.class

@@ -1,7 +1,7 @@
 package multibounds
 
 import kotlinx.coroutines.Job
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 
 @Tracer.Root
 class FixedTypePart<T> : List<T>, FixedTypePartTracer

@@ -1,7 +1,6 @@
 package com.example.testlib
 
-import pers.apollokwok.tracer.common.annotations.Tracer
-import kotlin.reflect.jvm.javaField
+import pers.shawxingkwok.tracer.Tracer
 
 @Tracer.Root
 abstract class Animal : AnimalTracer {

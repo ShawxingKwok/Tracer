@@ -1,4 +1,4 @@
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 
 @Tracer.Root
 class House : HouseTracer{

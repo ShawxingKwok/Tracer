@@ -1,7 +1,7 @@
 package multibounds
 
 import com.example.testlib.Earth
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 
 @Tracer.Nodes(Human::class)
 class Leg(override val __Human: Human) : LegTracer, Organ<Any>(){

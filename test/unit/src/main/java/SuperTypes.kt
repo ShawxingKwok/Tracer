@@ -1,4 +1,4 @@
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 import java.util.*
 
 @Tracer.Root

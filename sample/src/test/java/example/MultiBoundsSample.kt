@@ -1,7 +1,7 @@
 
 package example
 
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 import java.io.Serializable
 
 interface Sub<T> : Super<T>

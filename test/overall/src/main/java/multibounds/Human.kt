@@ -1,7 +1,7 @@
 package multibounds
 
 import com.example.testlib.Earth
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 
 @Tracer.Nodes(MyEarth::class)
 class Human(override val `__MyEarth‹↓T-Any？›`: MyEarth<*>) : HumanTracer {

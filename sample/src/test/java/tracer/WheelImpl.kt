@@ -1,6 +1,6 @@
 package tracer
 
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 
 @Tracer.Nodes(Car::class)
 class WheelImpl(override val __Car: Car) : Wheel, WheelImplTracer {

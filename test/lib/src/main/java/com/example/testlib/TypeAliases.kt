@@ -1,6 +1,6 @@
 package com.example.testlib
 
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 
 internal typealias X<A> = Y<A, Int>
 public typealias Y<A, B> = Z<A?, String, B>

@@ -2,7 +2,7 @@ package multibounds
 
 import com.example.testlib.Earth
 import com.example.testlib.Nature
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 
 @Tracer.Nodes(MyNature::class)
 class MyEarth<T>(override val __MyNature: MyNature) : Earth(__MyNature), MyEarthTracer {

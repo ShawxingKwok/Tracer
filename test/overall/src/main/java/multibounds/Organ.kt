@@ -1,6 +1,6 @@
 package multibounds
 
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 
 @Tracer.Root
 abstract class Organ<T> : OrganTracer{

@@ -1,6 +1,6 @@
 package com.example.testlib
 
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 
 interface JJ<T>
 

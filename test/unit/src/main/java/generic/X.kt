@@ -1,6 +1,6 @@
 package generic
 
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.tracer.Tracer
 
 typealias S = java.io.Serializable
 

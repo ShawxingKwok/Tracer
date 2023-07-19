@@ -1,7 +1,8 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id 'org.jetbrains.kotlin.jvm'
-    id 'maven-publish'
-    id 'signing'
+    id "com.vanniktech.maven.publish"
 }
 
 test {
@@ -22,7 +23,7 @@ dependencies {
     implementation lib_tracer_common_annotations
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
+tasks.withType(KotlinCompile).configureEach{
     kotlinOptions {
         freeCompilerArgs = [
                 "-Xexplicit-api=warning",
@@ -32,76 +33,3 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
         ]
     }
 }
-
-//region publish
-group = my_group
-version = version_common_processor
-
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = 'tracer-common-processor'
-            from components.java
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
-                }
-            }
-            pom {
-                name = 'Tracer common processor'
-                description = 'This is for extension with the public `MyProvider` and no `resources`.'
-                url = "https://$my_url"
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'ApolloKwok'
-                        name = 'Apollo Kwok'
-                        email = 'ApolloKwok@126.com'
-                    }
-                }
-                scm {
-                    connection = "scm:git:git://@${my_url}.git"
-                    developerConnection = "scm:git:ssh://@${my_url}.git"
-                    url = "https://$my_url"
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            if (version_common_processor.endsWith("SNAPSHOT"))
-                url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-            else
-                url 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
-
-            credentials {
-                username = USERNAME
-                password = PASSWORD
-            }
-        }
-    }
-}
-
-signing {
-    sign publishing.publications.mavenJava
-}
-
-javadoc {
-    if(JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
-}
-//endregion

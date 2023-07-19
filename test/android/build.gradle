@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace 'pers.apollokwok.mylibrary'
+    namespace 'pers.shawxingkwok.mylibrary'
     compileSdk 33
 
     defaultConfig {
