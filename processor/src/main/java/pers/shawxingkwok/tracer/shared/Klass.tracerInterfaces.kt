@@ -2,7 +2,7 @@ package pers.shawxingkwok.tracer.shared
 
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import pers.apollokwok.ksputil.resolver
+import pers.shawxingkwok.ksputil.resolver
 
 internal val KSClassDeclaration.tracerInterfaces: Pair<KSClassDeclaration, KSClassDeclaration> inline get(){
     val (name, _name) = getInterfaceNames(this)

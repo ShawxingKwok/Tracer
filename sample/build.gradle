@@ -1,27 +1,23 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
-    id 'com.google.devtools.ksp'
+    alias(libs.plugins.jvm)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
     jvmToolchain(8)
 }
-// Makes generated code visible to IDE
-kotlin.sourceSets.configureEach {
-    kotlin.srcDir("$buildDir/generated/ksp/$name/kotlin/")
-}
 
-ksp{
-//    arg("tracer.internal", "")
-}
+// ksp.arg("tracer.internal", "")
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
+tasks.withType(KotlinCompile).configureEach{
     kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
 
 dependencies {
-    ksp project(":compiler:overalltest")
     implementation project(":annotations")
-//    ksp 'io.github.apollokwok:tracer-common-compiler:1.7.20-1.2.0'
-//    implementation 'io.github.apollokwok:tracer-common-annotations:1.7.20-1.2.0'
+    ksp project(":compiler")
+//    implementation 'io.github.shawxingkwok:tracer-annotations:1.0.0'
+//    ksp 'io.github.shawxingkwok:tracer-compiler:1.0.0'
 }

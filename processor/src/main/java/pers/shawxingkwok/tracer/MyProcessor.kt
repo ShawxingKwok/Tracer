@@ -4,15 +4,11 @@ import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.*
-import pers.apollokwok.ksputil.*
-import pers.apollokwok.ktutil.Unreachable
-import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.annotations.TracerInterface
+import pers.shawxingkwok.ksputil.*
 import pers.shawxingkwok.tracer.interfacehandler.buildConverters
-import pers.shawxingkwok.tracer.interfacehandler.buildInterfaces
+import pers.shawxingkwok.tracer.interfacehandler.buildInterface
 import pers.shawxingkwok.tracer.interfacehandler.fixInterfaces
 import pers.shawxingkwok.tracer.prophandler.PropsBuilder
-import pers.shawxingkwok.tracer.shared.Names
 import pers.shawxingkwok.tracer.shared.Tags
 import pers.shawxingkwok.tracer.shared.getRootNodesKlasses
 import pers.shawxingkwok.tracer.util.checkUsages
@@ -21,7 +17,9 @@ import pers.shawxingkwok.tracer.util.insideModuleVisibleKlasses
 import pers.shawxingkwok.tracer.util.myValidate
 import java.util.Collections.emptyList
 
-internal object MyProcessor : KspProcessor {
+internal object MyProcessor : KSProcessor {
+    class Provider : KSProcessorProvider({ MyProcessor })
+
     init { checkUsages() }
 
     private lateinit var invalidRootNodesTypeParameterInfo: List<Pair<String, KSTypeParameter>>
@@ -36,7 +34,7 @@ internal object MyProcessor : KspProcessor {
                 if (!MyProcessor::invalidRootNodesTypeParameterInfo.isInitialized)
                     getRootNodesKlasses().flatMap { klass ->
                         klass.typeParameters
-                            .filterNot { it.myValidate() == true }
+                            .filterNot { it.myValidate() }
                             .map { klass.qualifiedName()!! to it }
                     }
                 else
@@ -44,10 +42,13 @@ internal object MyProcessor : KspProcessor {
                         resolver.getClassDeclarationByName(klassName)!!
                             .typeParameters
                             .first { it.simpleName() == "$param" }
-                            .myValidate() == true
+                            .myValidate()
                     }
 
-            if (invalidRootNodesTypeParameterInfo.none()) buildInterfaces()
+            if (invalidRootNodesTypeParameterInfo.none()) {
+                getRootNodesKlasses().forEach(::buildInterface)
+                Tags.interfacesBuilt = true
+            }
             getRootNodesKlasses()
         }
 
@@ -59,13 +60,13 @@ internal object MyProcessor : KspProcessor {
                 // warn if some classes with @Root/Nodes don't implement their tracer interfaces.
                 val notImplementedKlasses = getRootNodesKlasses().filter { klass ->
                     klass.superTypes.all {
-                        !it.resolve().declaration.isAnnotationPresent(TracerInterface::class)
+                        !it.resolve().declaration.isAnnotationPresent(TracerGeneration.Interface::class)
                     }
                 }
                 if (notImplementedKlasses.any())
                     Log.w(
                         msg = "Let classes below implement corresponding tracer interfaces.",
-                        symbols = notImplementedKlasses
+                        symbols = notImplementedKlasses.toTypedArray()
                     )
             }
 
@@ -84,10 +85,10 @@ internal object MyProcessor : KspProcessor {
 
                                 is KSPropertyDeclaration -> symbol in klass.getPreNeededProperties()
 
-                                else -> Unreachable()
+                                else -> error("")
                             }
 
-                            i.takeIf { needed && symbol.myValidate() != true }
+                            i.takeIf { needed && !symbol.myValidate() }
                         }
                     }
 
@@ -95,7 +96,7 @@ internal object MyProcessor : KspProcessor {
                     invalidSymbolsInfo.map { (oldKlass, oldIndices)->
                         val newKlass = resolver.getClassDeclarationByName(oldKlass.qualifiedName!!)!!
                         val symbols = newKlass.getBeingCheckedSymbols()
-                        newKlass to oldIndices.filterNot { symbols[it].myValidate() == true }
+                        newKlass to oldIndices.filterNot { symbols[it].myValidate() }
                     }
             }
             .filter { (_, indices)-> indices.any() }
@@ -114,52 +115,18 @@ internal object MyProcessor : KspProcessor {
         else -> emptyList()
     }
 
-    // report if there remain some unsupported symbols.
-    // other invalid symbols would be hinted by IDE
+    // report if there remain some invalid symbols.
     override fun onFinish() {
         if (invalidRootNodesTypeParameterInfo.any())
-            Log.errorLater(
-                msg = "Type parameters below, essential for build tracer interfaces, are invalid.",
-                symbols = invalidRootNodesTypeParameterInfo.map { it.second },
+            Log.e(
+                msg = "Type parameters below, essential for building tracer interfaces, are invalid.",
+                symbols = invalidRootNodesTypeParameterInfo.map { it.second }.toTypedArray(),
             )
 
-        if (!MyProcessor::invalidSymbolsInfo.isInitialized || Tags.propsBuilt) return
-
-        // no 'true', some are false, others are `null`
-        val (failedReferringSymbols, unsupportedSymbols) =
-            invalidSymbolsInfo.flatMap { (klass, indices)->
-                klass.getBeingCheckedSymbols().filterIndexed { i, _ -> i in indices  }
-            }
-            .partition { it.myValidate() == false }
-
-        if (failedReferringSymbols.any())
-            Log.errorLater(
-                msg = "Symbols below are invalid probably because of unknown references.",
-                symbols = failedReferringSymbols
-            )
-
-        if (unsupportedSymbols.any())
-            Log.errorLater(
-                symbols = unsupportedSymbols,
-                msg = buildString{
-                    append("Symbols below contain unsupported syntaxes")
-
-                    val unsupportedSyntaxes = mutableListOf<String>()
-                    if (!Environment.compilerVersion.isAtLeast(1, 8))
-                        unsupportedSyntaxes += "T & Any"
-
-                    if (unsupportedSyntaxes.any())
-                        append(" like $unsupportedSyntaxes")
-
-                    append(". ")
-
-                    append(
-                        "Use another declared style or annotate them with @${Names.Omit} " +
-                        "if it's not your fault."
-                    )
-                },
-            )
+        if (Tags.interfacesBuilt
+            && MyProcessor::invalidSymbolsInfo.isInitialized
+            && invalidSymbolsInfo.any()
+        )
+            Log.e("Tracer properties building are stopped because some invalid symbols.")
     }
-
-    class Provider : KspProvider({ MyProcessor })
 }

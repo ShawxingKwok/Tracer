@@ -2,9 +2,9 @@ package pers.shawxingkwok.tracer.shared
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
-import pers.apollokwok.ksputil.alsoRegister
-import pers.apollokwok.ktutil.getOrPutNullable
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.ksputil.alsoRegister
+import pers.shawxingkwok.ktutil.getOrPutNullable
+import pers.shawxingkwok.tracer.Tracer
 
 private val cache = mutableMapOf<KSClassDeclaration, KSClassDeclaration?>().alsoRegister()
 

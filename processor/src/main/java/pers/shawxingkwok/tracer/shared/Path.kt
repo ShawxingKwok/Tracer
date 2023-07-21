@@ -1,8 +1,8 @@
 package pers.shawxingkwok.tracer.shared
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import pers.apollokwok.ksputil.packageName
-import pers.apollokwok.ktutil.updateIf
+import pers.shawxingkwok.ksputil.packageName
+import pers.shawxingkwok.ktutil.updateIf
 
 public class Path(
     private val packageName: String,

@@ -1,8 +1,7 @@
 package pers.shawxingkwok.tracer.util
 
 import com.google.devtools.ksp.symbol.*
-import pers.apollokwok.ksputil.qualifiedName
-import pers.apollokwok.ktutil.Bug
+import pers.shawxingkwok.ksputil.qualifiedName
 
 private val cache = mutableMapOf<String, Modifier>()
 
@@ -55,7 +54,7 @@ private val KSDeclaration.status: Modifier get() = cache.getOrPut(qualifiedName(
                         if (isAbstract) Modifier.ABSTRACT
                         else Modifier.OPEN
 
-                    else -> Bug()
+                    else -> error("")
                 }
 
                 ClassKind.CLASS -> when {
@@ -75,7 +74,7 @@ private val KSDeclaration.status: Modifier get() = cache.getOrPut(qualifiedName(
                     // default java function
                     this is KSFunctionDeclaration -> Modifier.OPEN
 
-                    else -> Bug()
+                    else -> error("")
                 }
 
                 // in an object, annotation, or enum class

@@ -2,15 +2,17 @@ package pers.shawxingkwok.tracer.typesystem
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeAlias
-import pers.apollokwok.ksputil.*
-import pers.apollokwok.ktutil.Bug
-import pers.apollokwok.ktutil.lazyFast
+import pers.shawxingkwok.ksputil.Imports
+import pers.shawxingkwok.ksputil.qualifiedName
+import pers.shawxingkwok.ksputil.resolver
+import pers.shawxingkwok.ksputil.simpleName
+import pers.shawxingkwok.ktutil.lazyFast
 import pers.shawxingkwok.tracer.shared.contractedFakeDotName
 
 internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type<*>>(){
     companion object{
         // use 'get()=' since anyType.declaration varies every round.
-        @Suppress("DANGEROUS_CHARACTERS", "ObjectPropertyName", "NonAsciiCharacters")
+        @Suppress("ObjectPropertyName", "NonAsciiCharacters")
         val `Any？` get() = Specific(
             decl = resolver.builtIns.anyType.declaration as KSClassDeclaration,
             args = emptyList(),
@@ -47,7 +49,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                 null -> {
                     require(!fromAlias)
                     when (val it = bound.convertAll(map)) {
-                        is Generic, is Alias -> Bug()
+                        is Generic, is Alias -> error("")
                         is Compound -> it.copy(genericNames = listOf(name) + it.genericNames)
                         is Specific -> it.copy(genericNames = listOf(name) + it.genericNames)
                     }
@@ -67,7 +69,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         //endregion
 
         //region fixed part
-        override val allInnerKlasses: List<KSClassDeclaration> get() = Bug()
+        override val allInnerKlasses: List<KSClassDeclaration> get() = error("")
 
         override fun getContent(imports: Imports): String =
             buildString{
@@ -112,9 +114,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
 
             if (name != other.name) return false
             if (bound != other.bound) return false
-            if (nullable != other.nullable) return false
-
-            return true
+            return nullable == other.nullable
         }
 
         override fun hashCode(): Int {
@@ -163,9 +163,9 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         //endregion
 
         //region fixed part
-        override val allInnerKlasses: List<KSClassDeclaration> get() = Bug()
+        override val allInnerKlasses: List<KSClassDeclaration> get() = error("")
 
-        override fun getContent(imports: Imports): String = Bug()
+        override fun getContent(imports: Imports): String = error("")
 
         override fun getName(isGross: Boolean): String =
             buildString {
@@ -208,9 +208,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
 
             if (decl != other.decl) return false
             if (args != other.args) return false
-            if (nullable != other.nullable) return false
-
-            return true
+            return nullable == other.nullable
         }
         //endregion
     }
@@ -386,9 +384,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             if (genericNames != other.genericNames) return false
             if (hasAlias != other.hasAlias) return false
             if (hasConvertibleStar != other.hasConvertibleStar) return false
-            if (nullable != other.nullable) return false
-
-            return true
+            return nullable == other.nullable
         }
         //endregion
     }
@@ -465,9 +461,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
 
             if (types != other.types) return false
             if (genericNames != other.genericNames) return false
-            if (nullable != other.nullable) return false
-
-            return true
+            return nullable == other.nullable
         }
         //endregion
     }

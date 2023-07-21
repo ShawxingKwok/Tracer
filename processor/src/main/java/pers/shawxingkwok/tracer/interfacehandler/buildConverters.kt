@@ -3,7 +3,7 @@ package pers.shawxingkwok.tracer.interfacehandler
 import com.google.devtools.ksp.getAllSuperTypes
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import pers.apollokwok.ksputil.*
+import pers.shawxingkwok.ksputil.*
 import pers.shawxingkwok.tracer.util.SUPPRESSING
 import pers.shawxingkwok.tracer.shared.Tags
 import pers.shawxingkwok.tracer.util.isAnnotatedRootOrNodes

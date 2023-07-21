@@ -2,11 +2,11 @@ package pers.shawxingkwok.tracer.typesystem
 
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import pers.apollokwok.ksputil.alsoRegister
-import pers.apollokwok.ksputil.simpleName
-import pers.apollokwok.ktutil.updateIf
-import pers.apollokwok.tracer.common.annotations.Tracer
-import pers.apollokwok.tracer.common.annotations.TracerInterface
+import pers.shawxingkwok.ksputil.alsoRegister
+import pers.shawxingkwok.ksputil.simpleName
+import pers.shawxingkwok.ktutil.updateIf
+import pers.shawxingkwok.tracer.Tracer
+import pers.shawxingkwok.tracer.TracerGeneration
 import pers.shawxingkwok.tracer.util.isAnnotatedRootOrNodes
 import pers.shawxingkwok.tracer.util.isNativeKt
 
@@ -26,7 +26,7 @@ internal fun KSClassDeclaration.getSuperSpecificRawTypes(isSrc: Boolean): List<T
                 // for source root/nodes classes, super types of their super root/nodes classes
                 // were implemented.
                 isSrc && it.decl.isAnnotatedRootOrNodes()
-                || it.decl.isAnnotationPresent(TracerInterface::class)
+                || it.decl.isAnnotationPresent(TracerGeneration.Interface::class)
                 || it.decl == Type.`Any？`.decl
                 || it.decl in currentSuperKlasses
             }

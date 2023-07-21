@@ -3,9 +3,21 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="1.8">
       <module name="io.github.apollokwok.TracerCommon.compiler.test" target="8" />
+      <module name="Tracer.buildSrc" target="17" />
+      <module name="Tracer.buildSrc.main" target="17" />
+      <module name="Tracer.buildSrc.test" target="17" />
       <module name="Tracer.syntaxTest" target="11" />
       <module name="Tracer.syntaxTest.main" target="11" />
       <module name="Tracer.syntaxTest.test" target="11" />
+      <module name="Tracer.test.android" target="17" />
+      <module name="Tracer.test.remote.main" target="8" />
+      <module name="Tracer.test.remote.test" target="8" />
+      <module name="Tracer.test.syntax" target="17" />
+      <module name="Tracer.test.syntax.main" target="17" />
+      <module name="Tracer.test.syntax.test" target="17" />
+      <module name="Tracer.unittest" target="17" />
+      <module name="Tracer.unittest.main" target="17" />
+      <module name="Tracer.unittest.test" target="17" />
       <module name="TracerCommon.android" target="11" />
       <module name="TracerCommon.contrast.dagger" target="1.8" />
       <module name="TracerCommon.contrast.dagger.main" target="1.8" />
@@ -22,6 +34,9 @@
       <module name="TracerCommon.syntax" target="11" />
       <module name="TracerCommon.syntaxTest.main" target="11" />
       <module name="TracerCommon.syntaxTest.test" target="11" />
+      <module name="untitled" target="17" />
+      <module name="untitled.main" target="17" />
+      <module name="untitled.test" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>

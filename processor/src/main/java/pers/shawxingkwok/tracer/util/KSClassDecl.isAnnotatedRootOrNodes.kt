@@ -3,8 +3,8 @@ package pers.shawxingkwok.tracer.util
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
-import pers.apollokwok.ksputil.qualifiedName
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.ksputil.qualifiedName
+import pers.shawxingkwok.tracer.Tracer
 import kotlin.contracts.contract
 
 private val cache = mutableMapOf<String, Boolean>()

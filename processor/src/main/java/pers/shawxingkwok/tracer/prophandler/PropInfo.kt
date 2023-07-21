@@ -3,8 +3,8 @@ package pers.shawxingkwok.tracer.prophandler
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Visibility
-import pers.apollokwok.ktutil.lazyFast
-import pers.apollokwok.ktutil.updateIf
+import pers.shawxingkwok.ktutil.lazyFast
+import pers.shawxingkwok.ktutil.updateIf
 import pers.shawxingkwok.tracer.typesystem.Type
 import pers.shawxingkwok.tracer.typesystem.getTraceableTypes
 import pers.shawxingkwok.tracer.util.isFinal
@@ -23,7 +23,7 @@ internal sealed class PropInfo(
     private val srcPropName = getRootNodesName(srcKlass)
     private val levelTag = "˚${srcKlass.contractedFakeDotName}"
 
-    // Here needn't consider about packageNameTag because it's owned only by other-module
+    // Here needn't consider packageNameTag because it's owned only by other-module
     // declarations.
     private val propInfoNames: List<String> by lazyFast {
         arrayOf(false, true).map { isOuter ->

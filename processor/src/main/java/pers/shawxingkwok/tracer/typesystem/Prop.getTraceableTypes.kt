@@ -2,8 +2,7 @@ package pers.shawxingkwok.tracer.typesystem
 
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
-import pers.apollokwok.ksputil.simpleName
-import pers.apollokwok.ktutil.Bug
+import pers.shawxingkwok.ksputil.simpleName
 
 private val cache = mutableMapOf<KSType, List<Type<*>>>()
 
@@ -53,7 +52,7 @@ internal fun KSPropertyDeclaration.getTraceableTypes(): List<Type<*>> =
                     innerTypes + innerTypes.flatMap(::getSuperTypesOfSpecific)
                 }
 
-                else -> Bug()
+                else -> error("")
             }
             .map { it.updateNullability(convertedBasicType.nullable) }
 

@@ -1,8 +1,9 @@
 package pers.shawxingkwok.tracer._test
 
 import com.google.devtools.ksp.*
+import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
-import pers.apollokwok.ksputil.*
+import pers.shawxingkwok.ksputil.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KProperty
@@ -21,20 +22,22 @@ private class J<T: V, V: CharSequence?> {
     val list: MutableList<Int> = TODO()
 }
 
-public class TestProcessor : KspProcessor{
+internal class TestProcessor : KSProcessor{
+    class Provider : KSProcessorProvider(::TestProcessor)
+
     override fun process(times: Int): List<KSAnnotated> {
-//        val klass = resolver.getClassDeclarationByName("alias.Alias")!!
-//
-//        klass.getDeclaredProperties()
-//            .flatMap { it.getTraceableTypes() }
-//            .forEach {
-//                Log.w(it.getContent { true })
-//            }
+        if (times == 1)
+            Environment.codeGenerator.createFile(
+                packageName = null,
+                fileName = "allFileNames",
+                dependencies = Dependencies(true),
+                content = resolver.getAllFiles().joinToString { it.fileName },
+                extensionName = "",
+            )
+
         return emptyList()
     }
-
-    public class Provider : KspProvider(::TestProcessor)
-} 
+}
 
 private fun KClass<*>.convert(): KSClassDeclaration = resolver.getClassDeclarationByName(qualifiedName!!)!!
 

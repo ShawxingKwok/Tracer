@@ -5,9 +5,8 @@ import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.isPublic
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
-import pers.apollokwok.ksputil.*
-import pers.apollokwok.ktutil.Bug
-import pers.apollokwok.tracer.common.annotations.TracerInterface
+import pers.shawxingkwok.ksputil.*
+import pers.shawxingkwok.tracer.TracerGeneration
 import pers.shawxingkwok.tracer.shared.Tags.AllInternal
 import pers.shawxingkwok.tracer.util.isNativeKt
 import pers.shawxingkwok.tracer.shared.*
@@ -26,7 +25,7 @@ private tailrec fun getSuperRootOrNodeKlass(klass: KSClassDeclaration): KSClassD
             when(it){
                 is KSClassDeclaration -> it
                 is KSTypeAlias -> it.findActualType()
-                else -> Bug()
+                else -> error("")
             }
         }
         .firstOrNull { it.classKind == ClassKind.CLASS }
@@ -48,12 +47,7 @@ private tailrec fun getSuperRootOrNodeKlass(klass: KSClassDeclaration): KSClassD
     }
 }
 
-internal fun buildInterfaces(){
-    getRootNodesKlasses().forEach(::buildInterface)
-    Tags.interfacesBuilt = true
-}
-
-private fun buildInterface(klass: KSClassDeclaration) {
+internal fun buildInterface(klass: KSClassDeclaration) {
     val (interfaceName, outerInterfaceName) = getInterfaceNames(klass)
 
     val visibilityPart =
@@ -105,7 +99,7 @@ private fun buildInterface(klass: KSClassDeclaration) {
             mayTakenSuperRootNodesKlass,
             context?.context
         ),
-        TracerInterface::class
+        TracerGeneration.Interface::class,
     )
 
     val (type, superType, grandpaContextType) =

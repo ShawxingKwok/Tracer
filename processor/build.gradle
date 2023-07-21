@@ -1,35 +1,53 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
-    id "com.vanniktech.maven.publish"
-}
-
-test {
-    useJUnitPlatform()
+    alias(libs.plugins.jvm)
+    alias(libs.plugins.publish)
 }
 
 kotlin{
     jvmToolchain(8)
 }
 
-dependencies {
-    implementation lib_kt_util
-    implementation lib_kotlin_reflect
-
-    implementation lib_ksp
-    implementation lib_ksp_util
-
-    implementation lib_tracer_common_annotations
+test {
+    useJUnitPlatform()
 }
 
 tasks.withType(KotlinCompile).configureEach{
-    kotlinOptions {
-        freeCompilerArgs = [
-                "-Xexplicit-api=warning",
-                "-Xcontext-receivers",
-                "-opt-in=com.google.devtools.ksp.KspExperimental",
-                "-opt-in=kotlin.contracts.ExperimentalContracts",
-        ]
+    kotlinOptions.freeCompilerArgs += [
+        "-Xexplicit-api=warning",
+        "-Xcontext-receivers",
+        "-opt-in=com.google.devtools.ksp.KspExperimental",
+        "-opt-in=kotlin.contracts.ExperimentalContracts",
+    ]
+}
+
+dependencies{
+    implementation(project(":annotations"))
+    implementation(libs.reflect)
+    implementation (libs.ksp)
+    implementation (libs.kspUtil)
+    implementation (libs.ktUtil)
+}
+
+mavenPublishing {
+    def isSNAPSHOT = true
+    def version = "1.0.0"
+    def artifactId = "tracer-processor"
+
+    if (isSNAPSHOT) version += "-SNAPSHOT"
+    coordinates("io.github.shawxingkwok", artifactId, version)
+
+    pom {
+        def repo = "Tracer"
+        name = "TracerProcessor"
+        description = "Tracer processor"
+        inceptionYear = "2023"
+
+        url = "https://github.com/ShawxingKwok/$repo/"
+        scm{
+            connection = "scm:git:git://github.com/ShawxingKwok/${repo}.git"
+            developerConnection = "scm:git:ssh://git@github.com/ShawxingKwok/${repo}.git"
+        }
     }
 }

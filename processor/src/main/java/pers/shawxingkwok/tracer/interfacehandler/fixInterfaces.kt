@@ -2,8 +2,8 @@ package pers.shawxingkwok.tracer.interfacehandler
 
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import pers.apollokwok.ksputil.noPackageName
-import pers.apollokwok.ksputil.simpleName
+import pers.shawxingkwok.ksputil.noPackageName
+import pers.shawxingkwok.ksputil.simpleName
 import pers.shawxingkwok.tracer.shared.Tags
 import pers.shawxingkwok.tracer.util.isMyOpen
 import pers.shawxingkwok.tracer.shared.getRootNodesKlasses

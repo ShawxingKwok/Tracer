@@ -11,17 +11,11 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/annotations" />
             <option value="$PROJECT_DIR$/compiler" />
-            <option value="$PROJECT_DIR$/compiler/overalltest" />
             <option value="$PROJECT_DIR$/compiler/unittest" />
             <option value="$PROJECT_DIR$/processor" />
             <option value="$PROJECT_DIR$/sample" />
             <option value="$PROJECT_DIR$/test" />
-            <option value="$PROJECT_DIR$/test/android" />
-            <option value="$PROJECT_DIR$/test/lib" />
             <option value="$PROJECT_DIR$/test/overall" />
-            <option value="$PROJECT_DIR$/test/remote" />
-            <option value="$PROJECT_DIR$/test/superLib" />
-            <option value="$PROJECT_DIR$/test/syntax" />
             <option value="$PROJECT_DIR$/test/unit" />
           </set>
         </option>

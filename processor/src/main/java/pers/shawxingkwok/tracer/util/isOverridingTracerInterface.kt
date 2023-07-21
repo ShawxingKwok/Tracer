@@ -6,9 +6,9 @@ import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
-import pers.apollokwok.ksputil.qualifiedName
-import pers.apollokwok.ksputil.simpleName
-import pers.apollokwok.tracer.common.annotations.TracerInterface
+import pers.shawxingkwok.ksputil.qualifiedName
+import pers.shawxingkwok.ksputil.simpleName
+import pers.shawxingkwok.tracer.TracerGeneration
 import pers.shawxingkwok.tracer.shared.Tags
 
 private val cache = mutableMapOf<String, Boolean>()
@@ -21,12 +21,12 @@ internal fun KSPropertyDeclaration.isOverridingTracerInterface(): Boolean =
 
         val parentKlass = parentDeclaration as KSClassDeclaration? ?: return@getOrPut false
         if (Modifier.OVERRIDE !in modifiers) return@getOrPut false
-        if (type.myValidate() != true) return@getOrPut false
+        if (!type.myValidate()) return@getOrPut false
 
         if (!simpleName().startsWith("_")) return@getOrPut false
 
         parentKlass.getAllSuperTypes()
-            .filter { it.declaration.isAnnotationPresent(TracerInterface::class) }
+            .filter { it.declaration.isAnnotationPresent(TracerGeneration.Interface::class) }
             .map { it.declaration as KSClassDeclaration }
             .flatMap { it.getDeclaredProperties() }
             .any { it.simpleName() == simpleName() }

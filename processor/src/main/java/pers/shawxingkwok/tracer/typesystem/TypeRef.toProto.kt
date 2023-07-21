@@ -1,8 +1,7 @@
 package pers.shawxingkwok.tracer.typesystem
 
 import com.google.devtools.ksp.symbol.*
-import pers.apollokwok.ktutil.Bug
-import pers.apollokwok.ktutil.lazyFast
+import pers.shawxingkwok.ktutil.lazyFast
 import pers.shawxingkwok.tracer.util.isDefNotNull
 
 // This can't be cached with KSType, because differently displayed ksTypes may equal.
@@ -12,7 +11,6 @@ internal fun KSTypeReference.toProto(): Type<*> {
 
     // no typeParameters when decl is KSTypeParameter
     val newArgs = decl.typeParameters
-        // element `T & Any` is erased in resolved types before version 1.8.10-1.0.9(inclusive).
         .zip(this.element?.typeArguments ?: ksType.arguments)
         .map { (param, arg) ->
             val argProtoType by lazyFast { arg.type!!.toProto() }
@@ -23,18 +21,18 @@ internal fun KSTypeReference.toProto(): Type<*> {
                 "in" -> when(param.variance.label){
                     "" -> Arg.In(argProtoType, param)
                     "in" -> Arg.Simple(argProtoType, param)
-                    else -> Bug()
+                    else -> error("")
                 }
 
                 "out" -> when (param.variance.label) {
                     "" -> Arg.Out(argProtoType, param)
                     "out" -> Arg.Simple(argProtoType, param)
-                    else -> Bug()
+                    else -> error("")
                 }
 
                 "*" -> Arg.Star(param)
 
-                else -> Bug()
+                else -> error("")
             }
         }
 
@@ -66,6 +64,6 @@ internal fun KSTypeReference.toProto(): Type<*> {
                 nullable = nullable
             )
 
-        else -> Bug()
+        else -> error("")
     }
 }

@@ -1,30 +1,13 @@
 package pers.shawxingkwok.tracer.util
 
 import com.google.devtools.ksp.symbol.KSNode
-import com.google.devtools.ksp.symbol.KSTypeReference
-import pers.apollokwok.ksputil.KSDefaultValidator
-import pers.apollokwok.ksputil.alsoRegister
+import pers.shawxingkwok.ksputil.KSDefaultValidator
+import pers.shawxingkwok.ksputil.alsoRegister
 
-private val cache = mutableMapOf<KSNode, Boolean?>().alsoRegister()
+private val cache = mutableMapOf<KSNode, Boolean>().alsoRegister()
 
-// null means there are some new unsupported syntax
-internal fun KSNode.myValidate(): Boolean? =
+// TODO(consider undoing cache)
+internal fun KSNode.myValidate(): Boolean =
     cache.getOrPut(this) {
-        try {
-            accept(MyValidator, Unit)
-        } catch (e: Exception) {
-            null
-        }
+        accept(KSDefaultValidator, Unit)
     }
-
-private object MyValidator : KSDefaultValidator(){
-    override fun visitTypeReference(typeReference: KSTypeReference, data: Unit): Boolean {
-        typeReference.checkTAny()
-        return super.visitTypeReference(typeReference, data)
-    }
-
-    // throw exception if 'T & Any' appears.
-    private fun KSTypeReference.checkTAny() {
-        element?.typeArguments?.forEach { it.type?.checkTAny() }
-    }
-}

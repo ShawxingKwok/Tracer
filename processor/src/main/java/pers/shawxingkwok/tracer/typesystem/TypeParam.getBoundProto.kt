@@ -2,7 +2,7 @@ package pers.shawxingkwok.tracer.typesystem
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
-import pers.apollokwok.ksputil.simpleName
+import pers.shawxingkwok.ksputil.simpleName
 
 internal fun KSTypeParameter.getBoundProto(): Type<*> =
     when(bounds.count()){

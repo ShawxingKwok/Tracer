@@ -1,0 +1,38 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    alias(libs.plugins.jvm)
+    alias(libs.plugins.publish)
+}
+
+kotlin{
+    jvmToolchain(8)
+}
+
+tasks.withType(KotlinCompile).configureEach{
+    kotlinOptions {
+        freeCompilerArgs += "-Xexplicit-api=warning"
+    }
+}
+
+mavenPublishing {
+    def isSNAPSHOT = true
+    def version = "1.0.0"
+    def artifactId = "tracer-annotations"
+
+    if (isSNAPSHOT) version += "-SNAPSHOT"
+    coordinates("io.github.shawxingkwok", artifactId, version)
+
+    pom {
+        def repo = "Tracer"
+        name = "TracerAnnotations"
+        description = "Tracer annotations"
+        inceptionYear = "2023"
+
+        url = "https://github.com/ShawxingKwok/$repo/"
+        scm{
+            connection = "scm:git:git://github.com/ShawxingKwok/${repo}.git"
+            developerConnection = "scm:git:ssh://git@github.com/ShawxingKwok/${repo}.git"
+        }
+    }
+}

@@ -3,15 +3,13 @@ package pers.shawxingkwok.tracer.prophandler
 import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
-import pers.apollokwok.ksputil.*
-import pers.apollokwok.ktutil.updateIf
+import pers.shawxingkwok.ksputil.*
+import pers.shawxingkwok.ktutil.updateIf
 import pers.shawxingkwok.tracer.shared.Names
 import pers.shawxingkwok.tracer.shared.Tags
 import pers.shawxingkwok.tracer.typesystem.Type
 import pers.shawxingkwok.tracer.typesystem.getSrcKlassTraceableSuperTypes
 import pers.shawxingkwok.tracer.typesystem.getTraceableTypes
-import pers.apollokwok.tracer.common.util.*
-import pers.apollokwok.tracer.util.*
 import pers.shawxingkwok.tracer.util.SUPPRESSING
 import pers.shawxingkwok.tracer.util.getPreNeededProperties
 import pers.shawxingkwok.tracer.util.isAnnotatedRootOrNodes

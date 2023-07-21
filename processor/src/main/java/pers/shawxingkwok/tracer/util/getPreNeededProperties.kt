@@ -6,8 +6,8 @@ import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import pers.apollokwok.ksputil.alsoRegister
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.ksputil.alsoRegister
+import pers.shawxingkwok.tracer.Tracer
 
 private val cache = mutableMapOf<KSClassDeclaration, List<KSPropertyDeclaration>>().alsoRegister()
 

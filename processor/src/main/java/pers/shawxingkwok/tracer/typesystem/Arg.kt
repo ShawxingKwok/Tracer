@@ -2,10 +2,9 @@ package pers.shawxingkwok.tracer.typesystem
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
-import pers.apollokwok.ksputil.Imports
-import pers.apollokwok.ktutil.Bug
-import pers.apollokwok.ktutil.lazyFast
-import pers.apollokwok.ktutil.updateIf
+import pers.shawxingkwok.ksputil.Imports
+import pers.shawxingkwok.ktutil.lazyFast
+import pers.shawxingkwok.ktutil.updateIf
 
 internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<Arg<*>>(){
     sealed class General<T: General<T>>(
@@ -45,7 +44,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
                         "" -> Out(convertedType, param)
                         "in" -> Star(param)
                         "out" -> copy(convertedType)
-                        else -> Bug()
+                        else -> error("")
                     }
 
                     is In -> when (selfActualVarianceLabel) {
@@ -53,7 +52,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
                         "in" -> copy(convertedType)
                         // change to require bound, but with a new map without current substitute arg.
                         "out" -> convertGeneric(map - type.name, fromAlias).first
-                        else -> Bug()
+                        else -> error("")
                     }
 
                     is Simple -> copy(convertedType)
@@ -67,7 +66,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
                     selfActualVarianceLabel == "" -> Out(type = convertedType, param)
                     selfActualVarianceLabel == "in" -> Star(param)
                     selfActualVarianceLabel == "out" -> copy(type = convertedType)
-                    else -> Bug()
+                    else -> error("")
                 }
                 newArg to requireOut
             }
@@ -84,7 +83,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
                 this is Simple -> Simple(type, param)
                 this is In -> In(type, param)
                 this is Out -> Out(type, param)
-                else -> Bug()
+                else -> error("")
             } as T
         //endregion
 
@@ -99,9 +98,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
             other as General<*>
 
             if (type != other.type) return false
-            if (param != other.param) return false
-
-            return true
+            return param == other.param
         }
 
         final override val allInnerKlasses: List<KSClassDeclaration> by lazyFast { type.allInnerKlasses }
@@ -160,7 +157,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
             level = DeprecationLevel.WARNING,
             replaceWith = ReplaceWith("convertStar(map)")
         )
-        override fun convertStar(): Arg<*> = Bug()
+        override fun convertStar(): Arg<*> = error("")
 
         // later
         override fun convertGeneric(
@@ -184,7 +181,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
                 param.variance.label == "out"
                     -> Simple(param.getBoundProto(), param).convertAll(map)
 
-                else -> Bug()
+                else -> error("")
             }
         //endregion
 
@@ -201,8 +198,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Star) return false
-            if (param != other.param) return false
-            return true
+            return param == other.param
         }
     }
 }

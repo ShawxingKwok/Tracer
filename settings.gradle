@@ -1,0 +1,28 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+
+        // snapshot
+        maven{
+            url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+}
+
+rootProject.name = "Tracer"
+
+include(":annotations", ":processor", ":compiler", ':compiler:unittest')
+
+include ':test:overall'
+include ':test:unit'
+include ':sample'

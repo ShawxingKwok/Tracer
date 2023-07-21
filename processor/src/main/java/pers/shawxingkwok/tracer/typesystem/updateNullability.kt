@@ -1,7 +1,5 @@
 package pers.shawxingkwok.tracer.typesystem
 
-import pers.apollokwok.ktutil.Unreachable
-
 // There may be some type inference error when putting this function in class Type.
 @Suppress("UNCHECKED_CAST")
 internal fun <T: Type<*>> T.updateNullability(nullable: Boolean): T =
@@ -11,5 +9,5 @@ internal fun <T: Type<*>> T.updateNullability(nullable: Boolean): T =
         this is Type.Alias -> copy(nullable = nullable)
         this is Type.Specific -> copy(nullable = nullable)
         this is Type.Compound -> copy(nullable = nullable)
-        else -> Unreachable()
+        else -> error("")
     } as T

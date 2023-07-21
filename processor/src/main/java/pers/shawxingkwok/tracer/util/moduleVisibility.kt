@@ -4,8 +4,8 @@ import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.isLocal
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.Visibility
-import pers.apollokwok.ksputil.qualifiedName
-import pers.apollokwok.ktutil.getOrPutNullable
+import pers.shawxingkwok.ksputil.qualifiedName
+import pers.shawxingkwok.ktutil.getOrPutNullable
 
 private val cache = mutableMapOf<String, Visibility?>()
 

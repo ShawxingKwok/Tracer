@@ -1,28 +1,22 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
-    id 'com.google.devtools.ksp'
+    alias(libs.plugins.jvm)
+    alias(libs.plugins.ksp)
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-// Makes generated code visible to IDE
-kotlin.sourceSets.main {
-    kotlin.srcDirs(file("$buildDir/generated/ksp/main/kotlin"))
+kotlin{
+    jvmToolchain(8)
 }
 
 dependencies {
-    implementation lib_kotlin_reflect
-    implementation lib_coroutine
-
-    implementation project(':test:lib')
-
     implementation project(":annotations")
-    ksp project(":compiler:overalltest")
+//    implementation project(':test:lib')
+    ksp project(":compiler")
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach{
+tasks.withType(KotlinCompile).configureEach{
     kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
+
+ksp.arg("ksp-util.debug", "")

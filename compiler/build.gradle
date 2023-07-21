@@ -1,14 +1,35 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
-    id "com.vanniktech.maven.publish"
+    alias(libs.plugins.jvm)
+    alias(libs.plugins.publish)
 }
 
-kotlin{
-    jvmToolchain(8)
-}
+//kotlin{
+//    jvmToolchain(8)
+//}
 
 dependencies {
-    implementation lib_ksp
-    implementation lib_ksp_util
-    implementation lib_tracer_common_processor
+    implementation libs.ksp
+    implementation project(":processor")
+}
+
+mavenPublishing {
+    def isSNAPSHOT = true
+    def version = "1.0.0"
+    def artifactId = "tracer-compiler"
+
+    if (isSNAPSHOT) version += "-SNAPSHOT"
+    coordinates("io.github.shawxingkwok", artifactId, version)
+
+    pom {
+        def repo = "Tracer"
+        name = "TracerCompiler"
+        description = "Tracer compiler"
+        inceptionYear = "2023"
+
+        url = "https://github.com/ShawxingKwok/$repo/"
+        scm{
+            connection = "scm:git:git://github.com/ShawxingKwok/${repo}.git"
+            developerConnection = "scm:git:ssh://git@github.com/ShawxingKwok/${repo}.git"
+        }
+    }
 }

@@ -3,8 +3,10 @@ package pers.shawxingkwok.tracer.util
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.symbol.*
-import pers.apollokwok.ksputil.*
-import pers.apollokwok.tracer.common.annotations.Tracer
+import pers.shawxingkwok.ksputil.Log
+import pers.shawxingkwok.ksputil.getAnnotatedSymbols
+import pers.shawxingkwok.ksputil.resolver
+import pers.shawxingkwok.tracer.Tracer
 import pers.shawxingkwok.tracer.shared.getRootNodesKlasses
 import pers.shawxingkwok.tracer.shared.Names
 import pers.shawxingkwok.tracer.shared.context
@@ -16,7 +18,7 @@ private var valid = true
 private inline fun requireNone(symbols: List<KSNode>, getMsg: ()->String){
     if (symbols.any()){
         valid = false
-        Log.errorLater(msg = getMsg(), symbols = symbols.distinct())
+        Log.e(msg = getMsg(), symbols = symbols.distinct().toTypedArray())
     }
 }
 

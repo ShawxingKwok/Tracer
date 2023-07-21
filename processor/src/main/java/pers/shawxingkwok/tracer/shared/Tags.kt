@@ -1,6 +1,6 @@
 package pers.shawxingkwok.tracer.shared
 
-import pers.apollokwok.ksputil.Environment
+import pers.shawxingkwok.ksputil.Environment
 
 public object Tags {
     public val AllInternal: Boolean = "tracer.internal" in Environment.options.keys
