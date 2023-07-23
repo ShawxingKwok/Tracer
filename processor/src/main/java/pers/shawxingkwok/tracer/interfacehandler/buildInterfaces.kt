@@ -90,7 +90,7 @@ internal fun buildInterface(klass: KSClassDeclaration) {
             context,
             context?.context,
         )
-        .map { it?.let(::getRootNodesName) }
+        .map { it?.let(::getRootNodesPropName) }
 
     val imports = Imports(
         srcDecl = klass,

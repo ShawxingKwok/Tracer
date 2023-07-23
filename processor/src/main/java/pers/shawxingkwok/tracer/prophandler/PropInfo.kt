@@ -8,7 +8,7 @@ import pers.shawxingkwok.ktutil.updateIf
 import pers.shawxingkwok.tracer.typesystem.Type
 import pers.shawxingkwok.tracer.typesystem.getTraceableTypes
 import pers.shawxingkwok.tracer.util.isFinal
-import pers.shawxingkwok.tracer.shared.getRootNodesName
+import pers.shawxingkwok.tracer.shared.getRootNodesPropName
 import pers.shawxingkwok.tracer.shared.contractedFakeDotName
 import pers.shawxingkwok.tracer.shared.getInterfaceNames
 
@@ -20,7 +20,7 @@ internal sealed class PropInfo(
     private val propsBuilder: PropsBuilder,
 ){
     private val srcKlass = propsBuilder.srcKlass
-    private val srcPropName = getRootNodesName(srcKlass)
+    private val srcPropName = getRootNodesPropName(srcKlass)
     private val levelTag = "˚${srcKlass.contractedFakeDotName}"
 
     // Here needn't consider packageNameTag because it's owned only by other-module

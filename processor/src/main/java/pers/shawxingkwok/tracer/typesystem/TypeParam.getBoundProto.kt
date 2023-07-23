@@ -6,7 +6,7 @@ import pers.shawxingkwok.ksputil.simpleName
 
 internal fun KSTypeParameter.getBoundProto(): Type<*> =
     when(bounds.count()){
-        0 -> Type.`Any？`
+        0 -> error("Ksp version is forbidden to be lower than 1.8.0-1.0.9.")
 
         1 -> {
             // check recycle

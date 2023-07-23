@@ -4,6 +4,7 @@ import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.*
+import jdk.internal.org.objectweb.asm.TypeReference
 import pers.shawxingkwok.ksputil.*
 import pers.shawxingkwok.tracer.interfacehandler.buildConverters
 import pers.shawxingkwok.tracer.interfacehandler.buildInterface
@@ -19,7 +20,7 @@ import java.util.Collections.emptyList
 
 internal object MyProcessor : KSProcessor {
     class Provider : KSProcessorProvider({ MyProcessor })
-
+    
     init { checkUsages() }
 
     private lateinit var invalidRootNodesTypeParameterInfo: List<Pair<String, KSTypeParameter>>

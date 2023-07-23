@@ -172,8 +172,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
             when {
                 param.variance.label == "in"
                 // check recycle like Enum<*>
-                || param.parentDeclaration!! == param.bounds.firstOrNull()?.resolve()?.declaration
-                    -> this
+                || param.parentDeclaration!! == param.bounds.first() -> this
 
                 param.variance.label == ""
                     -> Out(param.getBoundProto(), param).convertAll(map)

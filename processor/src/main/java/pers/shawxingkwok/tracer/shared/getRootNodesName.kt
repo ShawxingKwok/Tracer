@@ -7,7 +7,7 @@ import pers.shawxingkwok.tracer.typesystem.getBoundProto
 
 private val cache = mutableMapOf<KSClassDeclaration, String>()
 
-public fun getRootNodesName(klass: KSClassDeclaration): String =
+public fun getRootNodesPropName(klass: KSClassDeclaration): String =
     cache.getOrPut(klass) {
         Type.Specific(
             decl = klass,

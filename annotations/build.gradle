@@ -10,9 +10,7 @@ kotlin{
 }
 
 tasks.withType(KotlinCompile).configureEach{
-    kotlinOptions {
-        freeCompilerArgs += "-Xexplicit-api=warning"
-    }
+    kotlinOptions.freeCompilerArgs += "-Xexplicit-api=warning"
 }
 
 mavenPublishing {

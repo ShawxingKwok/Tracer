@@ -3,6 +3,7 @@ package pers.shawxingkwok.tracer.util
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.symbol.*
+import pers.shawxingkwok.ksputil.Environment
 import pers.shawxingkwok.ksputil.Log
 import pers.shawxingkwok.ksputil.getAnnotatedSymbols
 import pers.shawxingkwok.ksputil.resolver

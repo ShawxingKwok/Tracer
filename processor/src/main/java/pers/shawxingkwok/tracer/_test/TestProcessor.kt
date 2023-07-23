@@ -13,7 +13,7 @@ import kotlin.reflect.jvm.javaMethod
 public typealias NullableInt = Int?
 public typealias XNullableInt = NullableInt
 
-private class J<T: V, V: CharSequence?> {
+private class J<T, V: CharSequence?> {
     val j: J<T & Any, *> = TODO()
     val js : List<J<T & Any, *>> = TODO()
     lateinit var t: T & Any
@@ -26,15 +26,19 @@ internal class TestProcessor : KSProcessor{
     class Provider : KSProcessorProvider(::TestProcessor)
 
     override fun process(times: Int): List<KSAnnotated> {
-        if (times == 1)
-            Environment.codeGenerator.createFile(
-                packageName = null,
-                fileName = "allFileNames",
-                dependencies = Dependencies(true),
-                content = resolver.getAllFiles().joinToString { it.fileName },
-                extensionName = "",
-            )
+        if (times == 1){
+            val klassDecl = resolver.getClassDeclarationByName("generic.X")!!
+            val param = klassDecl.typeParameters.last()
+            val _param = klassDecl
+                .getDeclaredProperties()
+                .first { it.simpleName() == "v" }
+                .type.resolve()
+                .declaration as KSTypeParameter
 
+            Log.d(param == _param)
+            Log.d(param.bounds.first().resolve())
+            Log.d(_param.bounds.first().resolve())
+        }
         return emptyList()
     }
 }
