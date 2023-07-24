@@ -8,6 +8,6 @@ var myDoublePair: MyDoublePair<out Human, List<CharSequence>, String>? = null
 val _myDoublePair: InOutPair<List<InOutPair<List<Human>, Map<out Human, List<CharSequence>>>>, Map<InOutPair<List<Human>, Map<out Human, List<CharSequence>>>, Out<In<String?>>>>? =
     myDoublePair
 
-val lambda: ((Int)->Unit) = TODO()
+val lambda: ((Int ) -> Unit) = TODO()
 val parenthesis = lambda
 //                 InOutPair<List<InOutPair<List<Human>, Map<out Human, List<CharSequence>>>>, Map<InOutPair<List<Human>, Map<out Human, List<CharSequence>>>, Out<In<String?>>>>?

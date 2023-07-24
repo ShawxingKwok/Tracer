@@ -20,7 +20,7 @@ internal fun KSClassDeclaration.getPreNeededProperties(): List<KSPropertyDeclara
 
             // general rebuilt classes
             isAnnotatedRootOrNodes()
-            || (getConstructors().singleOrNull()?.let { it.typeParameters + it.parameters }?.none() == true
+            || (getConstructors().singleOrNull()?.let { it.typeParameters + it.parameters }?.none() ?: false
                 && typeParameters.none()
                 && isFinal()
             ) ->

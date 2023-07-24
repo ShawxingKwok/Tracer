@@ -3,7 +3,7 @@ package car
 import car.tracer.Car
 import kotlin.system.measureNanoTime
 
-fun <T> testBenchmark(getCar: ()->T, drive: (T) -> Unit){
+fun <T> testBenchmark(getCar: () -> T, drive: (T) -> Unit){
     val car: T
 
     val modelingDuration = measureNanoTime { car = getCar() } / 1000

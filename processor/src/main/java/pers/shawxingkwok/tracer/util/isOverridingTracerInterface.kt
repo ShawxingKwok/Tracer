@@ -3,7 +3,6 @@ package pers.shawxingkwok.tracer.util
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import pers.shawxingkwok.ksputil.Log
 import pers.shawxingkwok.ksputil.qualifiedName
 import pers.shawxingkwok.ksputil.simpleName
 import pers.shawxingkwok.tracer.TracerGeneration

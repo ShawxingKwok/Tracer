@@ -64,7 +64,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                 (record.validlyTracedInsideKlasses as MutableSet) += klass
             }
             // cache
-            .onEach { (prop, types)->
+            .onEach { (prop, types) ->
                 // the basic type must be visible, so the requirement in just 'onEachIndexed' must be valid.
                 types.forEachIndexed { i, type ->
                     val v = limitVisibility(
@@ -84,7 +84,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
 //                            && kotlin.run {
 //                                fun KSTypeReference.containT(): Boolean =
 //                                    resolve().declaration is KSTypeParameter
-//                                    || element?.typeArguments?.any { it.type?.containT() == true } == true
+//                                    || element?.typeArguments?.any { it.type?.containT() ?: false } ?: false
 //
 //                                prop.type.containT()
 //                            })
@@ -100,12 +100,12 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                 }
             }
             // filter and trace inside, other filtering conditions are in 'getPreNeededProperties'
-            .mapNotNull { (prop, types)->
+            .mapNotNull { (prop, types) ->
                 val basicType = types.first() as? Type.Specific ?: return@mapNotNull null
                 prop to basicType
             }
-            .filterNot { (_, basicType)-> basicType.decl.isAnnotatedRootOrNodes() }
-            .filterNot { (prop, basicType)->
+            .filterNot { (_, basicType) -> basicType.decl.isAnnotatedRootOrNodes() }
+            .filterNot { (prop, basicType) ->
                 if (basicType.nullable) {
                     Log.require(
                         condition = basicType.decl !in record.validlyTracedInsideKlasses,
@@ -118,7 +118,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
 
                 basicType.nullable
             }
-            .forEach { (prop, basicType)->
+            .forEach { (prop, basicType) ->
                 trace(
                     klass = basicType.decl,
                     parentProp = prop,
@@ -153,7 +153,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
         .groupingBy { it.type.getName(true) }
         .eachCount()
         .toList()
-        .groupingBy { (_, times)-> times }
+        .groupingBy { (_, times) -> times }
         .aggregate<_,_,StringBuilder> { _, accumulator, (grossKey, times), _ ->
             val strBuilder = accumulator ?: java.lang.StringBuilder()
             when{

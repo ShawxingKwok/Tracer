@@ -18,7 +18,7 @@ private class J<T, V: CharSequence?> {
     val js : List<J<T & Any, *>> = TODO()
     lateinit var t: T & Any
     fun foo(){}
-    val x: Int.()->Unit = TODO()
+    val x: Int.() -> Unit = TODO()
     val list: MutableList<Int> = TODO()
 }
 

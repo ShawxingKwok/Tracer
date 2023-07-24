@@ -94,13 +94,13 @@ internal object MyProcessor : KSProcessor {
                     }
 
                 else ->
-                    invalidSymbolsInfo.map { (oldKlass, oldIndices)->
+                    invalidSymbolsInfo.map { (oldKlass, oldIndices) ->
                         val newKlass = resolver.getClassDeclarationByName(oldKlass.qualifiedName!!)!!
                         val symbols = newKlass.getBeingCheckedSymbols()
                         newKlass to oldIndices.filterNot { symbols[it].myValidate() }
                     }
             }
-            .filter { (_, indices)-> indices.any() }
+            .filter { (_, indices) -> indices.any() }
 
             // continue processing next round if some invalid symbols remain
             if (invalidSymbolsInfo.any())

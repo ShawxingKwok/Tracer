@@ -3,7 +3,6 @@ package pers.shawxingkwok.tracer.util
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.symbol.*
-import pers.shawxingkwok.ksputil.Environment
 import pers.shawxingkwok.ksputil.Log
 import pers.shawxingkwok.ksputil.getAnnotatedSymbols
 import pers.shawxingkwok.ksputil.resolver
@@ -16,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 private var valid = true
 
-private inline fun requireNone(symbols: List<KSNode>, getMsg: ()->String){
+private inline fun requireNone(symbols: List<KSNode>, getMsg: () -> String){
     if (symbols.any()){
         valid = false
         Log.e(msg = getMsg(), symbols = symbols.distinct().toTypedArray())
