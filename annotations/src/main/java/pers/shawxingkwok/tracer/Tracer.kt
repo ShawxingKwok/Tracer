@@ -3,7 +3,7 @@ package pers.shawxingkwok.tracer
 import kotlin.reflect.KClass
 
 @Target
-public annotation class Tracer{
+public annotation class Tracer {
     /**
      * See [Root](https://shawxingkwok.github.io/ITWorks/docs/jvm/tracer/usage/annotations/#root)
      */
