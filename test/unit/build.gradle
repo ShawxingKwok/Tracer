@@ -19,7 +19,6 @@ dependencies {
 tasks.withType(KotlinCompile).configureEach{
     kotlinOptions.freeCompilerArgs = [
         "-Xcontext-receivers",
-        "-opt-in=kotlin.contracts.ExperimentalContracts",
     ]
 }
 
