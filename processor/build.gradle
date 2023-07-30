@@ -24,10 +24,10 @@ tasks.withType(KotlinCompile).configureEach{
 
 dependencies{
     implementation(project(":annotations"))
-    implementation(libs.reflect)
+    implementation(libs.kt.reflect)
     implementation (libs.ksp)
-    implementation (libs.kspUtil)
-    implementation (libs.ktUtil)
+    implementation (libs.shawxingkwok.ksp.util)
+    implementation (libs.shawxingkwok.kt.util)
 }
 
 mavenPublishing {

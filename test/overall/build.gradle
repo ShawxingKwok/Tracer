@@ -11,7 +11,6 @@ kotlin{
 
 dependencies {
     implementation project(":annotations")
-//    implementation project(':test:lib')
     ksp project(":compiler")
 }
 

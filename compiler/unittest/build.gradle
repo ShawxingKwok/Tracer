@@ -1,16 +1,13 @@
 plugins {
     alias(libs.plugins.jvm)
-//    id 'java-library'
-//    id 'org.jetbrains.kotlin.jvm'
 }
 
-//java {
-//    sourceCompatibility = JavaVersion.VERSION_1_8
-//    targetCompatibility = JavaVersion.VERSION_1_8
-//}
+kotlin {
+    jvmToolchain(8)
+}
 
 dependencies {
     implementation project(":processor")
-    implementation(libs.kspUtil)
+    implementation(libs.shawxingkwok.ksp.util)
     implementation(libs.ksp)
 }

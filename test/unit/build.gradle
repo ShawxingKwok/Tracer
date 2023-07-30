@@ -13,7 +13,7 @@ dependencies {
     implementation(project(':annotations'))
     implementation(project(":processor"))
     ksp project(':compiler:unittest')
-    implementation libs.reflect
+    implementation libs.kt.reflect
 }
 
 tasks.withType(KotlinCompile).configureEach{
