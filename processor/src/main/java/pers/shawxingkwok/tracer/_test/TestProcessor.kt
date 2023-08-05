@@ -26,6 +26,7 @@ internal class TestProcessor : KSProcessor{
     class Provider : KSProcessorProvider(::TestProcessor)
 
     override fun process(times: Int): List<KSAnnotated> {
+
         if (times == 1){
             val klassDecl = resolver.getClassDeclarationByName("generic.X")!!
             val param = klassDecl.typeParameters.last()
