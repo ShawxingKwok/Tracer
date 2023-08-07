@@ -17,7 +17,7 @@ internal fun KSTypeParameter.getBoundProto(): Type<*> =
                     ksClass = boundType.declaration as KSClassDeclaration,
                     args = listOf(Arg.Star(this)),
                     genericNames = emptyList(),
-                    nullable = boundType.isMarkedNullable,
+                    isNullable = boundType.isMarkedNullable,
                     hasAlias = false,
                     hasConvertibleStar = false,
                 )
@@ -30,7 +30,7 @@ internal fun KSTypeParameter.getBoundProto(): Type<*> =
 
             Type.Compound(
                 types = originalTypes.map { it.updateNullability(false) },
-                nullable = originalTypes.all { it.nullable }
+                isNullable = originalTypes.all { it.isNullable }
             )
         }
     }

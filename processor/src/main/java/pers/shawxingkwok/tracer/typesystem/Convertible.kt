@@ -5,7 +5,7 @@ import pers.shawxingkwok.ksputil.Imports
 
 internal sealed class Convertible<T: Convertible<T>>{
     // The returned latter 'Boolean' means whether 'outer out' is required or not.
-    abstract fun convertGeneric(map: Map<String, Arg<*>>, fromAlias: Boolean = false): Pair<T, Boolean>
+    abstract fun convertGeneric(map: Map<String, Arg<*>>, isFromAlias: Boolean = false): Pair<T, Boolean>
     abstract fun convertAlias(): T
     abstract fun convertStar(): T
 

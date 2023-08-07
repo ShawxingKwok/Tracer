@@ -92,7 +92,7 @@ internal class PropsBuilder(val srcKSClass: KSClassDeclaration) {
                     newPropsInfo += PropInfo.FromElement(
                         ksProp = prop,
                         parentKSProp = parentKSProp,
-                        mutable = mutable,
+                        isMutable = mutable,
                         type = type,
                         v = v,
                         propsBuilder = this
@@ -106,7 +106,7 @@ internal class PropsBuilder(val srcKSClass: KSClassDeclaration) {
             }
             .filterNot { (_, basicType) -> basicType.ksClass.isAnnotatedRootOrNodes() }
             .filterNot { (ksProp, basicType) ->
-                if (basicType.nullable) {
+                if (basicType.isNullable) {
                     Log.require(
                         condition = basicType.ksClass !in record.validlyTracedInsideKSClasses,
                         symbols = listOf(ksProp, ksClass),
@@ -116,7 +116,7 @@ internal class PropsBuilder(val srcKSClass: KSClassDeclaration) {
                     (record.tracedKSClassesStoppedTracingInsideForNullability as MutableSet) += basicType.ksClass
                 }
 
-                basicType.nullable
+                basicType.isNullable
             }
             .forEach { (prop, basicType) ->
                 trace(

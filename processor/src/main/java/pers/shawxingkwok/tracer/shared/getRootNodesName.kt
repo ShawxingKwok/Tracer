@@ -16,13 +16,13 @@ public fun getRootNodesPropName(ksClass: KSClassDeclaration): String =
                     type = Type.Generic(
                         name = "$param",
                         bound = param.getBoundProto(),
-                        nullable = false,
+                        isNullable = false,
                         isDefNotNull = false
                     ),
                     ksParam = param,
                 )
             },
-            nullable = false,
+            isNullable = false,
             genericNames = emptyList(),
             hasAlias = true,
             hasConvertibleStar = true,

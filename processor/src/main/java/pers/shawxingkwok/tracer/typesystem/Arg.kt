@@ -19,7 +19,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
         // this is the core part
         final override fun convertGeneric(
             map: Map<String, Arg<*>>,
-            fromAlias: Boolean,
+            isFromAlias: Boolean,
         ): Pair<Arg<*>, Boolean> {
             val selfActualVarianceLabel =
                 when (this) {
@@ -30,13 +30,13 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
 
             return if (type is Type.Generic) {
                 val mappedArg = map[type.name]
-                val convertedType by fastLazy { type.convertGeneric(map, fromAlias).first }
-                val requireOut = !fromAlias && mappedArg !is Simple
+                val convertedType by fastLazy { type.convertGeneric(map, isFromAlias).first }
+                val requireOut = !isFromAlias && mappedArg !is Simple
 
                 val newArg = when (mappedArg) {
                     // This condition would be removed when typealias bounds are officially required.
                     is Star -> {
-                        require(fromAlias)
+                        require(isFromAlias)
                         Star(param)
                     }
 
@@ -51,7 +51,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
                         "" -> In(convertedType, param)
                         "in" -> copy(convertedType)
                         // change to require bound, but with a new map without current substitute arg.
-                        "out" -> convertGeneric(map - type.name, fromAlias).first
+                        "out" -> convertGeneric(map - type.name, isFromAlias).first
                         else -> error("")
                     }
 
@@ -60,7 +60,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
 
                 newArg to requireOut
             } else {
-                val (convertedType, requireOut) = type.convertGeneric(map, fromAlias)
+                val (convertedType, requireOut) = type.convertGeneric(map, isFromAlias)
                 val newArg = when {
                     !requireOut -> copy(type = convertedType)
                     selfActualVarianceLabel == "" -> Out(type = convertedType, param)
@@ -162,7 +162,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
         // later
         override fun convertGeneric(
             map: Map<String, Arg<*>>,
-            fromAlias: Boolean
+            isFromAlias: Boolean
         ):
             Pair<Arg<*>, Boolean> = this to false
 

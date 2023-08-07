@@ -54,7 +54,7 @@ internal fun KSPropertyDeclaration.getTraceableTypes(): List<Type<*>> =
 
                 else -> error("")
             }
-            .map { it.updateNullability(convertedBasicType.nullable) }
+            .map { it.updateNullability(convertedBasicType.isNullable) }
 
         listOf(convertedBasicType) + convertedSuperTypes
     }

@@ -36,13 +36,13 @@ internal fun KSTypeReference.toProto(): Type<*> {
             }
         }
 
-    val nullable = ksType.isMarkedNullable
+    val isNullable = ksType.isMarkedNullable
 
     return when(decl) {
         is KSTypeParameter ->
             Type.Generic(
                 name = "$decl",
-                nullable = nullable,
+                isNullable = isNullable,
                 bound = decl.getBoundProto(),
                 isDefNotNull = this.isDefNotNull()
             )
@@ -51,7 +51,7 @@ internal fun KSTypeReference.toProto(): Type<*> {
             Type.Specific(
                 ksClass = decl,
                 args = newArgs,
-                nullable = nullable,
+                isNullable = isNullable,
                 genericNames = emptyList(),
                 hasAlias = true,
                 hasConvertibleStar = true,
@@ -61,7 +61,7 @@ internal fun KSTypeReference.toProto(): Type<*> {
             Type.Alias(
                 ksTypeAlias = decl,
                 args = newArgs,
-                nullable = nullable
+                isNullable = isNullable
             )
 
         else -> error("")

@@ -14,7 +14,7 @@ import pers.shawxingkwok.tracer.shared.getInterfaceNames
 
 internal sealed class PropInfo(
     val type: Type<*>,
-    private val mutable: Boolean,
+    private val isMutable: Boolean,
     v: Visibility,
     val compoundTypeSupported: Boolean,
     private val ksPropsBuilder: PropsBuilder,
@@ -89,7 +89,7 @@ internal sealed class PropInfo(
                 if (compoundTypeSupported) ""
                 else "as $typeContent"
 
-            if (!mutable)
+            if (!isMutable)
                 "${v.name.lowercase()} val $interfaceName.${propInfoNames[i]} inline get() = ${references[i]} $typePart"
             else
                 """
@@ -104,14 +104,14 @@ internal sealed class PropInfo(
     class FromElement(
         val ksProp: KSPropertyDeclaration,
         val parentKSProp:  KSPropertyDeclaration?,
-        mutable: Boolean,
+        isMutable: Boolean,
         type: Type<*>,
         v: Visibility,
         propsBuilder: PropsBuilder,
     ) :
         PropInfo(
             type = type,
-            mutable = mutable,
+            isMutable = isMutable,
             v = v,
             compoundTypeSupported = type == ksProp.getTraceableTypes().first()
                                     && "✕" in type.getName(false),
