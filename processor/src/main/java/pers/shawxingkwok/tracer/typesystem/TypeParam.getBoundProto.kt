@@ -14,7 +14,7 @@ internal fun KSTypeParameter.getBoundProto(): Type<*> =
             val boundInnerParam = boundType.arguments.firstOrNull()?.type?.resolve()?.declaration as? KSTypeParameter
             if (boundInnerParam?.simpleName() == this.simpleName())
                 Type.Specific(
-                    decl = boundType.declaration as KSClassDeclaration,
+                    ksClass = boundType.declaration as KSClassDeclaration,
                     args = listOf(Arg.Star(this)),
                     genericNames = emptyList(),
                     nullable = boundType.isMarkedNullable,

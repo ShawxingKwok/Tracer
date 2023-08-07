@@ -11,7 +11,7 @@ import pers.shawxingkwok.tracer.Tracer
 
 private val cache = mutableMapOf<KSClassDeclaration, List<KSPropertyDeclaration>>().alsoRegister()
 
-internal fun KSClassDeclaration.getPreNeededProperties(): List<KSPropertyDeclaration> =
+internal fun KSClassDeclaration.getPreNeededKSProperties(): List<KSPropertyDeclaration> =
     cache.getOrPut(this) {
         when {
             classKind != ClassKind.CLASS

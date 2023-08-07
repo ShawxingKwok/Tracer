@@ -25,4 +25,4 @@ build props
 
     In each PropInfo:
         1, lazily init typeContent, grossKey, propInfoNameCore, propInfoNames, references, declContents
-        2, some inner type klasses are declared with their package names or srcTags.
+        2, some inner type ksclasses are declared with their package names or srcTags.

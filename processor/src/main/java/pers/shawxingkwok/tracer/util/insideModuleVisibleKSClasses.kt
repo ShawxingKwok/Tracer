@@ -4,12 +4,12 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 
-internal fun List<KSDeclaration>.insideModuleVisibleKlasses(): List<KSClassDeclaration> =
+internal fun List<KSDeclaration>.insideModuleVisibleKSClasses(): List<KSClassDeclaration> =
     filterIsInstance<KSClassDeclaration>()
     .filter {
         it.classKind != ClassKind.ENUM_ENTRY
         && it.moduleVisibility() != null
     }
     .flatMap {
-        listOf(it) + it.declarations.toList().insideModuleVisibleKlasses()
+        listOf(it) + it.declarations.toList().insideModuleVisibleKSClasses()
     }

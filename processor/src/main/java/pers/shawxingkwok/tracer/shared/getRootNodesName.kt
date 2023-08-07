@@ -7,11 +7,11 @@ import pers.shawxingkwok.tracer.typesystem.getBoundProto
 
 private val cache = mutableMapOf<KSClassDeclaration, String>()
 
-public fun getRootNodesPropName(klass: KSClassDeclaration): String =
-    cache.getOrPut(klass) {
+public fun getRootNodesPropName(ksClass: KSClassDeclaration): String =
+    cache.getOrPut(ksClass) {
         Type.Specific(
-            decl = klass,
-            args = klass.typeParameters.map { param ->
+            ksClass = ksClass,
+            args = ksClass.typeParameters.map { param ->
                 Arg.Simple(
                     type = Type.Generic(
                         name = "$param",
@@ -19,7 +19,7 @@ public fun getRootNodesPropName(klass: KSClassDeclaration): String =
                         nullable = false,
                         isDefNotNull = false
                     ),
-                    param = param,
+                    ksParam = param,
                 )
             },
             nullable = false,

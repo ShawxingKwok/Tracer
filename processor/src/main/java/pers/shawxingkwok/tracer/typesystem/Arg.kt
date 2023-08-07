@@ -3,15 +3,15 @@ package pers.shawxingkwok.tracer.typesystem
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import pers.shawxingkwok.ksputil.Imports
-import pers.shawxingkwok.ktutil.lazyFast
+import pers.shawxingkwok.ktutil.fastLazy
 import pers.shawxingkwok.ktutil.updateIf
 
 internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<Arg<*>>(){
     sealed class General<T: General<T>>(
         val type: Type<*>,
-        param: KSTypeParameter
+        ksParam: KSTypeParameter
     ) :
-        Arg<General<*>>(param)
+        Arg<General<*>>(ksParam)
     {
         final override fun convertAlias(): T = copy(type.convertAlias())
         final override fun convertStar(): T = copy(type.convertStar())
@@ -30,7 +30,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
 
             return if (type is Type.Generic) {
                 val mappedArg = map[type.name]
-                val convertedType by lazyFast { type.convertGeneric(map, fromAlias).first }
+                val convertedType by fastLazy { type.convertGeneric(map, fromAlias).first }
                 val requireOut = !fromAlias && mappedArg !is Simple
 
                 val newArg = when (mappedArg) {
@@ -76,13 +76,13 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
         @Suppress("UNCHECKED_CAST")
         fun copy(
             type: Type<*> = this.type,
-            param: KSTypeParameter = this.param,
+            ksParam: KSTypeParameter = this.param,
         ): T =
             when{
-                type == this.type && param == this.param -> this
-                this is Simple -> Simple(type, param)
-                this is In -> In(type, param)
-                this is Out -> Out(type, param)
+                type == this.type && ksParam == this.param -> this
+                this is Simple -> Simple(type, ksParam)
+                this is In -> In(type, ksParam)
+                this is Out -> Out(type, ksParam)
                 else -> error("")
             } as T
         //endregion
@@ -101,10 +101,10 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
             return param == other.param
         }
 
-        final override val allInnerKlasses: List<KSClassDeclaration> by lazyFast { type.allInnerKlasses }
+        final override val allInnerKSClasses: List<KSClassDeclaration> by fastLazy { type.allInnerKSClasses }
     }
 
-    class Simple(type: Type<*>, param: KSTypeParameter) : General<Simple>(type, param) {
+    class Simple(type: Type<*>, ksParam: KSTypeParameter) : General<Simple>(type, ksParam) {
         override fun toString(): String = "$type"
 
         override fun getContent(imports: Imports): String =
@@ -114,7 +114,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
             type.getName(isGross)
     }
 
-    class In(type: Type<*>, param: KSTypeParameter) : General<In>(type, param) {
+    class In(type: Type<*>, ksParam: KSTypeParameter) : General<In>(type, ksParam) {
         override fun toString(): String = "in $type"
 
         override fun getContent(imports: Imports): String =
@@ -130,7 +130,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
             }
     }
 
-    class Out(type: Type<*>, param: KSTypeParameter) : General<Out>(type, param) {
+    class Out(type: Type<*>, ksParam: KSTypeParameter) : General<Out>(type, ksParam) {
         override fun toString(): String = "out $type"
 
         override fun getContent(imports: Imports): String =
@@ -147,7 +147,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
     }
 
     // bound is for being passed to super types if it's in the first level
-    class Star(param: KSTypeParameter) : Arg<Star>(param) {
+    class Star(ksParam: KSTypeParameter) : Arg<Star>(ksParam) {
         //region conversion
         // later
         override fun convertAlias(): Star = this
@@ -185,7 +185,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
         //endregion
 
         //region fixed part
-        override val allInnerKlasses: List<KSClassDeclaration> = emptyList()
+        override val allInnerKSClasses: List<KSClassDeclaration> = emptyList()
         override fun getContent(imports: Imports): String = "*"
         override fun getName(isGross: Boolean): String = "✶"
         //endregion

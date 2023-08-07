@@ -4,10 +4,10 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import pers.shawxingkwok.ksputil.simpleName
 import pers.shawxingkwok.ktutil.updateIf
 
-internal fun getSrcKlassTraceableSuperTypes(srcKlass: KSClassDeclaration): List<Type.Specific> =
-    srcKlass.getSuperSpecificRawTypes(true)
-        .updateIf({ srcKlass.typeParameters.any() }){ rawTypes ->
-            val map = srcKlass.typeParameters.associate { param ->
+internal fun getSrcKSClassTraceableSuperTypes(srcKSClass: KSClassDeclaration): List<Type.Specific> =
+    srcKSClass.getSuperSpecificRawTypes(true)
+        .updateIf({ srcKSClass.typeParameters.any() }){ rawTypes ->
+            val map = srcKSClass.typeParameters.associate { param ->
                 val type = param.getBoundProto().convertAll(emptyMap())
                 val genericName = param.simpleName()
                 val arg = Arg.Out(
@@ -18,7 +18,7 @@ internal fun getSrcKlassTraceableSuperTypes(srcKlass: KSClassDeclaration): List<
                     },
                     // this param would be used later, so its conflict with arg type doesn't need
                     // considered.
-                    param = param
+                    ksParam = param
                 )
 
                 param.simpleName() to arg

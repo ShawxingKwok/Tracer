@@ -28,14 +28,14 @@ internal fun KSPropertyDeclaration.getTraceableTypes(): List<Type<*>> =
 
                         is Arg.Star -> Arg.Out(
                             type = arg.param.getBoundProto().convertAll(mapForConvertingFixedStar),
-                            param = arg.param
+                            ksParam = arg.param
                         )
                     }
                 }
 
             val mapForConvertingGeneric = noStarArgs.associateBy { it.param.simpleName() }
 
-            return specific.decl
+            return specific.ksClass
                 .getSuperSpecificRawTypes(false)
                 .map { it.convertGeneric(mapForConvertingGeneric).first }
         }

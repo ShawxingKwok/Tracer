@@ -11,7 +11,7 @@ internal sealed class Convertible<T: Convertible<T>>{
 
     fun convertAll(map: Map<String, Arg<*>>): T = convertAlias().convertStar().convertGeneric(map).first
 
-    abstract val allInnerKlasses: List<KSClassDeclaration>
+    abstract val allInnerKSClasses: List<KSClassDeclaration>
     abstract fun getContent(imports: Imports): String
     abstract fun getName(isGross: Boolean): String
 }

@@ -1,7 +1,6 @@
 package pers.shawxingkwok.tracer._test
 
 import com.google.devtools.ksp.*
-import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.*
 import pers.shawxingkwok.ksputil.*
 import kotlin.reflect.KClass
@@ -25,17 +24,19 @@ private class J<T, V: CharSequence?> {
 internal class TestProcessor : KSProcessor{
     class Provider : KSProcessorProvider(::TestProcessor)
 
-    override fun process(times: Int): List<KSAnnotated> {
+    override fun process(round: Int): List<KSAnnotated> {
+        Log.d(round)
 
-        if (times == 1){
-            val klassDecl = resolver.getClassDeclarationByName("generic.X")!!
-            val param = klassDecl.typeParameters.last()
-            val _param = klassDecl
+        if (round == 0){
+            val ksClass = resolver.getClassDeclarationByName("generic.X")!!
+            val param = ksClass.typeParameters.last()
+            val _param = ksClass
                 .getDeclaredProperties()
                 .first { it.simpleName() == "v" }
                 .type.resolve()
                 .declaration as KSTypeParameter
 
+            Log.w(param == _param)
             Log.d(param == _param)
             Log.d(param.bounds.first().resolve())
             Log.d(_param.bounds.first().resolve())

@@ -7,7 +7,7 @@ import pers.shawxingkwok.ksputil.Log
 import pers.shawxingkwok.ksputil.getAnnotatedSymbols
 import pers.shawxingkwok.ksputil.resolver
 import pers.shawxingkwok.tracer.Tracer
-import pers.shawxingkwok.tracer.shared.getRootNodesKlasses
+import pers.shawxingkwok.tracer.shared.getRootNodesKSClasses
 import pers.shawxingkwok.tracer.shared.Names
 import pers.shawxingkwok.tracer.shared.context
 import pers.shawxingkwok.tracer.shared.tracerInterfaces
@@ -23,7 +23,7 @@ private inline fun requireNone(symbols: List<KSNode>, getMsg: () -> String){
 }
 
 private fun requireRootNodesUsedOnClasses(){
-    requireNone(getRootNodesKlasses().filterNot { it.classKind == ClassKind.CLASS }){
+    requireNone(getRootNodesKSClasses().filterNot { it.classKind == ClassKind.CLASS }){
         "Symbols below annotated with ${Names.Root} or ${Names.Nodes} are not classes."
     }
 }
@@ -39,15 +39,15 @@ private fun forbidJavaFileUsingTracerAnnot(){
 }
 
 private fun requireAllRootNodesTipVisible(){
-    val annotatedKlasses = getRootNodesKlasses() + resolver.getAnnotatedSymbols<Tracer.Tip, KSClassDeclaration>()
-    requireNone(annotatedKlasses.filter { it.moduleVisibility() == null }){
+    val annotatedKSClasses = getRootNodesKSClasses() + resolver.getAnnotatedSymbols<Tracer.Tip, KSClassDeclaration>()
+    requireNone(annotatedKSClasses.filter { it.moduleVisibility() == null }){
         "Each class annotated with ${Names.Root}, ${Names.Nodes}, or ${Names.Tip} must be module-visible."
     }
 }
 
 private fun requireRootNodesTipSinglyUsed(){
     val classes = arrayOf(Tracer.Root::class, Tracer.Nodes::class, Tracer.Tip::class)
-    requireNone(getRootNodesKlasses().filter { klass -> classes.count{ klass.isAnnotationPresent(it) } > 1 }){
+    requireNone(getRootNodesKSClasses().filter { ksClass -> classes.count{ ksClass.isAnnotationPresent(it) } > 1 }){
         "${Names.Root}, ${Names.Nodes} and ${Names.Tip} can't be used together."
     }
 }

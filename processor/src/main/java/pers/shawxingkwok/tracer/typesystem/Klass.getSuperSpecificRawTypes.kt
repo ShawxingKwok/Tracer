@@ -15,7 +15,7 @@ private val cache = mutableMapOf<Pair<KSClassDeclaration, Boolean>, List<Type.Sp
 internal fun KSClassDeclaration.getSuperSpecificRawTypes(isSrc: Boolean): List<Type.Specific> =
     if (!isNativeKt()) emptyList()
     else cache.getOrPut(this to isSrc) {
-        val currentSuperKlasses = mutableSetOf<KSClassDeclaration>()
+        val currentSuperKSClasses = mutableSetOf<KSClassDeclaration>()
 
         superTypes.filterNot { it.isAnnotationPresent(Tracer.Omit::class) }
             .map { typeRef ->
@@ -25,19 +25,19 @@ internal fun KSClassDeclaration.getSuperSpecificRawTypes(isSrc: Boolean): List<T
             .filterNot {
                 // for source root/nodes classes, super types of their super root/nodes classes
                 // were implemented.
-                isSrc && it.decl.isAnnotatedRootOrNodes()
-                || it.decl.isAnnotationPresent(TracerGeneration.Interface::class)
-                || it.decl == Type.`Any？`.decl
-                || it.decl in currentSuperKlasses
+                isSrc && it.ksClass.isAnnotatedRootOrNodes()
+                || it.ksClass.isAnnotationPresent(TracerGeneration.Interface::class)
+                || it.ksClass == Type.`Any？`.ksClass
+                || it.ksClass in currentSuperKSClasses
             }
-            .onEach { currentSuperKlasses += it.decl }
+            .onEach { currentSuperKSClasses += it.ksClass }
             .flatMap { basicSpecificSuperType ->
                 val map = basicSpecificSuperType.args.associateBy { it.param.simpleName() }
 
-                val upperUpdatedSuperTypes = basicSpecificSuperType.decl
+                val upperUpdatedSuperTypes = basicSpecificSuperType.ksClass
                     .getSuperSpecificRawTypes(isSrc)
-                    .filterNot { it.decl in currentSuperKlasses }
-                    .onEach { currentSuperKlasses += it.decl }
+                    .filterNot { it.ksClass in currentSuperKSClasses }
+                    .onEach { currentSuperKSClasses += it.ksClass }
                     .map { type -> type.updateIf({ map.any() }){ it.convertGeneric(map).first } }
 
                 listOf(basicSpecificSuperType) + upperUpdatedSuperTypes

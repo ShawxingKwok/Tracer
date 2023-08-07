@@ -16,8 +16,8 @@ import pers.shawxingkwok.tracer.util.isMyOpen
 import pers.shawxingkwok.tracer.util.moduleVisibility
 import pers.shawxingkwok.tracer.util.trimMarginAndRepeatedBlankLines
 
-private tailrec fun getSuperRootOrNodeKlass(klass: KSClassDeclaration): KSClassDeclaration?{
-    val superKlass = klass.superTypes
+private tailrec fun getSuperRootOrNodeKSClass(ksClass: KSClassDeclaration): KSClassDeclaration? {
+    val superKSClass = ksClass.superTypes
         .map(KSTypeReference::resolve)
         .filterNot(KSType::isError)
         .map { it.declaration }
@@ -31,36 +31,36 @@ private tailrec fun getSuperRootOrNodeKlass(klass: KSClassDeclaration): KSClassD
         .firstOrNull { it.classKind == ClassKind.CLASS }
 
     return when{
-        superKlass == null -> null
+        superKSClass == null -> null
 
         // is Root/Nodes and its tracer interface is visible
-        superKlass.isAnnotatedRootOrNodes()
-        &&(superKlass.isNativeKt()
+        superKSClass.isAnnotatedRootOrNodes()
+        &&(superKSClass.isNativeKt()
             || resolver.getClassDeclarationByName(
-                name = Path(superKlass, getInterfaceNames(superKlass).first).toString()
+                name = Path(superKSClass, getInterfaceNames(superKSClass).first).toString()
             )!!
            .isPublic()
         ) ->
-            superKlass
+            superKSClass
 
-        else -> getSuperRootOrNodeKlass(superKlass)
+        else -> getSuperRootOrNodeKSClass(superKSClass)
     }
 }
 
-internal fun buildInterface(klass: KSClassDeclaration) {
-    val (interfaceName, outerInterfaceName) = getInterfaceNames(klass)
+internal fun buildInterface(ksClass: KSClassDeclaration) {
+    val (interfaceName, outerInterfaceName) = getInterfaceNames(ksClass)
 
     val visibilityPart =
         if (AllInternal)
             Visibility.INTERNAL.name.lowercase()
         else
-            klass.moduleVisibility()!!.name.lowercase()
+            ksClass.moduleVisibility()!!.name.lowercase()
 
     // for passing the super context to child classes.
-    val superRootOrNodeKlass: KSClassDeclaration? = getSuperRootOrNodeKlass(klass)
-    val superTracerNames = superRootOrNodeKlass?.let(::getInterfaceNames)
+    val superRootOrNodeKSClass: KSClassDeclaration? = getSuperRootOrNodeKSClass(ksClass)
+    val superTracerNames = superRootOrNodeKSClass?.let(::getInterfaceNames)
 
-    val context = klass.context
+    val context = ksClass.context
     val outerContextTracerName = context?.let(::getInterfaceNames)?.second
 
     val (implementsPart, outerImplementsPart) =
@@ -81,33 +81,33 @@ internal fun buildInterface(klass: KSClassDeclaration) {
         }
 
     // the property is already overridden in that open class
-    val mayTakenSuperRootNodesKlass = superRootOrNodeKlass?.takeUnless { it.isMyOpen() }
+    val mayTakenSuperRootNodesKSClass = superRootOrNodeKSClass?.takeUnless { it.isMyOpen() }
 
     val (name, superName, contextName, grandpaContextName) =
         listOf(
-            klass,
-            mayTakenSuperRootNodesKlass,
+            ksClass,
+            mayTakenSuperRootNodesKSClass,
             context,
             context?.context,
         )
         .map { it?.let(::getRootNodesPropName) }
 
     val imports = Imports(
-        srcDecl = klass,
-        klasses = listOfNotNull(
-            klass,
-            mayTakenSuperRootNodesKlass,
+        packageName = ksClass.packageName(),
+        ksClasses = listOfNotNull(
+            ksClass,
+            mayTakenSuperRootNodesKSClass,
             context?.context
         ),
         TracerGeneration.Interface::class,
     )
 
-    val (type, superType, grandpaContextType) =
-        listOf(klass, mayTakenSuperRootNodesKlass, context?.context)
+    val (typeContent, superTypeContent, grandpaContextTypeContent) =
+        listOf(ksClass, mayTakenSuperRootNodesKSClass, context?.context)
         .map {
             it ?: return@map null
             buildString {
-                imports.getName(it).let(::append)
+                imports.getKSClassName(it).let(::append)
                 if (it.typeParameters.any()){
                     append("<")
                     append(it.typeParameters.joinToString(", ") { "*" })
@@ -118,37 +118,37 @@ internal fun buildInterface(klass: KSClassDeclaration) {
 
     val interfacePaths = mutableListOf<Path>()
 
-    if (superRootOrNodeKlass != null
-        && superRootOrNodeKlass.packageName() != klass.packageName()
+    if (superRootOrNodeKSClass != null
+        && superRootOrNodeKSClass.packageName() != ksClass.packageName()
     )
-        interfacePaths += getInterfaceNames(superRootOrNodeKlass)
+        interfacePaths += getInterfaceNames(superRootOrNodeKSClass)
             .toList()
-            .map { Path(superRootOrNodeKlass, it) }
+            .map { Path(superRootOrNodeKSClass, it) }
 
-    if (context != null && context.packageName() != klass.packageName())
+    if (context != null && context.packageName() != ksClass.packageName())
         interfacePaths += Path(context, getInterfaceNames(context).second)
 
     val content =
         """
         |$SUPPRESSING
         |
-        |${if (klass.packageName().any()) "package ${klass.packageName()}" else "" }
+        |${if (ksClass.packageName().any()) "package ${ksClass.packageName()}" else "" }
         |
         |$imports
         |${interfacePaths.joinToString("\n"){ "import $it" }}
         |
         |@${Names.TracerInterface}
         |$visibilityPart interface $interfaceName$implementsPart{
-        |    val `_$name`: $type 
-        |    override val `_$superName`: $superType get() = `_$name`
-        |    override val `__$grandpaContextName`: $grandpaContextType get() = `__$contextName`.`__$grandpaContextName` 
+        |    val `_$name`: $typeContent 
+        |    override val `_$superName`: $superTypeContent get() = `_$name`
+        |    override val `__$grandpaContextName`: $grandpaContextTypeContent get() = `__$contextName`.`__$grandpaContextName` 
         |}
         |
         |@${Names.TracerInterface}
         |$visibilityPart interface $outerInterfaceName$outerImplementsPart{
-        |    val `__$name`: $type
-        |    override val `__$superName`: $superType get() = `__$name`
-        |    override val `__$grandpaContextName`: $grandpaContextType get() = `__$contextName`.`__$grandpaContextName` 
+        |    val `__$name`: $typeContent
+        |    override val `__$superName`: $superTypeContent get() = `__$name`
+        |    override val `__$grandpaContextName`: $grandpaContextTypeContent get() = `__$contextName`.`__$grandpaContextName` 
         |}
         """
         .trimMarginAndRepeatedBlankLines()
@@ -160,11 +160,11 @@ internal fun buildInterface(klass: KSClassDeclaration) {
         .joinToString("\n")
 
     Environment.codeGenerator.createFile(
-        packageName = klass.packageName(),
-        fileName = klass.noPackageName() + Names.Tracer + "s",
+        packageName = ksClass.packageName(),
+        fileName = ksClass.noPackageName() + Names.Tracer + "s",
         // todo: change when old generations can be oriented when it is supported.
         dependencies = Dependencies.ALL_FILES,
-//        dependencies = Dependencies(false, klass.containingFile!!),
+//        dependencies = Dependencies(false, ksClass.containingFile!!),
         content = content,
     )
 }

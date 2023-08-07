@@ -5,6 +5,6 @@ import pers.shawxingkwok.ksputil.getAnnotatedSymbols
 import pers.shawxingkwok.ksputil.resolver
 import pers.shawxingkwok.tracer.Tracer
 
-public fun getRootNodesKlasses(): List<KSClassDeclaration> =
+public fun getRootNodesKSClasses(): List<KSClassDeclaration> =
     resolver.getAnnotatedSymbols<Tracer.Root, KSClassDeclaration>() +
     resolver.getAnnotatedSymbols<Tracer.Nodes, KSClassDeclaration>()

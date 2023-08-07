@@ -8,36 +8,36 @@ import pers.shawxingkwok.ktutil.updateIf
 import pers.shawxingkwok.tracer.shared.Names
 import pers.shawxingkwok.tracer.shared.Tags
 import pers.shawxingkwok.tracer.typesystem.Type
-import pers.shawxingkwok.tracer.typesystem.getSrcKlassTraceableSuperTypes
+import pers.shawxingkwok.tracer.typesystem.getSrcKSClassTraceableSuperTypes
 import pers.shawxingkwok.tracer.typesystem.getTraceableTypes
 import pers.shawxingkwok.tracer.util.SUPPRESSING
-import pers.shawxingkwok.tracer.util.getPreNeededProperties
+import pers.shawxingkwok.tracer.util.getPreNeededKSProperties
 import pers.shawxingkwok.tracer.util.isAnnotatedRootOrNodes
 import pers.shawxingkwok.tracer.util.moduleVisibility
 import pers.shawxingkwok.tracer.util.limitVisibility
 import pers.shawxingkwok.tracer.util.trimMarginAndRepeatedBlankLines
 
-internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
+internal class PropsBuilder(val srcKSClass: KSClassDeclaration) {
     private val record = object {
-        val validlyTracedInsideKlasses: Set<KSClassDeclaration> = mutableSetOf()
-        val tracedKlassesStoppedTracingInsideForNullability: Set<KSClassDeclaration> = mutableSetOf()
+        val validlyTracedInsideKSClasses: Set<KSClassDeclaration> = mutableSetOf()
+        val tracedKSClassesStoppedTracingInsideForNullability: Set<KSClassDeclaration> = mutableSetOf()
 
-        fun getErrorMsg(klass: KSClassDeclaration) =
-            "Annotate $klass with ${Names.Nodes} or ${Names.Tip} since it appeared in " +
-            "$srcKlass for multiple times and it is in the current module with some " +
+        fun getErrorMsg(ksClass: KSClassDeclaration) =
+            "Annotate $ksClass with ${Names.Nodes} or ${Names.Tip} since it appeared in " +
+            "$srcKSClass for multiple times and it is in the current module with some " +
             "not omitted visible properties to trace."
     }
 
-    // collect sourceKlass superTypes in a mutable list
+    // collect sourceKSClass superTypes in a mutable list
     private val newPropsInfo: MutableList<PropInfo> =
-        getSrcKlassTraceableSuperTypes(srcKlass)
+        getSrcKSClassTraceableSuperTypes(srcKSClass)
         .mapNotNull { type ->
-            PropInfo.FromSrcKlassSuper(
-                klass = srcKlass,
+            PropInfo.FromSrcKSClassSuper(
+                ksClass = srcKSClass,
                 type = type,
                 v = limitVisibility(
-                    srcKlass.moduleVisibility(),
-                    *type.allInnerKlasses.map { it.moduleVisibility() }.toTypedArray(),
+                    srcKSClass.moduleVisibility(),
+                    *type.allInnerKSClasses.map { it.moduleVisibility() }.toTypedArray(),
                     if (Tags.AllInternal) Visibility.INTERNAL else Visibility.PUBLIC
                 ) ?: return@mapNotNull null,
                 propsBuilder = this
@@ -45,8 +45,8 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
         }
         .toMutableList()
 
-    private fun trace(klass: KSClassDeclaration, parentProp: KSPropertyDeclaration?, lastV: Visibility){
-        klass.getPreNeededProperties()
+    private fun trace(ksClass: KSClassDeclaration, parentKSProp: KSPropertyDeclaration?, lastV: Visibility){
+        ksClass.getPreNeededKSProperties()
             .asSequence()
             .map { prop -> prop to prop.getTraceableTypes() }
             // record
@@ -54,14 +54,14 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                 if (i != 0) return@onEachIndexed
 
                 Log.require(
-                    condition = klass !in record.validlyTracedInsideKlasses
-                                && klass !in record.tracedKlassesStoppedTracingInsideForNullability,
-                    symbols = listOfNotNull(parentProp, klass)
+                    condition = ksClass !in record.validlyTracedInsideKSClasses
+                                && ksClass !in record.tracedKSClassesStoppedTracingInsideForNullability,
+                    symbols = listOfNotNull(parentKSProp, ksClass)
                 ){
-                    record.getErrorMsg(klass)
+                    record.getErrorMsg(ksClass)
                 }
 
-                (record.validlyTracedInsideKlasses as MutableSet) += klass
+                (record.validlyTracedInsideKSClasses as MutableSet) += ksClass
             }
             // cache
             .onEach { (prop, types) ->
@@ -69,7 +69,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                 types.forEachIndexed { i, type ->
                     val v = limitVisibility(
                         prop.getVisibility(),
-                        *type.allInnerKlasses.map { it.moduleVisibility() }.toTypedArray(),
+                        *type.allInnerKSClasses.map { it.moduleVisibility() }.toTypedArray(),
                         lastV,
                     ) ?: return@forEachIndexed
 
@@ -79,8 +79,8 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
 //                        prop.isMutable
 //                                  && prop.setter?.
 //                        && i == 0
-//                        && !(klass == srcKlass
-//                            && srcKlass.typeParameters.any()
+//                        && !(ksClass == srcKSClass
+//                            && srcKSClass.typeParameters.any()
 //                            && kotlin.run {
 //                                fun KSTypeReference.containT(): Boolean =
 //                                    resolve().declaration is KSTypeParameter
@@ -90,8 +90,8 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
 //                            })
 
                     newPropsInfo += PropInfo.FromElement(
-                        prop = prop,
-                        parentProp = parentProp,
+                        ksProp = prop,
+                        parentKSProp = parentKSProp,
                         mutable = mutable,
                         type = type,
                         v = v,
@@ -100,28 +100,28 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
                 }
             }
             // filter and trace inside, other filtering conditions are in 'getPreNeededProperties'
-            .mapNotNull { (prop, types) ->
+            .mapNotNull { (ksProp, types) ->
                 val basicType = types.first() as? Type.Specific ?: return@mapNotNull null
-                prop to basicType
+                ksProp to basicType
             }
-            .filterNot { (_, basicType) -> basicType.decl.isAnnotatedRootOrNodes() }
-            .filterNot { (prop, basicType) ->
+            .filterNot { (_, basicType) -> basicType.ksClass.isAnnotatedRootOrNodes() }
+            .filterNot { (ksProp, basicType) ->
                 if (basicType.nullable) {
                     Log.require(
-                        condition = basicType.decl !in record.validlyTracedInsideKlasses,
-                        symbols = listOf(prop, klass),
+                        condition = basicType.ksClass !in record.validlyTracedInsideKSClasses,
+                        symbols = listOf(ksProp, ksClass),
                     ){
-                        record.getErrorMsg(basicType.decl)
+                        record.getErrorMsg(basicType.ksClass)
                     }
-                    (record.tracedKlassesStoppedTracingInsideForNullability as MutableSet) += basicType.decl
+                    (record.tracedKSClassesStoppedTracingInsideForNullability as MutableSet) += basicType.ksClass
                 }
 
                 basicType.nullable
             }
             .forEach { (prop, basicType) ->
                 trace(
-                    klass = basicType.decl,
-                    parentProp = prop,
+                    ksClass = basicType.ksClass,
+                    parentKSProp = prop,
                     lastV = limitVisibility(prop.moduleVisibility(), lastV)!!
                 )
             }
@@ -130,20 +130,20 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
     // start tracing inner property types in recurse in new props
     init {
         trace(
-            klass = srcKlass,
-            parentProp = null,
-            lastV = srcKlass.moduleVisibility()!!.updateIf({ Tags.AllInternal }){ Visibility.INTERNAL }
+            ksClass = srcKSClass,
+            parentKSProp = null,
+            lastV = srcKSClass.moduleVisibility()!!.updateIf({ Tags.AllInternal }){ Visibility.INTERNAL }
         )
     }
 
     // type is omitted when compoundTypeSupported
     val imports = Imports(
-        srcDecl = srcKlass,
-        klasses = newPropsInfo.flatMap {
+        packageName = srcKSClass.packageName(),
+        ksClasses = newPropsInfo.flatMap {
             if(it.compoundTypeSupported)
                 emptyList()
             else
-                it.type.allInnerKlasses
+                it.type.allInnerKSClasses
         }
     )
 
@@ -172,7 +172,7 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
         .toSortedMap()
         .values
         .joinToString(
-            prefix = "//region Below are simplified types with its built times inside `${srcKlass.noPackageName()!!}`.\n/*\n",
+            prefix = "//region Below are simplified types with its built times inside `${srcKSClass.noPackageName()!!}`.\n/*\n",
             separator = "\n\n",
             postfix = "\n*/\n//endregion",
         )
@@ -181,13 +181,13 @@ internal class PropsBuilder(val srcKlass: KSClassDeclaration) {
     // create file
     init{
         Environment.codeGenerator.createFile(
-            packageName = srcKlass.packageName(),
-            fileName = "${srcKlass.noPackageName()}Elements",
-            dependencies = Dependencies(false, srcKlass.containingFile!!),
+            packageName = srcKSClass.packageName(),
+            fileName = "${srcKSClass.noPackageName()}Elements",
+            dependencies = Dependencies(false, srcKSClass.containingFile!!),
             content = """
                 |$SUPPRESSING
                 |
-                |${if (srcKlass.packageName().any()) "package ${srcKlass.packageName()}" else "" }
+                |${if (srcKSClass.packageName().any()) "package ${srcKSClass.packageName()}" else "" }
                 |
                 |$imports
                 |

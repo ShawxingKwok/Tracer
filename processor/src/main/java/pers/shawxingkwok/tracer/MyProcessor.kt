@@ -4,17 +4,16 @@ import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAnnotationPresent
 import com.google.devtools.ksp.symbol.*
-import jdk.internal.org.objectweb.asm.TypeReference
 import pers.shawxingkwok.ksputil.*
 import pers.shawxingkwok.tracer.interfacehandler.buildConverters
 import pers.shawxingkwok.tracer.interfacehandler.buildInterface
 import pers.shawxingkwok.tracer.interfacehandler.fixInterfaces
 import pers.shawxingkwok.tracer.prophandler.PropsBuilder
 import pers.shawxingkwok.tracer.shared.Tags
-import pers.shawxingkwok.tracer.shared.getRootNodesKlasses
+import pers.shawxingkwok.tracer.shared.getRootNodesKSClasses
 import pers.shawxingkwok.tracer.util.checkUsages
-import pers.shawxingkwok.tracer.util.getPreNeededProperties
-import pers.shawxingkwok.tracer.util.insideModuleVisibleKlasses
+import pers.shawxingkwok.tracer.util.getPreNeededKSProperties
+import pers.shawxingkwok.tracer.util.insideModuleVisibleKSClasses
 import pers.shawxingkwok.tracer.util.myValidate
 import java.util.Collections.emptyList
 
@@ -29,28 +28,28 @@ internal object MyProcessor : KSProcessor {
     private fun KSClassDeclaration.getBeingCheckedSymbols() =
         typeParameters + superTypes + getDeclaredProperties()
 
-    override fun process(times: Int): List<KSAnnotated> = when {
+    override fun process(round: Int): List<KSAnnotated> = when {
         !Tags.interfacesBuilt -> {
             invalidRootNodesTypeParameterInfo =
                 if (!MyProcessor::invalidRootNodesTypeParameterInfo.isInitialized)
-                    getRootNodesKlasses().flatMap { klass ->
-                        klass.typeParameters
+                    getRootNodesKSClasses().flatMap { ksClass ->
+                        ksClass.typeParameters
                             .filterNot { it.myValidate() }
-                            .map { klass.qualifiedName()!! to it }
+                            .map { ksClass.qualifiedName()!! to it }
                     }
                 else
-                    invalidRootNodesTypeParameterInfo.filterNot{ (klassName, param) ->
-                        resolver.getClassDeclarationByName(klassName)!!
+                    invalidRootNodesTypeParameterInfo.filterNot{ (ksClassName, param) ->
+                        resolver.getClassDeclarationByName(ksClassName)!!
                             .typeParameters
                             .first { it.simpleName() == "$param" }
                             .myValidate()
                     }
 
             if (invalidRootNodesTypeParameterInfo.none()) {
-                getRootNodesKlasses().forEach(::buildInterface)
+                getRootNodesKSClasses().forEach(::buildInterface)
                 Tags.interfacesBuilt = true
             }
-            getRootNodesKlasses()
+            getRootNodesKSClasses()
         }
 
         !Tags.propsBuilt -> {
@@ -59,15 +58,15 @@ internal object MyProcessor : KSProcessor {
                 fixInterfaces()
 
                 // warn if some classes with @Root/Nodes don't implement their tracer interfaces.
-                val notImplementedKlasses = getRootNodesKlasses().filter { klass ->
-                    klass.superTypes.all {
+                val notImplementedKSClasses = getRootNodesKSClasses().filter { kclass ->
+                    kclass.superTypes.all {
                         !it.resolve().declaration.isAnnotationPresent(TracerGeneration.Interface::class)
                     }
                 }
-                if (notImplementedKlasses.any())
+                if (notImplementedKSClasses.any())
                     Log.w(
                         msg = "Let classes below implement corresponding tracer interfaces.",
-                        symbols = notImplementedKlasses.toTypedArray()
+                        symbols = notImplementedKSClasses.toTypedArray()
                     )
             }
 
@@ -76,15 +75,15 @@ internal object MyProcessor : KSProcessor {
                  !MyProcessor::invalidSymbolsInfo.isInitialized ->
                      (resolver.getAllFiles().toSet() - resolver.getNewFiles().toSet())
                     .flatMap { it.declarations }
-                    .insideModuleVisibleKlasses()
-                    .map { klass ->
-                        klass to klass.getBeingCheckedSymbols().mapIndexedNotNull{ i, symbol->
+                    .insideModuleVisibleKSClasses()
+                    .map { ksClass ->
+                        ksClass to ksClass.getBeingCheckedSymbols().mapIndexedNotNull{ i, symbol->
                             val needed = when(symbol){
                                 is KSTypeParameter -> true
 
                                 is KSTypeReference -> !symbol.isAnnotationPresent(Tracer.Omit::class)
 
-                                is KSPropertyDeclaration -> symbol in klass.getPreNeededProperties()
+                                is KSPropertyDeclaration -> symbol in ksClass.getPreNeededKSProperties()
 
                                 else -> error("")
                             }
@@ -94,20 +93,20 @@ internal object MyProcessor : KSProcessor {
                     }
 
                 else ->
-                    invalidSymbolsInfo.map { (oldKlass, oldIndices) ->
-                        val newKlass = resolver.getClassDeclarationByName(oldKlass.qualifiedName!!)!!
-                        val symbols = newKlass.getBeingCheckedSymbols()
-                        newKlass to oldIndices.filterNot { symbols[it].myValidate() }
+                    invalidSymbolsInfo.map { (oldKSClass, oldIndices) ->
+                        val newKSClass = resolver.getClassDeclarationByName(oldKSClass.qualifiedName!!)!!
+                        val symbols = newKSClass.getBeingCheckedSymbols()
+                        newKSClass to oldIndices.filterNot { symbols[it].myValidate() }
                     }
             }
             .filter { (_, indices) -> indices.any() }
 
             // continue processing next round if some invalid symbols remain
             if (invalidSymbolsInfo.any())
-                getRootNodesKlasses()
+                getRootNodesKSClasses()
             // otherwise build new props
             else {
-                getRootNodesKlasses().forEach(::PropsBuilder)
+                getRootNodesKSClasses().forEach(::PropsBuilder)
                 Tags.propsBuilt = true
                 emptyList()
             }

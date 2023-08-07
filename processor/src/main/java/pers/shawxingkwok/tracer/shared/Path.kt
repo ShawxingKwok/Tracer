@@ -8,8 +8,8 @@ public class Path(
     private val packageName: String,
     private val name: String,
 ) {
-    public constructor(srcKlass: KSClassDeclaration, name: String) :
-            this(srcKlass.packageName(), name)
+    public constructor(srcKSClass: KSClassDeclaration, name: String) :
+            this(srcKSClass.packageName(), name)
 
     override fun toString(): String = packageName.updateIf({ it.any() }){ "$it." } + name
 }

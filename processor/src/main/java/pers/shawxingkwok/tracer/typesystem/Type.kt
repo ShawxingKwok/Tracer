@@ -6,7 +6,7 @@ import pers.shawxingkwok.ksputil.Imports
 import pers.shawxingkwok.ksputil.qualifiedName
 import pers.shawxingkwok.ksputil.resolver
 import pers.shawxingkwok.ksputil.simpleName
-import pers.shawxingkwok.ktutil.lazyFast
+import pers.shawxingkwok.ktutil.fastLazy
 import pers.shawxingkwok.tracer.shared.contractedFakeDotName
 
 internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type<*>>(){
@@ -14,7 +14,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         // use 'get()=' since anyType.declaration varies every round.
         @Suppress("ObjectPropertyName", "NonAsciiCharacters")
         val `Any？` get() = Specific(
-            decl = resolver.builtIns.anyType.declaration as KSClassDeclaration,
+            ksClass = resolver.builtIns.anyType.declaration as KSClassDeclaration,
             args = emptyList(),
             nullable = true,
             hasAlias = false,
@@ -69,7 +69,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         //endregion
 
         //region fixed part
-        override val allInnerKlasses: List<KSClassDeclaration> get() = error("")
+        override val allInnerKSClasses: List<KSClassDeclaration> get() = error("")
 
         override fun getContent(imports: Imports): String =
             buildString{
@@ -127,7 +127,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
     }
 
     class Alias(
-        val decl: KSTypeAlias,
+        val ksTypeAlias: KSTypeAlias,
         val args: List<Arg<*>>,
         nullable: Boolean,
     ) :
@@ -137,7 +137,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         override fun convertAlias(): Specific {
             val newMap = args.map { it.convertAlias() }.associateBy { it.param.simpleName() }
 
-            val converted = decl
+            val converted = ksTypeAlias
                 .type
                 .toProto()
                 .convertGeneric(newMap, true)
@@ -163,13 +163,13 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         //endregion
 
         //region fixed part
-        override val allInnerKlasses: List<KSClassDeclaration> get() = error("")
+        override val allInnerKSClasses: List<KSClassDeclaration> get() = error("")
 
         override fun getContent(imports: Imports): String = error("")
 
         override fun getName(isGross: Boolean): String =
             buildString {
-                append(decl)
+                append(ksTypeAlias)
                 if (args.any()) {
                     append("‹")
                     append(args.joinToString { "，" })
@@ -181,20 +181,20 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
 
         //region common
         fun copy(
-            decl: KSTypeAlias = this.decl,
+            ksTypeAlias: KSTypeAlias = this.ksTypeAlias,
             args: List<Arg<*>> = this.args,
             nullable: Boolean = this.nullable,
         ) =
-            if (decl == this.decl
+            if (ksTypeAlias == this.ksTypeAlias
                 && args == this.args
                 && nullable == this.nullable
             )
                 this
             else
-                Alias(decl, args, nullable)
+                Alias(ksTypeAlias, args, nullable)
 
         override fun hashCode(): Int {
-            var result = decl.hashCode()
+            var result = ksTypeAlias.hashCode()
             result = 31 * result + args.hashCode()
             result = 31 * result + nullable.hashCode()
             return result
@@ -206,7 +206,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
 
             other as Alias
 
-            if (decl != other.decl) return false
+            if (ksTypeAlias != other.ksTypeAlias) return false
             if (args != other.args) return false
             return nullable == other.nullable
         }
@@ -214,7 +214,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
     }
 
     class Specific(
-        val decl: KSClassDeclaration,
+        val ksClass: KSClassDeclaration,
         val args: List<Arg<*>>,
         nullable: Boolean,
         val genericNames: List<String> = emptyList(),
@@ -263,13 +263,13 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         //endregion
 
         //region fixed part
-        override val allInnerKlasses: List<KSClassDeclaration> by lazyFast {
-            args.flatMap { it.allInnerKlasses } + decl
+        override val allInnerKSClasses: List<KSClassDeclaration> by fastLazy {
+            args.flatMap { it.allInnerKSClasses } + ksClass
         }
 
         override fun getContent(imports: Imports): String =
             buildString{
-                append(imports.getName(decl))
+                append(imports.getKSClassName(ksClass))
 
                 if (args.any()){
                     append("<")
@@ -302,8 +302,8 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                         "kotlin.coroutines.SuspendFunction",
                     )
                     .map {
-                        decl.qualifiedName()!!.startsWith(it)
-                        && decl.qualifiedName()!!.substringAfter(it).all(Char::isDigit)
+                        ksClass.qualifiedName()!!.startsWith(it)
+                        && ksClass.qualifiedName()!!.substringAfter(it).all(Char::isDigit)
                     }
 
                 if (isGeneralFunction || isSuspendFunction) {
@@ -324,7 +324,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
                     else
                         append(body)
                 } else {
-                    append(decl.contractedFakeDotName)
+                    append(ksClass.contractedFakeDotName)
 
                     if (`need？` && args.none()) append("？")
 
@@ -345,14 +345,14 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
 
         //region common
         fun copy(
-            decl: KSClassDeclaration = this.decl,
+            ksClass: KSClassDeclaration = this.ksClass,
             args: List<Arg<*>> = this.args,
             nullable: Boolean = this.nullable,
             genericNames: List<String> = this.genericNames,
             hasAlias: Boolean = this.hasAlias,
             hasConvertibleStar: Boolean = this.hasConvertibleStar,
         ): Specific =
-            if (decl == this.decl
+            if (ksClass == this.ksClass
                 && args == this.args
                 && nullable == this.nullable
                 && genericNames == this.genericNames
@@ -361,10 +361,10 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
             )
                 this
             else
-                Specific(decl, args, nullable, genericNames, hasAlias, hasConvertibleStar)
+                Specific(ksClass, args, nullable, genericNames, hasAlias, hasConvertibleStar)
 
         override fun hashCode(): Int {
-            var result = decl.hashCode()
+            var result = ksClass.hashCode()
             result = 31 * result + args.hashCode()
             result = 31 * result + genericNames.hashCode()
             result = 31 * result + hasAlias.hashCode()
@@ -379,7 +379,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
 
             other as Specific
 
-            if (decl != other.decl) return false
+            if (ksClass != other.ksClass) return false
             if (args != other.args) return false
             if (genericNames != other.genericNames) return false
             if (hasAlias != other.hasAlias) return false
@@ -413,7 +413,7 @@ internal sealed class Type<T: Type<T>>(val nullable: Boolean) : Convertible<Type
         //endregion
 
         //region fixed part
-        override val allInnerKlasses: List<KSClassDeclaration> = emptyList()
+        override val allInnerKSClasses: List<KSClassDeclaration> = emptyList()
 
         override fun getContent(imports: Imports): String = "*"
 

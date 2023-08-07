@@ -8,33 +8,33 @@ import pers.shawxingkwok.tracer.util.SUPPRESSING
 import pers.shawxingkwok.tracer.shared.Tags
 import pers.shawxingkwok.tracer.util.isAnnotatedRootOrNodes
 import pers.shawxingkwok.tracer.shared.getInterfaceNames
-import pers.shawxingkwok.tracer.shared.getRootNodesKlasses
+import pers.shawxingkwok.tracer.shared.getRootNodesKSClasses
 import pers.shawxingkwok.tracer.util.moduleVisibility
 import pers.shawxingkwok.tracer.util.trimMarginAndRepeatedBlankLines
 import pers.shawxingkwok.tracer.shared.tracerInterfaces
 
 internal fun buildConverters(){
-    getRootNodesKlasses().forEach(::buildConverter)
+    getRootNodesKSClasses().forEach(::buildConverter)
 }
 
-private fun buildConverter(klass: KSClassDeclaration){
-    val (interfaceName, outerInterfaceName) = getInterfaceNames(klass)
+private fun buildConverter(ksClass: KSClassDeclaration){
+    val (interfaceName, outerInterfaceName) = getInterfaceNames(ksClass)
 
-    val propPairs = klass.tracerInterfaces.toList()
+    val ksPropPairs = ksClass.tracerInterfaces.toList()
         .map {
             it.getAllProperties()
-                .sortedBy { prop -> prop.type.resolve().declaration.toString() }
+                .sortedBy { ksProp -> ksProp.type.resolve().declaration.toString() }
                 .toList()
         }
         .let { (first, second) -> first.zip(second) }
 
-    val v = if (Tags.AllInternal) "internal" else klass.moduleVisibility()!!.name.lowercase()
+    val v = if (Tags.AllInternal) "internal" else ksClass.moduleVisibility()!!.name.lowercase()
 
-    val decls = propPairs.joinToString("\n        ") {
+    val decls = ksPropPairs.joinToString("\n        ") {
         (name, _name) -> "override val `$_name` get() = this@$interfaceName.`$name`"
     }
 
-    val outerDecls = propPairs.joinToString("\n        ") {
+    val outerDecls = ksPropPairs.joinToString("\n        ") {
         (name, _name) -> "override val `$name` get() = this@$outerInterfaceName.`$_name`"
     }
 
@@ -42,7 +42,7 @@ private fun buildConverter(klass: KSClassDeclaration){
         """
         |$SUPPRESSING
         |
-        |${if (klass.packageName().any()) "package ${klass.packageName()}" else "" }
+        |${if (ksClass.packageName().any()) "package ${ksClass.packageName()}" else "" }
         |
         |$v val $interfaceName.`_$outerInterfaceName`: $outerInterfaceName inline get() = 
         |    object : $outerInterfaceName{
@@ -56,11 +56,11 @@ private fun buildConverter(klass: KSClassDeclaration){
         """.trimMarginAndRepeatedBlankLines()
 
     Environment.codeGenerator.createFile(
-        packageName = klass.packageName(),
-        fileName = klass.noPackageName() + "Converters",
+        packageName = ksClass.packageName(),
+        fileName = ksClass.noPackageName() + "Converters",
         dependencies = Dependencies(
             aggregating = false,
-            sources = klass
+            sources = ksClass
                 .getAllSuperTypes()
                 .map { it.declaration }
                 .filter { it.isAnnotatedRootOrNodes() }

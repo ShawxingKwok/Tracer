@@ -1,7 +1,7 @@
 package pers.shawxingkwok.tracer.typesystem
 
 import com.google.devtools.ksp.symbol.*
-import pers.shawxingkwok.ktutil.lazyFast
+import pers.shawxingkwok.ktutil.fastLazy
 import pers.shawxingkwok.tracer.util.isDefNotNull
 
 // This can't be cached with KSType, because differently displayed ksTypes may equal.
@@ -12,25 +12,25 @@ internal fun KSTypeReference.toProto(): Type<*> {
     // no typeParameters when decl is KSTypeParameter
     val newArgs = decl.typeParameters
         .zip(this.element?.typeArguments ?: ksType.arguments)
-        .map { (param, arg) ->
-            val argProtoType by lazyFast { arg.type!!.toProto() }
+        .map { (ksParam, ksArg) ->
+            val argProtoType by fastLazy { ksArg.type!!.toProto() }
 
-            when(arg.variance.label){
-                "" -> Arg.Simple(argProtoType, param)
+            when(ksArg.variance.label){
+                "" -> Arg.Simple(argProtoType, ksParam)
 
-                "in" -> when(param.variance.label){
-                    "" -> Arg.In(argProtoType, param)
-                    "in" -> Arg.Simple(argProtoType, param)
+                "in" -> when(ksParam.variance.label){
+                    "" -> Arg.In(argProtoType, ksParam)
+                    "in" -> Arg.Simple(argProtoType, ksParam)
                     else -> error("")
                 }
 
-                "out" -> when (param.variance.label) {
-                    "" -> Arg.Out(argProtoType, param)
-                    "out" -> Arg.Simple(argProtoType, param)
+                "out" -> when (ksParam.variance.label) {
+                    "" -> Arg.Out(argProtoType, ksParam)
+                    "out" -> Arg.Simple(argProtoType, ksParam)
                     else -> error("")
                 }
 
-                "*" -> Arg.Star(param)
+                "*" -> Arg.Star(ksParam)
 
                 else -> error("")
             }
@@ -49,7 +49,7 @@ internal fun KSTypeReference.toProto(): Type<*> {
 
         is KSClassDeclaration ->
             Type.Specific(
-                decl = decl,
+                ksClass = decl,
                 args = newArgs,
                 nullable = nullable,
                 genericNames = emptyList(),
@@ -59,7 +59,7 @@ internal fun KSTypeReference.toProto(): Type<*> {
 
         is KSTypeAlias ->
             Type.Alias(
-                decl = decl,
+                ksTypeAlias = decl,
                 args = newArgs,
                 nullable = nullable
             )

@@ -33,9 +33,9 @@ private val KSDeclaration.status: Modifier get() = cache.getOrPut(qualifiedName(
 
         // this is property or function
         else -> {
-            val parentKlass = parentDeclaration as? KSClassDeclaration
+            val parentKSClass = parentDeclaration as? KSClassDeclaration
 
-            when (parentKlass?.classKind) {
+            when (parentKSClass?.classKind) {
                 // on top level
                 null -> Modifier.FINAL
 
@@ -58,7 +58,7 @@ private val KSDeclaration.status: Modifier get() = cache.getOrPut(qualifiedName(
                 }
 
                 ClassKind.CLASS -> when {
-                    parentKlass.status == Modifier.FINAL -> Modifier.FINAL
+                    parentKSClass.status == Modifier.FINAL -> Modifier.FINAL
 
                     // situations below are in open or abstract class
                     // default kotlin property or function

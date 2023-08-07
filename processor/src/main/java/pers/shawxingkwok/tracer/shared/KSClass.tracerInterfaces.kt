@@ -8,7 +8,7 @@ internal val KSClassDeclaration.tracerInterfaces: Pair<KSClassDeclaration, KSCla
     val (name, _name) = getInterfaceNames(this)
     val path = Path(this, name)
     val _path = Path(this, _name)
-    val klass = resolver.getClassDeclarationByName(path.toString())!!
-    val _klass = resolver.getClassDeclarationByName(_path.toString())!!
-    return klass to _klass
+    val ksClass = resolver.getClassDeclarationByName(path.toString())!!
+    val _ksClass = resolver.getClassDeclarationByName(_path.toString())!!
+    return ksClass to _ksClass
 }
