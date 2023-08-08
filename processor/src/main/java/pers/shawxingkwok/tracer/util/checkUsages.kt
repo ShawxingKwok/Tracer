@@ -18,7 +18,7 @@ private var valid = true
 private inline fun requireNone(symbols: List<KSNode>, getMsg: () -> String){
     if (symbols.any()){
         valid = false
-        Log.e(msg = getMsg(), symbols = symbols.distinct().toTypedArray())
+        Log.e(obj = getMsg(), symbols = symbols.distinct().toTypedArray())
     }
 }
 

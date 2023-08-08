@@ -65,7 +65,7 @@ internal object MyProcessor : KSProcessor {
                 }
                 if (notImplementedKSClasses.any())
                     Log.w(
-                        msg = "Let classes below implement corresponding tracer interfaces.",
+                        obj = "Let classes below implement corresponding tracer interfaces.",
                         symbols = notImplementedKSClasses.toTypedArray()
                     )
             }
@@ -119,7 +119,7 @@ internal object MyProcessor : KSProcessor {
     override fun onFinish() {
         if (invalidRootNodesTypeParameterInfo.any())
             Log.e(
-                msg = "Type parameters below, essential for building tracer interfaces, are invalid.",
+                obj = "Type parameters below, essential for building tracer interfaces, are invalid.",
                 symbols = invalidRootNodesTypeParameterInfo.map { it.second }.toTypedArray(),
             )
 
