@@ -31,7 +31,7 @@ dependencies{
 }
 
 mavenPublishing {
-    def isSNAPSHOT = true
+    def isSNAPSHOT = false
     def version = "1.0.0"
     def artifactId = "tracer-processor"
 
