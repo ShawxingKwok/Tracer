@@ -5,12 +5,12 @@ plugins {
 
 dependencies {
     implementation libs.ksp
-    implementation project(":processor")
+    implementation libs.tracer.processor
 }
 
 mavenPublishing {
     def isSNAPSHOT = false
-    def version = "1.0.0"
+    def version = "1.0.2"
     def artifactId = "tracer-compiler"
 
     if (isSNAPSHOT) version += "-SNAPSHOT"

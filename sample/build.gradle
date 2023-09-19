@@ -15,9 +15,16 @@ tasks.withType(KotlinCompile).configureEach{
     kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
 
+test {
+    useJUnitPlatform()
+}
+
 dependencies {
-    implementation project(":annotations")
-    ksp project(":compiler")
-//    implementation 'io.github.shawxingkwok:tracer-annotations:1.0.0'
-//    ksp 'io.github.shawxingkwok:tracer-compiler:1.0.0'
+//    implementation project(":annotations")
+//    ksp project(":compiler")
+    implementation libs.tracer.annotaions
+    ksp libs.tracer.compiler
+
+    testImplementation("io.mockk:mockk:1.13.4")
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
 }
