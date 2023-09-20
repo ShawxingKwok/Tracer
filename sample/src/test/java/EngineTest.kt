@@ -1,27 +1,43 @@
 import car.tracer.*
-import io.mockk.every
-import io.mockk.mockk
+import io.mockk.*
 import kotlin.test.Test
 
 class EngineTest {
-    @Test
-    fun start(){
-        val carTracer = mockk<CarTracer>()
+    val carTracer = mockk<CarTracer>()
+    val wheels = List(4){ mockk<Wheel>(relaxUnitFun = true) }
+    init {
+        every { carTracer.`_List‹Wheel›_Car_wheels` }.returns(wheels)
         every { carTracer._Int_Car_horsepower }.returns(100)
         every { carTracer._Int_Car_engineCapacity }.returns(100)
+    }
 
-        val wheels = List(4){ mockk<Wheel>() }
-        wheels.forEach {
-            every { it.rotate() }.returns(Unit)
-        }
+    val engine = carTracer.run { Engine() }.let(::spyk)
 
-        every { carTracer.`_List‹Wheel›_Car_wheels` }.returns(wheels)
-
-        val engine = carTracer.run { Engine() }
+    @Test
+    fun start(){
         engine.start()
+        verifyAll {
+            wheels.forEach { it.rotate() }
+        }
+    }
+
+    @Test
+    fun speedUp(){
+        engine.speedUp()
+        assert(engine.revolvingSpeed == 10)
+    }
+
+    @Test
+    fun slowDown(){
+        engine.slowdown()
+        assert(engine.revolvingSpeed == 0)
+    }
+
+    @Test
+    fun speedUpAndSlowDown(){
+        engine.speedUp()
         engine.speedUp()
         engine.slowdown()
-
-        assert(engine.revolvingSpeed == 0)
+        assert(engine.revolvingSpeed == 10)
     }
 }

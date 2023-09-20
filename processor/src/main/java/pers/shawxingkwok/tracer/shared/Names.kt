@@ -1,5 +1,6 @@
 package pers.shawxingkwok.tracer.shared
 
+@Suppress("ConstPropertyName")
 public object Names {
     public const val OUTER: String = "Outer"
     public const val Tracer: String = "Tracer"

@@ -30,6 +30,7 @@ class Engine {
 
     fun slowdown(){
         revolvingSpeed -= 10
+        if (revolvingSpeed < 0) revolvingSpeed = 0
         println("Slow down")
     }
 }

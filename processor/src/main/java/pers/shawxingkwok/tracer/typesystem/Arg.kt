@@ -73,7 +73,7 @@ internal sealed class Arg<T: Arg<T>>(val param: KSTypeParameter) : Convertible<A
         }
 
         //region fun copy
-        @Suppress("UNCHECKED_CAST")
+        @Suppress("UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
         fun copy(
             type: Type<*> = this.type,
             ksParam: KSTypeParameter = this.param,
