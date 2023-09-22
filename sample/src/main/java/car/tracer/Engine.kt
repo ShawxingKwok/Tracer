@@ -1,12 +1,14 @@
 package car.tracer
 
+import pers.shawxingkwok.tracer.Tracer
+
 context (CarTracer)
 class Engine {
-    val horsePower: Int = _Int_Car_horsepower
-    val capacity: Int = _Int_Car_engineCapacity
     var revolvingSpeed = 0
         private set
 
+    @Tracer.Omit val horsePower: Int get() = _Int_Car_horsepower
+    @Tracer.Omit val capacity: Int get() = _Int_Car_engineCapacity
     private val wheels get() = `_List‹Wheel›_Car_wheels`
 
     fun start() {
