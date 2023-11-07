@@ -18,7 +18,7 @@ private var valid = true
 private inline fun requireNone(symbols: List<KSNode>, getMsg: () -> String){
     if (symbols.any()){
         valid = false
-        Log.e(obj = getMsg(), symbols = symbols.distinct().toTypedArray())
+        Log.e(symbols = symbols.distinct(), msg = getMsg())
     }
 }
 
@@ -96,7 +96,7 @@ private fun checkOmittedProps() {
             .values
 
             if (reasons.any())
-                Log.w("Property $prop is $reasons and always omitted in tracer building, " +
+                Log.w(null, "Property $prop is $reasons and always omitted in tracer building, " +
                    "which means annotating ${Names.Omit} on it makes no sense.")
         }
 }

@@ -9,5 +9,5 @@ private val cache = mutableMapOf<KSNode, Boolean>().alsoRegister()
 // TODO(consider undoing cache)
 internal fun KSNode.myValidate(): Boolean =
     cache.getOrPut(this) {
-        accept(KSDefaultValidator, Unit)
+        accept(KSDefaultValidator(), Unit)
     }

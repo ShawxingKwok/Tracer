@@ -53,10 +53,10 @@ internal class PropsBuilder(val srcKSClass: KSClassDeclaration) {
             .onEachIndexed{ i, _->
                 if (i != 0) return@onEachIndexed
 
-                Log.require(
+                Log.check(
+                    symbols = listOfNotNull(parentKSProp, ksClass),
                     condition = ksClass !in record.validlyTracedInsideKSClasses
                                 && ksClass !in record.tracedKSClassesStoppedTracingInsideForNullability,
-                    symbols = listOfNotNull(parentKSProp, ksClass)
                 ){
                     record.getErrorMsg(ksClass)
                 }
@@ -107,9 +107,9 @@ internal class PropsBuilder(val srcKSClass: KSClassDeclaration) {
             .filterNot { (_, basicType) -> basicType.ksClass.isAnnotatedRootOrNodes() }
             .filterNot { (ksProp, basicType) ->
                 if (basicType.isNullable) {
-                    Log.require(
-                        condition = basicType.ksClass !in record.validlyTracedInsideKSClasses,
+                    Log.check(
                         symbols = listOf(ksProp, ksClass),
+                        condition = basicType.ksClass !in record.validlyTracedInsideKSClasses,
                     ){
                         record.getErrorMsg(basicType.ksClass)
                     }

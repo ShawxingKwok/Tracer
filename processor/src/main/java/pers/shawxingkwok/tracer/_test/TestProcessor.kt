@@ -25,7 +25,7 @@ internal class TestProcessor : KSProcessor{
     class Provider : KSProcessorProvider(::TestProcessor)
 
     override fun process(round: Int): List<KSAnnotated> {
-        Log.d(round)
+        Log.d(null, round)
 
         if (round == 0){
             val ksClass = resolver.getClassDeclarationByName("generic.X")!!
@@ -36,10 +36,10 @@ internal class TestProcessor : KSProcessor{
                 .type.resolve()
                 .declaration as KSTypeParameter
 
-            Log.w(param == _param)
-            Log.d(param == _param)
-            Log.d(param.bounds.first().resolve())
-            Log.d(_param.bounds.first().resolve())
+            Log.w(null, param == _param)
+            Log.d(null, param == _param)
+            Log.d(null, param.bounds.first().resolve())
+            Log.d(null, _param.bounds.first().resolve())
         }
         return emptyList()
     }

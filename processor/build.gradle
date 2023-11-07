@@ -32,7 +32,7 @@ dependencies{
 
 mavenPublishing {
     def isSNAPSHOT = false
-    def version = "1.0.2"
+    def version = "1.0.0-1.0.0"
     def artifactId = "tracer-processor"
 
     if (isSNAPSHOT) version += "-SNAPSHOT"
